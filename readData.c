@@ -16,3 +16,29 @@ Functions we need to have:
 
 
 */
+
+#define SEEN 0
+#define UNSEEN 1
+
+set getCollection()
+{
+	FILE *file = fopen("collection.txt", "r");
+	char *collection;
+	int fscanf(file, collection);
+	for (char *token = strtok(collection, " "); token != NULL; token = strtok(NULL, " ")) {
+		// put the token in the set
+	}
+	
+	free(collection);
+}
+
+graph getGraph(set listOfUrls)
+{
+	graph g = newGraph();
+	// go through listOfUrls and update the graph by adding a node and outgoing links
+	return g;
+}
+
+list getInvertedList(set listOfUrls)
+{
+}
