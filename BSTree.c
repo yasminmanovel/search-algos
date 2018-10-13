@@ -15,6 +15,16 @@ typedef struct BSTNode {
 	BSTLink left, right;
 } BSTNode;
 
+// frees memory associated with urlList in a BSTree node.
+static void freeurlList(BSTree t) {
+	listNode *curr = t->urlList;
+	while (curr != NULL) {
+		listNode *temp = curr;
+		curr = curr->next;
+		free(temp);
+	}
+}
+
 // make a new node containing a value
 static BSTLink newBSTNode(char *str)
 {
@@ -204,12 +214,3 @@ BSTree BSTreeDelete(BSTree t, char *str)
 	return t;
 }
 
-// frees memory associated with urlList in a BSTree node.
-static void freeurlList(BSTree t) {
-	listNode *curr = t->urlList;
-	while (curr != NULL) {
-		listNode *temp = curr;
-		curr = curr->next;
-		free(temp);
-	}
-}

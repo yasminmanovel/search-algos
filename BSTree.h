@@ -41,7 +41,5 @@ BSTree BSTreeInsert(BSTree, char *, char *);
 int BSTreeFind(BSTree, char *);
 // delete a value from a BSTree
 BSTree BSTreeDelete(BSTree, char *);
-// frees memory associated with a urllist.
-static void freeurlList(BSTree t);
 
 #endif
