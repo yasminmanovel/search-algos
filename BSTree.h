@@ -5,6 +5,11 @@
 
 typedef struct BSTNode *BSTree;
 
+typedef struct listNode {
+	char     *url;
+	struct listNode *next;
+} listNode;
+
 // create an empty BSTree
 BSTree newBSTree();
 // free memory associated with BSTree
@@ -28,11 +33,15 @@ int BSTreeNumNodes(BSTree);
 // count #leaves in BSTree
 int BSTreeNumLeaves(BSTree);
 
+// insert a url into urlList given node t and url name.
+void urlListInsert(BSTree t, char *url);
 // insert a new value into a BSTree
-BSTree BSTreeInsert(BSTree, char *);
+BSTree BSTreeInsert(BSTree, char *, char *);
 // check whether a value is in a BSTree
 int BSTreeFind(BSTree, char *);
 // delete a value from a BSTree
 BSTree BSTreeDelete(BSTree, char *);
+// frees memory associated with a urllist.
+static void freeurlList(BSTree t);
 
 #endif

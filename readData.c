@@ -16,7 +16,7 @@
 
 #define SEEN   0
 #define UNSEEN 1
-#define URL_LENGTH 6
+#define URL_LENGTH 55
 
 /* Trims leading and ending spaces 
  * Written by jas for 1521 mymysh.c
@@ -63,6 +63,26 @@ Functions we need to have:
 // 	return g;
 // }
 
+/* Removes trailing spaces and punctuation at the end of word
+ * Also converts all letters to lowercase.
+ */
+static char *normalise(char *str) {
+	char *word = strdup(str);
+	trim(word);
+	// Converts to all lowercase.
+	int i;
+	for (i = 0; word[i] != '\0'; i++) 
+		word[i] = tolower(word[i]);
+	// Removes punctuation at the end.
+	int lastLetter = word[strlen(word) - 1];
+	if (word[lastLetter] == '.'
+	 || word[lastLetter] == '?'
+	 || word[lastLetter] == ','
+	 || word[lastLetter] == ';') word[lastLetter] = '\0';
+	
+	return word;
+}
+
 /*
 GetInvertedList(List_of_Urls)
 		Create empty inverted list (use say List of lists, BST where values are lists, etc)
@@ -71,29 +91,39 @@ GetInvertedList(List_of_Urls)
 */
 BSTree getInvertedList(Set URLList)
 {
-	// BSTree invList = newBSTree();
+	BSTree invList = newBSTree();
 	// Iterate through set.
 	Link curr = URLList->elems;
+	char fileName[URL_LENGTH] = {0};
 	while (curr != NULL) {
-		// Open URL.
-		// Read url.txt file.
+		sprintf(fileName, "%s.txt", curr->val);
 		// Update inverted index.
+		char *urls = NULL, *text = NULL;
+		readPage(urls, text, fileName);
+		// For every word, add node to tree or add url to urlList.
+		char *dump = text;
+		char *found;
+		while((found = strsep(&text, " ")) != NULL) {
+			char *word = normalise(found);
+			BSTreeInsert(invList, word, curr->val);
+		}
+		free(dump);
 	}
 
-	return NULL;
+	return invList;
 }
 
-int main(int argc, char **argv) {
-	Set URLList = getCollection();
-	showSet(URLList);
-	BSTree t;
-	t = newBSTree();
-	t = BSTreeInsert(t, "hello");
-	t = BSTreeInsert(t, "abc");
-	t = BSTreeInsert(t, "bcd");
-	t = BSTreeInsert(t, "zeas");
-	t = BSTreeInsert(t, "mother");
-	BSTreeInfix(t);
-	printf("\n");
-	return 0;
-}
+// int main(int argc, char **argv) {
+// 	Set URLList = getCollection();
+// 	showSet(URLList);
+// 	BSTree t;
+// 	t = newBSTree();
+// 	t = BSTreeInsert(t, "hello");
+// 	t = BSTreeInsert(t, "abc");
+// 	t = BSTreeInsert(t, "bcd");
+// 	t = BSTreeInsert(t, "zeas");
+// 	t = BSTreeInsert(t, "mother");
+// 	BSTreeInfix(t);
+// 	printf("\n");
+// 	return 0;
+// }
