@@ -32,7 +32,7 @@ struct urlGraph {
 
 struct urlLink *newGraphLinks(char *urlNum)
 {
-    struct urlLink *newLink;
+    struct urlLink *newLink = calloc(1, sizeof(struct urlLink));
     newLink->URLName = malloc(strlen(urlNum)+1);
     newLink->URLName = strdup(urlNum);
     newLink->next = NULL;
@@ -41,7 +41,7 @@ struct urlLink *newGraphLinks(char *urlNum)
 
 struct urlNode *newGraphNode(char *urlNum, char *text)
 {
-    struct urlNode *newURL;
+    struct urlNode *newURL = calloc(1, sizeof(struct urlNode));
     newURL->URLName = malloc(strlen(urlNum)+1);
     newURL->URLName = strdup(urlNum);
     newURL->numEdges = 0;
@@ -54,7 +54,7 @@ struct urlNode *newGraphNode(char *urlNum, char *text)
 
 struct urlGraph *newGraph()
 {
-    struct urlGraph *newGraph;
+    struct urlGraph *newGraph = calloc(1, sizeof(struct urlGraph));
     newGraph->numURLs = 0;
     newGraph->listOfUrls = NULL;
     return newGraph;
