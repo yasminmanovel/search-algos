@@ -52,6 +52,30 @@ static void trim(char *str) {
 	for (i = first; i <= last; i++) str[j++] = str[i];
 	str[j] = '\0';
 }
+static char **tokenise(char *str, char *sep)
+{
+	// temp copy of string, because strtok() mangles it
+	char *tmp;
+	// count tokens
+	tmp = strdup(str);
+	int n = 0;
+	strtok(tmp, sep); n++;
+	while (strtok(NULL, sep) != NULL) n++;
+	free(tmp);
+	// allocate array for argv strings
+	char **strings = malloc((n+1)*sizeof(char *));
+	assert(strings != NULL);
+	// now tokenise and fill array
+	tmp = strdup(str);
+	char *next; int i = 0;
+	next = strtok(tmp, sep);
+	strings[i++] = strdup(next);
+	while ((next = strtok(NULL,sep)) != NULL)
+	strings[i++] = strdup(next);
+	strings[i] = NULL;
+	free(tmp);
+	return strings;
+}
 
 /* Creates a set of all URLs in collection.txt. */
 Set getCollection()
