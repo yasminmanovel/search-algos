@@ -16,3 +16,30 @@
 // List_Urls_PageRanks =	calculatePageRank(g,	d,	diffPR,	maxIterations );	
 // Ordered_List_Urls_PageRanks =	order	(List_Urls_PageRanks )
 // Output	Ordered_List_Urls_PageRanks to	“pagerankList.txt”
+
+
+#include <math.h>
+
+float PR(,float d)
+{
+
+}
+
+float diff(,)
+{
+
+}
+
+list calculatePageRank(graph g, float d, float diffPR, int maxIterations)
+{
+
+}
+
+list order(list UrlsPageRanks)
+{
+
+}
+void printOrderedList(list orderedList)
+{
+
+}

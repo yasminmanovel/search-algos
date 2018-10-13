@@ -46,9 +46,6 @@ Graph getGraph() {
 }
 
 
-<<<<<<< HEAD
-=======
-*/
 
 #define SEEN 0
 #define UNSEEN 1
@@ -75,4 +72,3 @@ graph getGraph(set listOfUrls)
 list getInvertedList(set listOfUrls)
 {
 }
->>>>>>> 49fa7796e8e3303cecec55e53024faa8cb59dc5e
