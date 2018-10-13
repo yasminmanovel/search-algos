@@ -69,31 +69,31 @@ GetInvertedList(List_of_Urls)
 		For each url in List_of_Urls
 			- Read <url<.txt file, and update inverted index
 */
-BSTree getInvertedList(Set URLList)
-{
-	// BSTree invList = newBSTree();
-	// Iterate through set.
-	Link curr = URLList->elems;
-	while (curr != NULL) {
-		// Open URL.
-		// Read url.txt file.
-		// Update inverted index.
-	}
+// BSTree getInvertedList(Set URLList)
+// {
+// 	// BSTree invList = newBSTree();
+// 	// Iterate through set.
+// 	Link curr = URLList->elems;
+// 	while (curr != NULL) {
+// 		// Open URL.
+// 		// Read url.txt file.
+// 		// Update inverted index.
+// 	}
 
-	return NULL;
-}
+// 	return NULL;
+// }
 
-int main(int argc, char **argv) {
-	Set URLList = getCollection();
-	showSet(URLList);
-	BSTree t;
-	t = newBSTree();
-	t = BSTreeInsert(t, "hello");
-	t = BSTreeInsert(t, "abc");
-	t = BSTreeInsert(t, "bcd");
-	t = BSTreeInsert(t, "zeas");
-	t = BSTreeInsert(t, "mother");
-	BSTreeInfix(t);
-	printf("\n");
-	return 0;
-}
+// int main(int argc, char **argv) {
+// 	Set URLList = getCollection();
+// 	showSet(URLList);
+// 	BSTree t;
+// 	t = newBSTree();
+// 	t = BSTreeInsert(t, "hello");
+// 	t = BSTreeInsert(t, "abc");
+// 	t = BSTreeInsert(t, "bcd");
+// 	t = BSTreeInsert(t, "zeas");
+// 	t = BSTreeInsert(t, "mother");
+// 	BSTreeInfix(t);
+// 	printf("\n");
+// 	return 0;
+// }
