@@ -10,18 +10,6 @@
 #define strEQ(s,t) (strcmp((s),(t)) == 0)
 #define strLT(s,t) (strcmp((s),(t)) < 0)
 
-typedef struct Node *Link;
-
-typedef struct Node {
-	char *val;
-	Link  next;
-} Node;
-	
-typedef struct SetRep {
-	int   nelems;
-	Link  elems;
-} SetRep;
-
 // Function signatures
 
 Set newSet();
@@ -34,7 +22,6 @@ int  nElems(Set);
 static Link newNode(char *);
 static void disposeNode(Link);
 static int  findNode(Link,char *,Link *,Link *);
-
 
 // newSet()
 // - create an initially empty Set

@@ -11,24 +11,8 @@
 #include <ctype.h>
 #include "graph.h"
 #include "set.h"
-// #include "invertedIndex.h"
-
-/*
-Functions we need to have:
-	getCollection()
-		returns List_of_Urls
-		Create a set (list) of urls to process by reading data from file "collection.txt"
-	getGraph(List_of_Urls)
-		Returns Graph g
-		Create empty graph (use graph ADT in say graph.h and graph.c)
-		For each url in the above list
-			- Read <url>.txt file, and update graph by adding a node and outgoing links
-	GetInvertedList(List_of_Urls)
-		Create empty inverted list (use say List of lists, BST where values are lists, etc)
-		For each url in List_of_Urls
-			- Read <url<.txt file, and update inverted index	
-
-*/
+#include "BSTree.h"
+#include "invertedIndex.h"
 
 #define SEEN   0
 #define UNSEEN 1
@@ -64,6 +48,14 @@ Set getCollection()
 	return URLList;
 }
 
+/*
+Functions we need to have:
+	getGraph(List_of_Urls)
+		Returns Graph g
+		Create empty graph (use graph ADT in say graph.h and graph.c)
+		For each url in the above list
+			- Read <url>.txt file, and update graph by adding a node and outgoing links
+*/
 // Graph getGraph(set listOfUrls)
 // {
 // 	graph g = newGraph();
@@ -71,12 +63,37 @@ Set getCollection()
 // 	return g;
 // }
 
-// list getInvertedList(set listOfUrls)
-// {
-// }
+/*
+GetInvertedList(List_of_Urls)
+		Create empty inverted list (use say List of lists, BST where values are lists, etc)
+		For each url in List_of_Urls
+			- Read <url<.txt file, and update inverted index
+*/
+BSTree getInvertedList(Set URLList)
+{
+	// BSTree invList = newBSTree();
+	// Iterate through set.
+	Link curr = URLList->elems;
+	while (curr != NULL) {
+		// Open URL.
+		// Read url.txt file.
+		// Update inverted index.
+	}
 
-// int main(int argc, char **argv) {
-// 	Set URLList = getCollection();
-// 	showSet(URLList);
-// 	return 0;
-// }
+	return NULL;
+}
+
+int main(int argc, char **argv) {
+	Set URLList = getCollection();
+	showSet(URLList);
+	BSTree t;
+	t = newBSTree();
+	t = BSTreeInsert(t, "hello");
+	t = BSTreeInsert(t, "abc");
+	t = BSTreeInsert(t, "bcd");
+	t = BSTreeInsert(t, "zeas");
+	t = BSTreeInsert(t, "mother");
+	BSTreeInfix(t);
+	printf("\n");
+	return 0;
+}

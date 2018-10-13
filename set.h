@@ -4,6 +4,18 @@
 #ifndef SET_H
 #define SET_H
 
+typedef struct Node *Link;
+
+typedef struct Node {
+	char *val;
+	Link  next;
+} Node;
+	
+typedef struct SetRep {
+	int   nelems;
+	Link  elems;
+} SetRep;
+
 typedef struct SetRep *Set;
 
 // Function signatures
