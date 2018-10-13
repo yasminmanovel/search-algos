@@ -21,7 +21,7 @@ struct urlNode {
     char *URLName;
     int numEdges;
     char *text;
-    outLink first;
+    outLink firstLink;
     URL next;
 };
 
@@ -40,14 +40,17 @@ outLink newLinks(char *urlNum)
     return newLink;
 }
 
-URL newNode(char *urlNum)
-{g
+URL newNode(char *urlNum, char *text)
+{
     URL newURL;
-    newURL->URLName;
-    newURL->numEdges;
-    newURL->text;
-    newURL->first;
-    newURL->next;
+    newURL->URLName = malloc(strlen(urlNum)+1);
+    newURL->URLName = strdup(urlNum);
+    newURL->numEdges = 0;
+    newURL->text = malloc(strlen(text)+1);
+    newURL->text = strdup(text);
+    newURL->firstLink = NULL;
+    newURL->next = NULL;
+    return newURL;
 }
 
 Graph newGraph(Set listOfUrl)
