@@ -7,7 +7,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "graph.h"
+#include "set.h"
 #include "invertedIndex.h"
 
 /*
@@ -27,33 +29,10 @@ Functions we need to have:
 
 */
 
-/* Goes through collection.txt and returns the set of all urls.
- */
-Set getCollection() {
-
-}
-
-/* Creates a graph with all the urls as a set.
- */
-Graph getGraph() {
-	/*
-	PSEUDOCODE:
-	Create empty graph (use graph ADT in say graph.h and graph.c)
-	For each url in the above list
-		Read <url>.txt file, and update graph by adding a node and outgoing links
-	Returns Graph g
-	*/
-}
-
-
-<<<<<<< HEAD
-=======
-*/
-
 #define SEEN 0
 #define UNSEEN 1
 
-set getCollection()
+Set getCollection()
 {
 	FILE *file = fopen("collection.txt", "r");
 	char *collection;
@@ -75,4 +54,3 @@ graph getGraph(set listOfUrls)
 list getInvertedList(set listOfUrls)
 {
 }
->>>>>>> 49fa7796e8e3303cecec55e53024faa8cb59dc5e
