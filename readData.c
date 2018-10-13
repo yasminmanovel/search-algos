@@ -8,9 +8,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "graph.h"
 #include "set.h"
-#include "invertedIndex.h"
+// #include "invertedIndex.h"
 
 /*
 Functions we need to have:
@@ -29,28 +30,53 @@ Functions we need to have:
 
 */
 
-#define SEEN 0
+#define SEEN   0
 #define UNSEEN 1
+#define URL_LENGTH 6
 
+/* Trims leading and ending spaces 
+ * Written by jas for 1521 mymysh.c
+ */
+static void trim(char *str) {
+	int first, last;
+	first = 0;
+	while (isspace(str[first])) first++;
+	last  = strlen(str)-1;
+	while (isspace(str[last])) last--;
+	int i, j = 0;
+	for (i = first; i <= last; i++) str[j++] = str[i];
+	str[j] = '\0';
+}
+
+/* Creates a set of all URLs in collection.txt. */
 Set getCollection()
 {
 	FILE *file = fopen("collection.txt", "r");
-	char *collection;
-	int fscanf(file, collection);
-	for (char *token = strtok(collection, " "); token != NULL; token = strtok(NULL, " ")) {
-		// put the token in the set
+	if (!file) { perror("fopen failed"); exit(EXIT_FAILURE); }
+
+	// Gets every URL and adds it to set.
+	Set URLList = newSet();
+	char URL[URL_LENGTH];
+	while (fscanf(file, "%s ", URL) != EOF) {
+		trim(URL);
+		insertInto(URLList, URL);
 	}
-	
-	free(collection);
+	return URLList;
 }
 
-graph getGraph(set listOfUrls)
-{
-	graph g = newGraph();
-	// go through listOfUrls and update the graph by adding a node and outgoing links
-	return g;
-}
+// Graph getGraph(set listOfUrls)
+// {
+// 	graph g = newGraph();
+// 	// go through listOfUrls and update the graph by adding a node and outgoing links
+// 	return g;
+// }
 
-list getInvertedList(set listOfUrls)
-{
-}
+// list getInvertedList(set listOfUrls)
+// {
+// }
+
+// int main(int argc, char **argv) {
+// 	Set URLList = getCollection();
+// 	showSet(URLList);
+// 	return 0;
+// }
