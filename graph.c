@@ -6,11 +6,10 @@
 #include "set.h"
 #include <stdio.h>
 #include <string.h>
+#include "graph.h"
 
 
-typedef struct urlNode *URL;
-typedef struct urlLink *outLink;
-typedef struct urlGraph *Graph;
+
 
 struct urlLink {
     char *URLName;
@@ -31,18 +30,18 @@ struct urlGraph {
 };
 
 
-outLink newLinks(char *urlNum)
+struct urlLink *newGraphLinks(char *urlNum)
 {
-    outLink newLink;
+    struct urlLink *newLink;
     newLink->URLName = malloc(strlen(urlNum)+1);
     newLink->URLName = strdup(urlNum);
     newLink->next = NULL;
     return newLink;
 }
 
-URL newNode(char *urlNum, char *text)
+struct urlNode *newGraphNode(char *urlNum, char *text)
 {
-    URL newURL;
+    struct urlNode *newURL;
     newURL->URLName = malloc(strlen(urlNum)+1);
     newURL->URLName = strdup(urlNum);
     newURL->numEdges = 0;
@@ -53,10 +52,36 @@ URL newNode(char *urlNum, char *text)
     return newURL;
 }
 
-Graph newGraph(Set listOfUrl)
+struct urlGraph *newGraph()
 {
-    Graph newGraph;
-    newGraph->numURLs = NULL;
+    struct urlGraph *newGraph;
     newGraph->numURLs = 0;
+    newGraph->listOfUrls = NULL;
     return newGraph;
 }
+
+void insertIntoGraph(Graph g, char *name)
+{
+}
+
+
+/*
+void insertInto(Set s, char *str)
+{
+	assert(s != NULL);
+	Link curr, prev;
+	int found = findNode(s->elems,str,&curr,&prev);
+	if (found) return; // already in Set
+	Link new = newNode(str);
+	s->nelems++;
+	if (prev == NULL) {
+		// add at start of list of elems
+		new->next = s->elems;
+		s->elems = new;
+	}
+	else {
+		// add into list of elems
+		new->next = prev->next;
+		prev->next = new;
+	}
+}*/
