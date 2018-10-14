@@ -77,10 +77,10 @@ int BSTreeNumNodes(BSTree t)
 void showBSTreeNode(BSTree t)
 {
 	if (t == NULL) return;
-	printf("%s:\n", t->value);
+	printf("%s  ", t->value);
 	listNode *curr = t->urlList;
 	while (curr != NULL) {
-		printf("\t %s ", curr->url);
+		printf("%s ", curr->url);
 		curr = curr->next;
 	}
 	printf("\n");

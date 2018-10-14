@@ -9,11 +9,10 @@
  */
 
 #include "graph.h"
-#include "graph.c"
+// #include "graph.c"
 #include "set.h"
 #include "BSTree.h"
-#include "invertedIndex.h"
-#include "set.c"
+// #include "set.c"
 
 Set getCollection();
 
