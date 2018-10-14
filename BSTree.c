@@ -16,7 +16,8 @@ typedef struct BSTNode {
 } BSTNode;
 
 // frees memory associated with urlList in a BSTree node.
-static void freeurlList(BSTree t) {
+static void freeurlList(BSTree t) 
+{
 	listNode *curr = t->urlList;
 	while (curr != NULL) {
 		listNode *temp = curr;
@@ -25,13 +26,23 @@ static void freeurlList(BSTree t) {
 	}
 }
 
+// make a new list node containing url.
+static listNode *newListNode(char *url) 
+{
+	listNode *new = malloc(sizeof(struct listNode));
+	assert(new != NULL);
+	new->url = strdup(url);
+	new->next = NULL;
+	return new;
+}
+
 // make a new node containing a value
-static BSTLink newBSTNode(char *str)
+static BSTLink newBSTNode(char *str, char *url)
 {
 	BSTLink new = malloc(sizeof(BSTNode));
 	assert(new != NULL);
 	new->value = strdup(str);
-	new->urlList = NULL;
+	new->urlList = newListNode(url);
 	new->left = new->right = NULL;
 	return new;
 }
@@ -104,12 +115,23 @@ int BSTreeNumLeaves(BSTree t)
     return BSTreeNumLeaves(t->left) + BSTreeNumLeaves(t->right);
 }
 
+// Inserts a url into urlList given BSTree node and url name.
+static void urlListInsert(BSTree t, char *url) 
+{
+	assert(t != NULL);
+	listNode *new = newListNode(url);
+	// Get to the end of current urlList.
+	listNode *curr = t->urlList;
+	while (curr->next != NULL) curr = curr->next;
+	curr->next = new;
+}
+
 // Inserts anew string into a BSTree.
 BSTree BSTreeInsert(BSTree t, char *str, char *url)
 {
 	if (t == NULL)
-		return newBSTNode(str);
-	
+		return newBSTNode(str, url);
+
 	int v = strcmp(str, t->value);
 	if (v < 0)
 		t->left = BSTreeInsert(t->left, str, url);
@@ -118,26 +140,6 @@ BSTree BSTreeInsert(BSTree t, char *str, char *url)
 	else // (v == t->value)
 		urlListInsert(t, url);
 	return t;
-}
-
-static listNode *newListNode(char *str) {
-	listNode *new;
-	new = malloc(sizeof(struct listNode));
-	assert(new != NULL);
-	new->url = strdup(str);
-	new->next = NULL;
-	return new;
-}
-
-// Inserts a url into urlList given BSTree node and url name.
-void urlListInsert(BSTree t, char *url) 
-{
-	assert(t != NULL);
-	listNode *new = newListNode(url);
-	// Get to the end of current urlList.
-	listNode *curr = t->urlList;
-	while (curr != NULL) curr = curr->next;
-	curr->next = new;
 }
 
 // check whether a value is in a BSTree

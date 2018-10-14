@@ -33,8 +33,6 @@ int BSTreeNumNodes(BSTree);
 // count #leaves in BSTree
 int BSTreeNumLeaves(BSTree);
 
-// insert a url into urlList given node t and url name.
-void urlListInsert(BSTree t, char *url);
 // insert a new value into a BSTree
 BSTree BSTreeInsert(BSTree, char *, char *);
 // check whether a value is in a BSTree
