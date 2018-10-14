@@ -43,7 +43,8 @@ Functions we need to have:
 /* Trims leading and ending spaces 
  * Written by jas for 1521 mymysh.c
  */
-static void trim(char *str) {
+static void trim(char *str) 
+{
 	int first, last;
 	first = 0;
 	while (isspace(str[first])) first++;
@@ -53,6 +54,11 @@ static void trim(char *str) {
 	for (i = first; i <= last; i++) str[j++] = str[i];
 	str[j] = '\0';
 }
+
+/* Tokenises a string based on a delimiter. 
+ * Places tokens into an array of strings.
+ * Written by jas for 1521 mymysh.c
+ */
 static char **tokenise(char *str, char *sep)
 {
 	// temp copy of string, because strtok() mangles it
@@ -95,7 +101,7 @@ Set getCollection()
 }
 
 /* Places section 1 and section 2 of fileName into urls & texts */
-void readPage(char *urls, char *text, char *fileName) {
+static void readPage(char *urls, char *text, char *fileName) {
 	int seen = 0;
 	char line[MAX_LINE] = {0};
 	FILE *page = fopen(fileName, "r");
@@ -162,7 +168,8 @@ Graph getGraph(Set URLList)
 /* Removes trailing spaces and punctuation at the end of word
  * Also converts all letters to lowercase.
  */
-static char *normalise(char *str) {
+static char *normalise(char *str) 
+{
 	char *word = strdup(str);
 	trim(word);
 	// Converts to all lowercase.
@@ -183,31 +190,30 @@ static char *normalise(char *str) {
 BSTree getInvertedList(Set URLList)
 {
 	BSTree invList = newBSTree();
+	char fileName[URL_LENGTH] = {0};
+
 	// Iterate through set to get urls.
 	Link curr = URLList->elems;
-	char fileName[URL_LENGTH] = {0};
 	while (curr != NULL) {
 		sprintf(fileName, "%s.txt", curr->val);
-		// printf("filename = %s\n", fileName);
 		// Gets information from txt file.
 		int url_size; int text_size;
 		spaceRequired(fileName, &url_size, &text_size);
 		char *urls = calloc(url_size, sizeof(char));
 		char *text = calloc(text_size, sizeof(char));
 		readPage(urls, text, fileName);
-		// Update inverted index.
-		char *dump = text; // Keeps pointer to text to free.
+
+		char *dump = text; // Keeps pointer to text to free because strsep ruins it.
 		char *found;
+		// For every word in every url.
 		while((found = strsep(&text, " ")) != NULL) {
 			char *word = normalise(found);
-			if (strcmp(word, "") != 0) {
+			if (strcmp(word, "") != 0)
 				invList = BSTreeInsert(invList, word, curr->val);
-			}
 		}
 		free(dump);
 		curr = curr->next;
 	}
-
 	return invList;
 }
 
