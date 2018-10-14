@@ -9,6 +9,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <assert.h>
+#include "set.h"
+#include "graph.h"
+#include "BSTree.h"
 #include "readData.h"
 
 // #include "invertedIndex.h"
