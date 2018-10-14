@@ -28,8 +28,8 @@ int main(int argc, char **argv)
     Set URLSet = getCollection();
     BSTree invList = getInvertedList(URLSet);
 
-    // FILE *invtxt = fopen("invertedIndex.txt", "w");
-    BSTreeInfix(invList);
+    FILE *invtxt = fopen("invertedIndex.txt", "w");
+    BSTreeInfix(invtxt, invList);
 
     return 0;
 }

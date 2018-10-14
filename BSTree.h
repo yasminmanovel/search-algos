@@ -17,10 +17,10 @@ void dropBSTree(BSTree);
 // display a BSTree
 // void showBSTree(BSTree);
 // display BSTree root node
-void showBSTreeNode(BSTree);
+void showBSTreeNode(FILE *, BSTree);
 
 // print values in infix order
-void BSTreeInfix(BSTree);
+void BSTreeInfix(FILE *, BSTree);
 // print values in prefix order
 void BSTreePrefix(BSTree);
 // print values in postfix order

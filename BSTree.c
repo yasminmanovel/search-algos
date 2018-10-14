@@ -74,44 +74,44 @@ int BSTreeNumNodes(BSTree t)
 }
 
 // display BSTree root node
-void showBSTreeNode(BSTree t)
+void showBSTreeNode(FILE * out, BSTree t)
 {
 	if (t == NULL) return;
-	printf("%s  ", t->value);
+	fprintf(out, "%s  ", t->value);
 	listNode *curr = t->urlList;
 	while (curr != NULL) {
-		printf("%s ", curr->url);
+		fprintf(out, "%s ", curr->url);
 		curr = curr->next;
 	}
-	printf("\n");
+	fprintf(out, "\n");
 }
 
 // print values in infix order
-void BSTreeInfix(BSTree t)
+void BSTreeInfix(FILE *out, BSTree t)
 {
 	if (t == NULL) return;
-	BSTreeInfix(t->left);
-	showBSTreeNode(t);
-	BSTreeInfix(t->right);
+	BSTreeInfix(out, t->left);
+	showBSTreeNode(out, t);
+	BSTreeInfix(out, t->right);
 }
 
-// print values in prefix order
-void BSTreePrefix(BSTree t)
-{
-	if (t == NULL) return;
-	showBSTreeNode(t);
-	BSTreePrefix(t->left);
-	BSTreePrefix(t->right);
-}
+// // print values in prefix order
+// void BSTreePrefix(BSTree t)
+// {
+// 	if (t == NULL) return;
+// 	showBSTreeNode(t);
+// 	BSTreePrefix(t->left);
+// 	BSTreePrefix(t->right);
+// }
 
-// print values in postfix order
-void BSTreePostfix(BSTree t)
-{
-	if (t == NULL) return;
-	BSTreePostfix(t->left);
-	BSTreePostfix(t->right);
-	showBSTreeNode(t);
-}
+// // print values in postfix order
+// void BSTreePostfix(BSTree t)
+// {
+// 	if (t == NULL) return;
+// 	BSTreePostfix(t->left);
+// 	BSTreePostfix(t->right);
+// 	showBSTreeNode(t);
+// }
 
 // count #leaves in BSTree
 int BSTreeNumLeaves(BSTree t)

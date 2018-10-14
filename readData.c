@@ -218,11 +218,11 @@ BSTree getInvertedList(Set URLList)
 }
 
 
-int main(int argc, char **argv) {
-	Set URLList = getCollection();
-	showSet(URLList);
-	BSTree invList = getInvertedList(URLList);
-	BSTreeInfix(invList);
-	printf("\n");
-	return 0;
-}
+// int main(int argc, char **argv) {
+// 	Set URLList = getCollection();
+// 	showSet(URLList);
+// 	BSTree invList = getInvertedList(URLList);
+// 	BSTreeInfix(invList);
+// 	printf("\n");
+// 	return 0;
+// }
