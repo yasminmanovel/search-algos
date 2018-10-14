@@ -77,7 +77,13 @@ int BSTreeNumNodes(BSTree t)
 void showBSTreeNode(BSTree t)
 {
 	if (t == NULL) return;
-	printf("%s ", t->value);
+	printf("%s:\n", t->value);
+	listNode *curr = t->urlList;
+	while (curr != NULL) {
+		printf("\t %s ", curr->url);
+		curr = curr->next;
+	}
+	printf("\n");
 }
 
 // print values in infix order

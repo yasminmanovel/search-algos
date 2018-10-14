@@ -155,12 +155,7 @@ static char *normalise(char *str) {
 	return word;
 }
 
-/*
-GetInvertedList(List_of_Urls)
-		Create empty inverted list (use say List of lists, BST where values are lists, etc)
-		For each url in List_of_Urls
-			- Read <url<.txt file, and update inverted index
-*/
+/* Creates a list of url for each word found in urls. */
 BSTree getInvertedList(Set URLList)
 {
 	BSTree invList = newBSTree();
@@ -193,11 +188,11 @@ BSTree getInvertedList(Set URLList)
 }
 
 
-int main(int argc, char **argv) {
-	Set URLList = getCollection();
-	showSet(URLList);
-	BSTree invList = getInvertedList(URLList);
-	BSTreeInfix(invList);
-	printf("\n");
-	return 0;
-}
+// int main(int argc, char **argv) {
+// 	Set URLList = getCollection();
+// 	showSet(URLList);
+// 	BSTree invList = getInvertedList(URLList);
+// 	BSTreeInfix(invList);
+// 	printf("\n");
+// 	return 0;
+// }
