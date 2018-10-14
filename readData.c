@@ -9,12 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "graph.h"
-#include "graph.c"
-#include "set.h"
-#include "BSTree.h"
-#include "invertedIndex.h"
-#include "set.c"
+#include "readData.h"
+
 // #include "invertedIndex.h"
 /*
 Functions we need to have:
