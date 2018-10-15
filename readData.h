@@ -9,10 +9,8 @@
  */
 
 #include "graph.h"
-// #include "graph.c"
 #include "set.h"
 #include "BSTree.h"
-// #include "set.c"
 
 Set getCollection();
 
