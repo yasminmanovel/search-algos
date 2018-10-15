@@ -9,14 +9,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "graph.h"
-#include "graph.c"
+#include <assert.h>
 #include "set.h"
+#include "graph.h"
 #include "BSTree.h"
-#include "invertedIndex.h"
-#include "set.c"
-// #include "invertedIndex.h"
+#include "readData.h"
 
+// #include "invertedIndex.h"
 /*
 Functions we need to have:
 	getCollection()
@@ -33,16 +32,19 @@ Functions we need to have:
 			- Read <url<.txt file, and update inverted index	
 
 */
-#define SEEN_ONCE 1
-#define SEEN_TWICE 2
-#define URL_LENGTH 55
-#define MAX_LINE 1001
+#define SEEN_ONCE       1
+#define SEEN_TWICE      2
+#define URL_LENGTH      55
+#define MAX_LINE        1001
 #define NULL_TERM_SPACE 1
+#define START_TAG_LEN   16
+#define END_TAG_LEN     14
 
 /* Trims leading and ending spaces 
  * Written by jas for 1521 mymysh.c
  */
-static void trim(char *str) {
+static void trim(char *str) 
+{
 	int first, last;
 	first = 0;
 	while (isspace(str[first])) first++;
@@ -52,30 +54,35 @@ static void trim(char *str) {
 	for (i = first; i <= last; i++) str[j++] = str[i];
 	str[j] = '\0';
 }
-static char **tokenise(char *str, char *sep)
-{
-	// temp copy of string, because strtok() mangles it
-	char *tmp;
-	// count tokens
-	tmp = strdup(str);
-	int n = 0;
-	strtok(tmp, sep); n++;
-	while (strtok(NULL, sep) != NULL) n++;
-	free(tmp);
-	// allocate array for argv strings
-	char **strings = malloc((n+1)*sizeof(char *));
-	assert(strings != NULL);
-	// now tokenise and fill array
-	tmp = strdup(str);
-	char *next; int i = 0;
-	next = strtok(tmp, sep);
-	strings[i++] = strdup(next);
-	while ((next = strtok(NULL,sep)) != NULL)
-	strings[i++] = strdup(next);
-	strings[i] = NULL;
-	free(tmp);
-	return strings;
-}
+
+/* Tokenises a string based on a delimiter. 
+ * Places tokens into an array of strings.
+ * Written by jas for 1521 mymysh.c
+ */
+// static char **tokenise(char *str, char *sep)
+// {
+// 	// temp copy of string, because strtok() mangles it
+// 	char *tmp;
+// 	// count tokens
+// 	tmp = strdup(str);
+// 	int n = 0;
+// 	strtok(tmp, sep); n++;
+// 	while (strtok(NULL, sep) != NULL) n++;
+// 	free(tmp);
+// 	// allocate array for argv strings
+// 	char **strings = malloc((n+1)*sizeof(char *));
+// 	assert(strings != NULL);
+// 	// now tokenise and fill array
+// 	tmp = strdup(str);
+// 	char *next; int i = 0;
+// 	next = strtok(tmp, sep);
+// 	strings[i++] = strdup(next);
+// 	while ((next = strtok(NULL,sep)) != NULL)
+// 	strings[i++] = strdup(next);
+// 	strings[i] = NULL;
+// 	free(tmp);
+// 	return strings;
+// }
 
 /* Creates a set of all URLs in collection.txt. */
 Set getCollection()
@@ -93,26 +100,31 @@ Set getCollection()
 	return URLList;
 }
 
-void readPage(char *urls, char *text, char *fileName) {
+/* Places section 1 and section 2 of fileName into urls & texts */
+static void readPage(char *urls, char *text, char *fileName) {
 	int seen = 0;
 	char line[MAX_LINE] = {0};
 	FILE *page = fopen(fileName, "r");
 	while (fgets(line, MAX_LINE, page) != NULL) {
-		if (strncmp(line, "#start Section-1", 16) == 0 
-		|| strncmp(line, "#start Section-2", 16) == 0){ seen++; continue;}
-
-		if (strncmp(line, "#end Section-1", 14) == 0
-		|| strncmp(line, "#end Section-2", 14) == 0
+		// Increments seen at every start tag.
+		if (strncmp(line, "#start Section-1", START_TAG_LEN) == 0 
+		|| strncmp(line, "#start Section-2", START_TAG_LEN) == 0) { seen++; continue; }
+		// Ignores end tags and nwln.
+		if (strncmp(line, "#end Section-1", END_TAG_LEN) == 0
+		|| strncmp(line, "#end Section-2", END_TAG_LEN) == 0
 		|| strncmp(line, "\n", 1) == 0) continue;
-		if (seen == SEEN_ONCE) {strcat(urls, line);}
-		if (seen == SEEN_TWICE) {strcat(text, line);}
+
+		if (seen == SEEN_ONCE) { strcat(urls, line); }
+		if (seen == SEEN_TWICE) { strcat(text, line); }
 	}
-	for (int i = 0; text[i] != '\0'; i++) {
+	// Changes '\n's into space.
+	for (int i = 0; text[i] != '\0'; i++)
 		if (text[i] == '\n') text[i] = ' ';
-	}
+
 	fclose(page);
 }
 
+/* Calculates space required for section 1 and 2 */
 static void spaceRequired(char *fileName, int *url_size, int *text_size)
 {
 	int seen = 0;
@@ -122,7 +134,7 @@ static void spaceRequired(char *fileName, int *url_size, int *text_size)
 	*text_size = NULL_TERM_SPACE;
 	while (fgets(line, MAX_LINE, page) != NULL) {
 		if (strncmp(line, "#start Section-1", 16) == 0 
-		|| strncmp(line, "#start Section-2", 16) == 0){ seen++; continue;}
+		|| strncmp(line, "#start Section-2", 16) == 0) { seen++; continue; }
 
 		if (strncmp(line, "#end Section-1", 14) == 0
 		|| strncmp(line, "#end Section-2", 14) == 0
@@ -130,9 +142,11 @@ static void spaceRequired(char *fileName, int *url_size, int *text_size)
 		if (seen == SEEN_ONCE) *url_size = *url_size + strlen(line);
 		if (seen == SEEN_TWICE) *text_size = *text_size + strlen(line);
 	}
+
 	fclose(page);
 }
 
+/* Creates a graph of URLs. */
 Graph getGraph(Set URLList)
 {
 	Graph g = newGraph();
@@ -151,51 +165,64 @@ Graph getGraph(Set URLList)
 	return g;
 }
 
-int main(void) {
-	return 0;
+/* Removes trailing spaces and punctuation at the end of word
+ * Also converts all letters to lowercase.
+ */
+static char *normalise(char *str) 
+{
+	char *word = strdup(str);
+	trim(word);
+	// Converts to all lowercase.
+	int i;
+	for (i = 0; word[i] != '\0'; i++) 
+		word[i] = tolower(word[i]);
+	// Removes punctuation at the end.
+	int lastLetter = strlen(word) - 1;
+	if (word[lastLetter] == '.'
+	 || word[lastLetter] == '?'
+	 || word[lastLetter] == ','
+	 || word[lastLetter] == ';') word[lastLetter] = '\0';
+	
+	return word;
 }
 
-// int main(void)
-// {
-// 	int url_size; int text_size;
-// 	spaceRequired("url11.txt", &url_size, &text_size);
-// 	char *urls = calloc(url_size, sizeof(char));
-// 	char *text = calloc(text_size, sizeof(char));
-// 	readPage(urls, text, "url11.txt");
-// 	printf("FINAL URLS: %s\nFINAL TEXT: %s\n", urls, text);
-// }
+/* Creates a list of url for each word found in urls. */
+BSTree getInvertedList(Set URLList)
+{
+	BSTree invList = newBSTree();
+	char fileName[URL_LENGTH] = {0};
 
-/*
-GetInvertedList(List_of_Urls)
-		Create empty inverted list (use say List of lists, BST where values are lists, etc)
-		For each url in List_of_Urls
-			- Read <url<.txt file, and update inverted index
-*/
-// BSTree getInvertedList(Set URLList)
-// {
-// 	// BSTree invList = newBSTree();
-// 	// Iterate through set.
-// 	Link curr = URLList->elems;
-// 	while (curr != NULL) {
-// 		// Open URL.
-// 		// Read url.txt file.
-// 		// Update inverted index.
-// 	}
+	// Iterate through set to get urls.
+	Link curr = URLList->elems;
+	while (curr != NULL) {
+		sprintf(fileName, "%s.txt", curr->val);
+		// Gets information from txt file.
+		int url_size; int text_size;
+		spaceRequired(fileName, &url_size, &text_size);
+		char *urls = calloc(url_size, sizeof(char));
+		char *text = calloc(text_size, sizeof(char));
+		readPage(urls, text, fileName);
 
-// 	return NULL;
-// }
+		char *dump = text; // Keeps pointer to text to free because strsep ruins it.
+		char *found;
+		// For every word in every url.
+		while((found = strsep(&text, " ")) != NULL) {
+			char *word = normalise(found);
+			if (strcmp(word, "") != 0)
+				invList = BSTreeInsert(invList, word, curr->val);
+		}
+		free(dump);
+		curr = curr->next;
+	}
+	return invList;
+}
+
 
 // int main(int argc, char **argv) {
 // 	Set URLList = getCollection();
 // 	showSet(URLList);
-// 	BSTree t;
-// 	t = newBSTree();
-// 	t = BSTreeInsert(t, "hello");
-// 	t = BSTreeInsert(t, "abc");
-// 	t = BSTreeInsert(t, "bcd");
-// 	t = BSTreeInsert(t, "zeas");
-// 	t = BSTreeInsert(t, "mother");
-// 	BSTreeInfix(t);
+// 	BSTree invList = getInvertedList(URLList);
+// 	BSTreeInfix(invList);
 // 	printf("\n");
 // 	return 0;
 // }

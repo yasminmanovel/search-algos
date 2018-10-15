@@ -17,5 +17,20 @@
  * Output -> invertedIdx to "invertedIndex.txt"
  */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include "readData.h"
+#include "set.h"
+#include "BSTree.h"
 
+int main(int argc, char **argv) 
+{
+    Set URLSet = getCollection();
+    BSTree invList = getInvertedList(URLSet);
+
+    FILE *invtxt = fopen("invertedIndex.txt", "w");
+    BSTreeInfix(invtxt, invList);
+
+    return 0;
+}
 

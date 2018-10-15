@@ -3,9 +3,10 @@
  * NOTES:
  * - Use adjacency list.
  */
-#include "set.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include "set.h"
 #include "graph.h"
 
 
@@ -85,4 +86,4 @@ void insertInto(Set s, char *str)
 		new->next = prev->next;
 		prev->next = new;
 	}
-}*/
+*/
