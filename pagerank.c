@@ -24,6 +24,18 @@
 #include "graph.h"
 #include "readData.h"
 
+/* Calculates pageranks of all URLs */
+float calculatePageRank(Graph web, int damp, int diffPR, int maxIterations)  
+{
+    return 0;
+}
+
+/* Sorts URLs by decreasing page rank order. */
+void order()
+{
+
+}
+
 int main(int argc, char **argv)
 {
     if (argc != 3) {
@@ -38,7 +50,7 @@ int main(int argc, char **argv)
     Set URLList = getCollection();
     Graph web = getGraph(URLList);
 
-
+    
 
 
     return 0;
