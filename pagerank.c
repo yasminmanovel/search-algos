@@ -18,6 +18,32 @@
  *  URL, num of outgoing links, page rank
  */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include "set.h"
+#include "graph.h"
+#include "readData.h"
+
+int main(int argc, char **argv)
+{
+    if (argc != 3) {
+        printf("Usage: ./pagerank damping diffPR maxIterations\n");
+        exit(EXIT_FAILURE);
+    } 
+    // Get args.
+    int damp = argv[1];
+    int diffPR = argv[2];
+    int maxIterations = argv[3];
+
+    Set URLList = getCollection();
+    Graph web = getGraph(URLList);
+
+
+
+
+    return 0;
+}
+
 
 
 
