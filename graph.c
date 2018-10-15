@@ -19,6 +19,7 @@ struct urlLink {
 struct urlNode {
     char *URLName;
     int numEdges;
+    int pageRank;
     char *text;
     outLink firstLink;
     URL next;
