@@ -18,7 +18,3 @@
  *  URL, num of outgoing links, page rank
  */
 
-
-
-
-
