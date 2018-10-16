@@ -13,21 +13,21 @@
 
 
 struct urlLink {
-    char *URLName;
+    char   *URLName;
     outLink next;
 };
 
 struct urlNode {
-    char *URLName;
-    int numEdges;
-    float pageRank;
-    char *text;
+    char   *URLName;
+    int     numEdges;
+    float   pageRank;
+    char   *text;
     outLink firstLink;
-    URL next;
+    URL     next;
 };
 
 struct urlGraph {
-    int numURLs;
+    int  numURLs;
     URL *listOfUrls;
 };
 

@@ -22,18 +22,27 @@
 #include <stdlib.h>
 #include "set.h"
 #include "graph.h"
+#include "stack.h"
 #include "readData.h"
 
-/* Calculates pageranks of all URLs */
+/* Calculates pageranks of all URLs by DFS traversal. */
 float calculatePageRank(Graph web, int damp, int diffPR, int maxIterations)  
 {
+    URL *visited = calloc(web->numURLs, sizeof(URL));
+
+    URL y = web->listOfURLs;
+    // For each node.
+    while (y != NULL) {
+
+    }
+
     return 0;
 }
 
 /* Sorts URLs by decreasing page rank order. */
 void order()
 {
-
+    
 }
 
 int main(int argc, char **argv)
