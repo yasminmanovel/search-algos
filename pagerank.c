@@ -26,7 +26,8 @@
 #include "readData.h"
 
 typedef struct _URL {
-    float pagerank;
+    float prevPageRank;
+    float currPageRank;
     char *name;
 } URL;
 
@@ -58,16 +59,18 @@ int main(int argc, char **argv)
     Set URLList = getCollection();
     Graph web = getGraph(URLList);
     int nURLs = nElems(URLList);
-    int i;
+    int i = 0;
 
-    // Create a 2D array PR[maxIterations][nURLs].
-    // URL *PR = malloc(maxIterations * )
-    // Initialise all PRs to 1/N.
-    Link curr = URLList->elems;
-    for(i = 0; i < nURLs; i++) {
-        PR[0][i].name = curr->val;
-        PR[0][i].pagerank = 1.0/nURLs;
-        curr = curr->next;
+    // Make a before and current PR array.
+    URL* urlPRs = malloc(nURLs * sizeof(URL));
+
+    // Initialise all prevPRs to 1/N and currPrs to -1.
+    Link currLink = URLList;
+    for (i = 0; i < nURLs; ++i) {
+        urlPRs[i].prevPageRank = 1.0/nURLs;
+        urlPRs[i].currPageRank = -1;
+        urlPRs[i].name = currLink->val;
+        currLink = currLink->next;
     }
 
     i = 0;
