@@ -2,8 +2,8 @@
 CC=gcc
 CFLAGS=-Wall -Werror
 
-searchTfIdf : searchTfIdf.o readData.o set.o
-	gcc searchTfIdf.o readData.o set.o -o searchTfIdf
+searchTfIdf : searchTfIdf.o readData.o set.o graph.o BSTree.o
+	gcc searchTfIdf.o readData.o set.o graph.o BSTree.o -o searchTfIdf
 
 invertedIndex : invertedIndex.o readData.o graph.o set.o BSTree.o
 	gcc invertedIndex.o readData.o graph.o set.o BSTree.o -o invertedIndex
