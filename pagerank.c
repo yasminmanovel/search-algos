@@ -25,16 +25,14 @@
 #include "stack.h"
 #include "readData.h"
 
+typedef struct _URL {
+    float pagerank;
+    char *name;
+} URL;
+
 /* Calculates pageranks of all URLs by DFS traversal. */
 float calculatePageRank(Graph web, int damp, int diffPR, int maxIterations)  
 {
-    URL *visited = calloc(web->numURLs, sizeof(URL));
-
-    URL y = web->listOfURLs;
-    // For each node.
-    while (y != NULL) {
-
-    }
 
     return 0;
 }
@@ -56,8 +54,36 @@ int main(int argc, char **argv)
     int diffPR = argv[2];
     int maxIterations = argv[3];
 
+    // Creates a set of URLs and creates an adjacency list graph.
     Set URLList = getCollection();
     Graph web = getGraph(URLList);
+    int nURLs = nElems(URLList);
+    int i;
+
+    // Create a 2D array PR[maxIterations][nURLs].
+    // URL *PR = malloc(maxIterations * )
+    // Initialise all PRs to 1/N.
+    Link curr = URLList->elems;
+    for(i = 0; i < nURLs; i++) {
+        PR[0][i].name = curr->val;
+        PR[0][i].pagerank = 1.0/nURLs;
+        curr = curr->next;
+    }
+
+    i = 0;
+    int diff = diffPR;
+    // While less than max iterations or difference is not small enough.
+    while (i < maxIterations && diff >= diffPR) {
+        calculatePageRank(web, damp, diffPR, maxIterations);
+        i++;
+    }
+
+    /* PR[maxIterations][maxURLs]
+        [ [1/3, 1/3, 1/3],
+          []
+
+        ]
+    */
 
     
 
