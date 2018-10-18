@@ -26,20 +26,59 @@
 #include "readData.h"
 
 typedef struct _URL {
-    float prevPageRank;
-    float currPageRank;
     char *name;
+    int   nOutLinks;
+    float prevPR;
+    float currPR;
 } URL;
 
-/* Calculates pageranks of all URLs by DFS traversal. */
-float calculatePageRank(Graph web, int damp, int diffPR, int maxIterations)  
+/* Calculates the current PR of a URL given its prev PR. */
+float calculateCurrPR(URL *urlPRs)
 {
-
     return 0;
 }
 
+/* Calculates the new diff. */
+float calculateDiffPR()
+{
+    return 0;
+}
+
+/* Calculates pageranks of all URLs by DFS traversal. */
+URL *PageRankW(Set URLList, float damp, float diffPR, int maxIterations)  
+{
+    int i, j; // Generic counters.
+    int nURLs = nElems(URLList);
+
+    // Make a before and current PR array.
+    URL* urlPRs = malloc(nURLs * sizeof(URL));
+
+    // Initialise all prevPRs to 1/N and currPRs to -1.
+    Link currLink = URLList;
+    for (i = 0; i < nURLs; ++i) {
+        urlPRs[i].name = strdup(currLink->val);
+        urlPRs[i].nOutLinks = 0;    // CHANGE THIS.
+        urlPRs[i].prevPR = 1.0/nURLs;
+        urlPRs[i].currPR = -1;
+        currLink = currLink->next;
+    }
+
+    i = 0;
+    int diff = diffPR;
+    // While less than max iterations or difference is not small enough.
+    while (i < maxIterations && diff >= diffPR) {
+        // For each URL, calculate the new pagerank.
+        for (j = 0; j < nURLs; j++) {
+            urlPRs[i].currPR = calculateCurrPR(urlPRs);
+            diff = calculateDiffPR();
+        }
+        i++;
+    }
+    return urlPRs;
+}
+
 /* Sorts URLs by decreasing page rank order. */
-void order()
+void order(URL *urlPRs)
 {
     
 }
@@ -54,42 +93,22 @@ int main(int argc, char **argv)
     int damp = argv[1];
     int diffPR = argv[2];
     int maxIterations = argv[3];
-
     // Creates a set of URLs and creates an adjacency list graph.
     Set URLList = getCollection();
     Graph web = getGraph(URLList);
     int nURLs = nElems(URLList);
-    int i = 0;
 
-    // Make a before and current PR array.
-    URL* urlPRs = malloc(nURLs * sizeof(URL));
+    // Calculates pageranks and sorts them in order.
+    URL *urlPRs = PageRankW(URLList, damp, diffPR, maxIterations);
+    order(urlPRs);
 
-    // Initialise all prevPRs to 1/N and currPrs to -1.
-    Link currLink = URLList;
-    for (i = 0; i < nURLs; ++i) {
-        urlPRs[i].prevPageRank = 1.0/nURLs;
-        urlPRs[i].currPageRank = -1;
-        urlPRs[i].name = currLink->val;
-        currLink = currLink->next;
-    }
-
-    i = 0;
-    int diff = diffPR;
-    // While less than max iterations or difference is not small enough.
-    while (i < maxIterations && diff >= diffPR) {
-        calculatePageRank(web, damp, diffPR, maxIterations);
-        i++;
-    }
-
-    /* PR[maxIterations][maxURLs]
-        [ [1/3, 1/3, 1/3],
-          []
-
-        ]
-    */
-
-    
-
+    // Opens file and prints to it.
+    FILE *PRList = fopen("pagerankList.txt", "w");
+    if (!PRList) { perror("fopen failed"); exit(EXIT_FAILURE); }
+    int i;
+    for(i = 0; i < nURLs; i++)
+        fprintf(PRList, "%s, %d, %.7f\n", 
+                    urlPRs[i].name, urlPRs[i].nOutLinks, urlPRs[i].currPR);
 
     return 0;
 }
