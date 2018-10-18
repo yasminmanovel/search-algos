@@ -1,0 +1,21 @@
+commit a047bb2f6a509d921eb91cb07a1c8ddb2f32852f
+Author: Selina Chua <selina.a.chua@gmail.com>
+Date:   Mon Oct 15 12:03:38 2018 +1100
+
+    Just deleted some comments
+
+diff --git a/readData.h b/readData.h
+index 7163b44..49fd3d6 100644
+--- a/readData.h
++++ b/readData.h
+@@ -9,10 +9,8 @@
+  */
+ 
+ #include "graph.h"
+-// #include "graph.c"
+ #include "set.h"
+ #include "BSTree.h"
+-// #include "set.c"
+ 
+ Set getCollection();
+ 
