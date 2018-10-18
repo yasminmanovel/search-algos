@@ -19,9 +19,9 @@ void dropFrom(Set,char *);
 int  isElem(Set,char *);
 int  nElems(Set);
 
-static Link newNode(char *);
-static void disposeNode(Link);
-static int  findNode(Link,char *,Link *,Link *);
+static SetNode newNode(char *);
+static void disposeNode(SetNode);
+static int  findNode(SetNode,char *,SetNode *,SetNode *);
 
 // newSet()
 // - create an initially empty Set
@@ -39,7 +39,7 @@ Set newSet()
 void disposeSet(Set s)
 {
 	if (s == NULL) return;
-	Link next, curr = s->elems;
+	SetNode next, curr = s->elems;
 	while (curr != NULL) {
 		next = curr->next;
 		disposeNode(curr);	
@@ -52,10 +52,10 @@ void disposeSet(Set s)
 void insertInto(Set s, char *str)
 {
 	assert(s != NULL);
-	Link curr, prev;
+	SetNode curr, prev;
 	int found = findNode(s->elems,str,&curr,&prev);
 	if (found) return; // already in Set
-	Link new = newNode(str);
+	SetNode new = newNode(str);
 	s->nelems++;
 	if (prev == NULL) {
 		// add at start of list of elems
@@ -74,7 +74,7 @@ void insertInto(Set s, char *str)
 void dropFrom(Set s, char *str)
 {
 	assert(s != NULL);
-	Link curr, prev;
+	SetNode curr, prev;
 	int found = findNode(s->elems,str,&curr,&prev);
 	if (!found) return;
 	s->nelems--;
@@ -90,7 +90,7 @@ void dropFrom(Set s, char *str)
 int isElem(Set s, char *str)
 {
 	assert(s != NULL);
-	Link curr, prev;
+	SetNode curr, prev;
 	return findNode(s->elems,str,&curr,&prev);
 }
 
@@ -106,7 +106,7 @@ int  nElems(Set s)
 // - display Set (for debugging)
 void showSet(Set s)
 {
-	Link curr;
+	SetNode curr;
 	if (s->nelems == 0)
 		printf("Set is empty\n");
 	else {
@@ -123,16 +123,16 @@ void showSet(Set s)
 
 // Helper functions
 
-static Link newNode(char *str)
+static SetNode newNode(char *str)
 {
-	Link new = malloc(sizeof(Node));
+	SetNode new = malloc(sizeof(Node));
 	assert(new != NULL);
 	new->val = strdup(str);
 	new->next = NULL;
 	return new;
 }
 
-static void disposeNode(Link curr)
+static void disposeNode(SetNode curr)
 {
 	assert(curr != NULL);
 	free(curr->val);
@@ -144,9 +144,9 @@ static void disposeNode(Link curr)
 // - if already in L, curr->val == Str
 // - if not already in L, curr and prev indicate where to insert
 // - return value indicates whether Str found or not
-static int findNode(Link list, char *str, Link *cur, Link *pre)
+static int findNode(SetNode list, char *str, SetNode *cur, SetNode *pre)
 {
-	Link curr = list, prev = NULL;
+	SetNode curr = list, prev = NULL;
 	while (curr != NULL && strLT(curr->val,str)) {
 		prev = curr;
 		curr = curr->next;

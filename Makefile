@@ -2,8 +2,8 @@
 CC=gcc
 CFLAGS=-Wall -Werror
 
-invertedIndex : invertedIndex.o readData.o graph.o set.o BSTree.o
-	gcc invertedIndex.o readData.o graph.o set.o BSTree.o -o invertedIndex
+#invertedIndex : invertedIndex.o readData.o graph.o set.o BSTree.o
+	#gcc invertedIndex.o readData.o graph.o set.o BSTree.o -o invertedIndex
 
 readData : readData.o graph.o set.o BSTree.o
 	gcc readData.o graph.o set.o BSTree.o -o readData

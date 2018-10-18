@@ -58,34 +58,6 @@ static void trim(char *str)
 	str[j] = '\0';
 }
 
-/* Tokenises a string based on a delimiter. 
- * Places tokens into an array of strings.
- * Written by jas for 1521 mymysh.c
- */
-static char **tokenise(char *str, char *sep)
-{
-	// temp copy of string, because strtok() mangles it
-	char *tmp;
-	// count tokens
-	tmp = strdup(str);
-	int n = 0;
-	strtok(tmp, sep); n++;
-	while (strtok(NULL, sep) != NULL) n++;
-	free(tmp);
-	// allocate array for argv strings
-	char **strings = malloc((n+1)*sizeof(char *));
-	assert(strings != NULL);
-	// now tokenise and fill array
-	tmp = strdup(str);
-	char *next; int i = 0;
-	next = strtok(tmp, sep);
-	strings[i++] = strdup(next);
-	while ((next = strtok(NULL,sep)) != NULL)
-	strings[i++] = strdup(next);
-	strings[i] = NULL;
-	free(tmp);
-	return strings;
-}
 
 /* Creates a set of all URLs in collection.txt. */
 Set getCollection()
@@ -150,34 +122,6 @@ static void spaceRequired(char *fileName, int *url_size, int *text_size)
 	fclose(page);
 }
 
-/* Creates a graph of URLs. */
-Graph getGraph(Set URLList)
-{
-	Graph g = newGraph();
-	g->listOfUrls = malloc(sizeof(URL) * URLList->nelems);
-	char fileName[URL_LENGTH] = {0};
-	int i = 0;
-	for (SetNode curr = URLList->elems; curr != NULL; curr = curr->next) {
-		strcpy(fileName, curr->val);
-		strcat(fileName, ".txt");
-		int url_size; int text_size;
-		spaceRequired(fileName, &url_size, &text_size);
-		char *urls = calloc(url_size, sizeof(char));
-		char *text = calloc(text_size, sizeof(char));
-		readPage(urls, text, fileName);
-		char **urlsTokenised = tokenise(urls, " ");
-		g->listOfUrls[i] = newGraphNode(curr->val, text);
-		int j = 0;
-		while (urlsTokenised[j] != '\0') {
-			insertOutLinks(g->listOfUrls[i], urlsTokenised[j]);
-			j++;
-		}
-		i++;
-	}
-	// go through listOfUrls and update the graph by adding a node and outgoing
-	// links
-	return g;
-}
 
 /* Removes trailing spaces and punctuation at the end of word
  * Also converts all letters to lowercase.
@@ -232,13 +176,86 @@ BSTree getInvertedList(Set URLList)
 }
 
 
+/* Tokenises a string based on a delimiter. 
+ * Places tokens into an array of strings.
+ * Written by jas for 1521 mymysh.c
+ */
+static char **tokenise(char *str, char *sep)
+{
+	// temp copy of string, because strtok() mangles it
+	char *tmp;
+	// count tokens
+	printf("Im okay");
+	tmp = strdup(str);
+	int n = 0;
+	strtok(tmp, sep); n++;
+	while (strtok(NULL, sep) != NULL) n++;
+	free(tmp);
+	// allocate array for argv strings
+	char **strings = malloc((n+1)*sizeof(char *));
+	assert(strings != NULL);
+	// now tokenise and fill array
+	tmp = strdup(str);
+	char *next; int i = 0;
+	next = strtok(tmp, sep);
+	strings[i++] = strdup(next);
+	while ((next = strtok(NULL,sep)) != NULL)
+	printf("In tokenise %s", strings[i]);
+	strings[i++] = strdup(next);
+	strings[i] = NULL;
+	free(tmp);
+	return strings;
+}
+
+
+
+
+
+/* Creates a graph of URLs. */
+Graph getGraph(Set URLList)
+{
+	Graph g = newGraph();
+	g->listOfUrls = malloc(sizeof(URL) * URLList->nelems);
+	char fileName[URL_LENGTH] = {0};
+	int i = 0;
+	for (SetNode curr = URLList->elems; curr != NULL; curr = curr->next) {
+		strcpy(fileName, curr->val);
+		strcat(fileName, ".txt");
+		int url_size; int text_size;
+		spaceRequired(fileName, &url_size, &text_size);
+		char *urls = calloc(url_size, sizeof(char));
+		char *text = calloc(text_size, sizeof(char));
+		readPage(urls, text, fileName);
+		printf("URLS: %s\n TEXT: %s\n", urls, text);
+		char **urlsTokenised;
+		trim(urls);
+		printf("URLS: %s\n TEXT: %s\n", urls, text);
+		if (urls != NULL) {
+		urlsTokenised = tokenise(urls, " ");
+		}
+		g->listOfUrls[i] = newGraphNode(curr->val, text);
+		int j = 0;
+		while (urlsTokenised[j] != '\0') {
+			insertOutLinks(g->listOfUrls[i], urlsTokenised[j]);
+			j++;
+		}
+		i++;
+	}
+	// go through listOfUrls and update the graph by adding a node and outgoing
+	// links
+	return g;
+}
+
 int main(int argc, char **argv) {
 	Set URLList = getCollection();
 	showSet(URLList);
 	Graph g = getGraph(URLList);
-	for (int i = 0; i < g->numURLs; i++) {
+	/*for (int i = 0; i < g->numURLs; i++) {
 		printf("Node is %s", g->listOfUrls[i]->URLName);
-	}
+	}*/
+	char **sup = tokenise("    url21 url22 url23 ", " ");
+	int i = 0;
+	while (sup[i] != '\0') { printf("%s", sup[i]);i++;}
 	printf("\n");
 	return 0;
 }
