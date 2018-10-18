@@ -94,9 +94,10 @@ static void readPage(char *urls, char *text, char *fileName) {
 		if (seen == SEEN_TWICE) { strcat(text, line); }
 	}
 	// Changes '\n's into space.
+	text[strlen(text)] = '\0';
+	urls[strlen(urls)] = '\0';
 	for (int i = 0; text[i] != '\0'; i++)
 		if (text[i] == '\n') text[i] = ' ';
-
 	fclose(page);
 }
 
@@ -118,6 +119,8 @@ static void spaceRequired(char *fileName, int *url_size, int *text_size)
 		if (seen == SEEN_ONCE) *url_size = *url_size + strlen(line);
 		if (seen == SEEN_TWICE) *text_size = *text_size + strlen(line);
 	}
+	*url_size = *url_size * 2;
+	*text_size = *text_size * 2;
 
 	fclose(page);
 }
@@ -185,7 +188,6 @@ static char **tokenise(char *str, char *sep)
 	// temp copy of string, because strtok() mangles it
 	char *tmp;
 	// count tokens
-	printf("Im okay");
 	tmp = strdup(str);
 	int n = 0;
 	strtok(tmp, sep); n++;
@@ -218,6 +220,7 @@ Graph getGraph(Set URLList)
 	g->listOfUrls = malloc(sizeof(URL) * URLList->nelems);
 	char fileName[URL_LENGTH] = {0};
 	int i = 0;
+	printf("Segfaulting in getGraph");
 	for (SetNode curr = URLList->elems; curr != NULL; curr = curr->next) {
 		strcpy(fileName, curr->val);
 		strcat(fileName, ".txt");
@@ -226,18 +229,16 @@ Graph getGraph(Set URLList)
 		char *urls = calloc(url_size, sizeof(char));
 		char *text = calloc(text_size, sizeof(char));
 		readPage(urls, text, fileName);
-		printf("URLS: %s\n TEXT: %s\n", urls, text);
-		char **urlsTokenised;
+		char **urlsTokenised = NULL;
 		trim(urls);
-		printf("URLS: %s\n TEXT: %s\n", urls, text);
-		if (urls != NULL) {
-		urlsTokenised = tokenise(urls, " ");
+		//printf("URLS: %s\n TEXT: %s\n", urls, text);
+		if (urls != NULL && strncmp(urls, " ",1) != 0) {
+			urlsTokenised = tokenise(urls, " ");
 		}
+
 		g->listOfUrls[i] = newGraphNode(curr->val, text);
-		int j = 0;
-		while (urlsTokenised[j] != '\0') {
+		for (int j = 0; urlsTokenised[j] != NULL; j++) {
 			insertOutLinks(g->listOfUrls[i], urlsTokenised[j]);
-			j++;
 		}
 		i++;
 	}
@@ -253,9 +254,5 @@ int main(int argc, char **argv) {
 	/*for (int i = 0; i < g->numURLs; i++) {
 		printf("Node is %s", g->listOfUrls[i]->URLName);
 	}*/
-	char **sup = tokenise("    url21 url22 url23 ", " ");
-	int i = 0;
-	while (sup[i] != '\0') { printf("%s", sup[i]);i++;}
-	printf("\n");
 	return 0;
 }
