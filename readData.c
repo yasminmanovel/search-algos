@@ -222,7 +222,7 @@ BSTree getInvertedList(Set URLList)
 // 	Set URLList = getCollection();
 // 	showSet(URLList);
 // 	BSTree invList = getInvertedList(URLList);
-// 	BSTreeInfix(invList);
+// 	BSTreeInfix(stdout, invList);
 // 	printf("\n");
 // 	return 0;
 // }
