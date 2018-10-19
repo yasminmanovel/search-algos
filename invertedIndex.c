@@ -22,6 +22,8 @@
 #include "readData.h"
 #include "set.h"
 #include "BSTree.h"
+#include "invertedIndex.h"
+
 
 int main(int argc, char **argv) 
 {
@@ -30,7 +32,8 @@ int main(int argc, char **argv)
 
     FILE *invtxt = fopen("invertedIndex.txt", "w");
     BSTreeInfix(invtxt, invList);
-
+    fclose(invtxt);
+    BSTreeInfix(stdout, invList);
     return 0;
 }
 

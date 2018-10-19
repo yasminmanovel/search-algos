@@ -6,11 +6,17 @@ OBJS=set.o graph.o BSTree.o readData.o
 searchTfIdf : searchTfIdf.o $(OBJS)
 	gcc searchTfIdf.o $(OBJS) -o searchTfIdf
 
+pagerank: pagerank.o readData.o graph.o set.o BSTree.o
+	gcc pagerank.o readData.o graph.o set.o BSTree.o -o pagerank
+
 invertedIndex : invertedIndex.o $(OBJS)
 	gcc invertedIndex.o $(OBJS) -o invertedIndex
 
 readData : $(OBJS)
 	gcc readData.o graph.o set.o BSTree.o -o readData
+
+pagerank.o : pagerank.c 
+	gcc -c pagerank.c 
 
 searchTfIdf.o : searchTfIdf.c 
 	gcc -c searchTfIdf.c 

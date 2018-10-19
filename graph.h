@@ -12,7 +12,8 @@ struct urlLink {
 
 struct urlNode {
     char *URLName;
-    int numEdges;
+    int numOutLinks;
+    int numInLinks;
     char *text;
     Link inLink;
     Link outLink;

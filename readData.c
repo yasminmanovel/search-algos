@@ -23,11 +23,12 @@
 #define NULL_TERM_SPACE 1
 #define START_TAG_LEN   16
 #define END_TAG_LEN     14
+#define CHAR_LEN 1
 
 /* Trims leading and ending spaces 
- * Written by jas for 1521 mymysh.c
+ * Written by jas for 1521 mymysh.c 18s2
  */
-static void trim(char *str) 
+void trim(char *str) 
 {
 	int first, last;
 	first = 0;
@@ -37,6 +38,59 @@ static void trim(char *str)
 	int i, j = 0;
 	for (i = first; i <= last; i++) str[j++] = str[i];
 	str[j] = '\0';
+}
+
+
+/* tokenise: split a string around a set of separators
+ * create an array of separate strings
+ * final array element contains NULL
+ * Written by jas for 1521 mymysh.c 18s2
+ */
+char **tokenise(char *str, char *sep)
+{
+   // temp copy of string, because strtok() mangles it
+   char *tmp;
+   // count tokens
+   tmp = strdup(str);
+   int n = 0;
+   strtok(tmp, sep); n++;
+   while (strtok(NULL, sep) != NULL) n++;
+   free(tmp);
+   // allocate array for argv strings
+   char **strings = malloc((n+1)*sizeof(char *));
+   assert(strings != NULL);
+   // now tokenise and fill array
+   tmp = strdup(str);
+   char *next; int i = 0;
+   next = strtok(tmp, sep);
+   strings[i++] = strdup(next);
+   while ((next = strtok(NULL,sep)) != NULL)
+      strings[i++] = strdup(next);
+   strings[i] = NULL;
+   free(tmp);
+   return strings;
+}
+
+
+/* Removes trailing spaces and punctuation at the end of word
+ * Also converts all letters to lowercase.
+ */
+char *normalise(char *str) 
+{
+	char *word = strdup(str);
+	trim(word);
+	// Converts to all lowercase.
+	int i;
+	for (i = 0; word[i] != '\0'; i++) 
+		word[i] = tolower(word[i]);
+	// Removes punctuation at the end.
+	int lastLetter = strlen(word) - 1;
+	if (word[lastLetter] == '.'
+	 || word[lastLetter] == '?'
+	 || word[lastLetter] == ','
+	 || word[lastLetter] == ';') word[lastLetter] = '\0';
+	
+	return word;
 }
 
 
@@ -56,9 +110,10 @@ Set getCollection()
 	return URLList;
 }
 
+
 /* Places section 1 and section 2 of fileName into urls & texts */
-// WORKS
-static void readPage(char *urls, char *text, char *fileName) {
+void readPage(char *urls, char *text, char *fileName)
+{
 	int seen = 0;
 	char line[MAX_LINE] = {0};
 	FILE *page = fopen(fileName, "r");
@@ -69,22 +124,20 @@ static void readPage(char *urls, char *text, char *fileName) {
 		// Ignores end tags and nwln.
 		if (strncmp(line, "#end Section-1", END_TAG_LEN) == 0
 		|| strncmp(line, "#end Section-2", END_TAG_LEN) == 0
-		|| strncmp(line, "\n", 1) == 0) continue;
+		|| strncmp(line, "\n", CHAR_LEN) == 0) continue;
 
 		if (seen == SEEN_ONCE) { strcat(urls, line); }
 		if (seen == SEEN_TWICE) { strcat(text, line); }
 	}
 	// Changes '\n's into space.
-	for (int i = 0; text[i] != '\0'; i++)
-		if (text[i] == '\n') text[i] = ' ';
-	for (int i = 0; urls[i] != '\0'; i++)
-		if (urls[i] == '\n') urls[i] = ' ';
+	for (int i = 0; text[i] != '\0'; i++) if (text[i] == '\n') text[i] = ' ';
+	for (int i = 0; urls[i] != '\0'; i++) if (urls[i] == '\n') urls[i] = ' ';
 	fclose(page);
 }
 
+
 /* Calculates space required for section 1 and 2 */
-// WORKS
-static void spaceRequired(char *fileName, int *url_size, int *text_size)
+void spaceRequired(char *fileName, int *url_size, int *text_size)
 {
 	int seen = 0;
 	char line[MAX_LINE] = {0};
@@ -92,41 +145,17 @@ static void spaceRequired(char *fileName, int *url_size, int *text_size)
 	*url_size = NULL_TERM_SPACE;
 	*text_size = NULL_TERM_SPACE;
 	while (fgets(line, MAX_LINE, page) != NULL) {
-		if (strncmp(line, "#start Section-1", 16) == 0 
-		|| strncmp(line, "#start Section-2", 16) == 0) { seen++; continue; }
-		if (strncmp(line, "#end Section-1", 14) == 0
-		|| strncmp(line, "#end Section-2", 14) == 0
-		|| strncmp(line, "\n", 1) == 0) continue;
+		if (strncmp(line, "#start Section-1", START_TAG_LEN) == 0 
+		|| strncmp(line, "#start Section-2", START_TAG_LEN) == 0) { seen++; continue; }
+		if (strncmp(line, "#end Section-1", END_TAG_LEN) == 0
+		|| strncmp(line, "#end Section-2", END_TAG_LEN) == 0
+		|| strncmp(line, "\n", CHAR_LEN) == 0) continue;
 		if (seen == SEEN_ONCE) *url_size = *url_size + strlen(line);
 		if (seen == SEEN_TWICE) *text_size = *text_size + strlen(line);
 	}
-	*url_size = *url_size * 2;
-	*text_size = *text_size * 2;
-
 	fclose(page);
 }
 
-
-/* Removes trailing spaces and punctuation at the end of word
- * Also converts all letters to lowercase.
- */
-static char *normalise(char *str) 
-{
-	char *word = strdup(str);
-	trim(word);
-	// Converts to all lowercase.
-	int i;
-	for (i = 0; word[i] != '\0'; i++) 
-		word[i] = tolower(word[i]);
-	// Removes punctuation at the end.
-	int lastLetter = strlen(word) - 1;
-	if (word[lastLetter] == '.'
-	 || word[lastLetter] == '?'
-	 || word[lastLetter] == ','
-	 || word[lastLetter] == ';') word[lastLetter] = '\0';
-	
-	return word;
-}
 
 /* Creates a list of url for each word found in urls. */
 BSTree getInvertedList(Set URLList)
@@ -159,33 +188,6 @@ BSTree getInvertedList(Set URLList)
 	return invList;
 }
 
-// tokenise: split a string around a set of separators
-// create an array of separate strings
-// final array element contains NULL
-char **tokenise(char *str, char *sep)
-{
-   // temp copy of string, because strtok() mangles it
-   char *tmp;
-   // count tokens
-   tmp = strdup(str);
-   int n = 0;
-   strtok(tmp, sep); n++;
-   while (strtok(NULL, sep) != NULL) n++;
-   free(tmp);
-   // allocate array for argv strings
-   char **strings = malloc((n+1)*sizeof(char *));
-   assert(strings != NULL);
-   // now tokenise and fill array
-   tmp = strdup(str);
-   char *next; int i = 0;
-   next = strtok(tmp, sep);
-   strings[i++] = strdup(next);
-   while ((next = strtok(NULL,sep)) != NULL)
-      strings[i++] = strdup(next);
-   strings[i] = NULL;
-   free(tmp);
-   return strings;
-}
 
 /* Creates a graph of URLs. */
 Graph getGraph(Set URLList)
@@ -198,6 +200,7 @@ Graph getGraph(Set URLList)
 		strcpy(fileName, curr->val);
 		strcat(fileName, ".txt");
 		int url_size; int text_size;
+		// reading in url outlinks and text from webpage (textfile)
 		spaceRequired(fileName, &url_size, &text_size);
 		char *urls = calloc(url_size + 1, sizeof(char));
 		char *text = calloc(text_size + 1, sizeof(char));
@@ -209,7 +212,7 @@ Graph getGraph(Set URLList)
 			char **urlsTokenised = urlsTokenised = tokenise(urls, " ");
 			for (int j = 0; urlsTokenised[j] != NULL; j++) {
 				insertOutLinks(g->listOfUrls[i], urlsTokenised[j]);
-				g->listOfUrls[i]->numEdges++;
+				g->listOfUrls[i]->numOutLinks++;
 			}
 		}
 		i++;
@@ -222,18 +225,10 @@ Graph getGraph(Set URLList)
 			for (Link curr = g->listOfUrls[j]->outLink; curr != NULL; curr = curr->next) {
 				if (strcmp(g->listOfUrls[i]->URLName, curr->URLName) == 0) {
 					insertInLinks(g->listOfUrls[i], g->listOfUrls[j]->URLName);
+					g->listOfUrls[i]->numInLinks++;
 				}
 			}
 		}
 	}
 	return g;
 }
-
-// int main(int argc, char **argv) {
-// 	Set URLList = getCollection();
-// 	showSet(URLList);
-// 	BSTree invList = getInvertedList(URLList);
-// 	BSTreeInfix(stdout, invList);
-// 	printf("\n");
-// 	return 0;
-// }

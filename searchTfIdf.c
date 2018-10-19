@@ -29,8 +29,6 @@
 char **getURLs(char *word);
 float calcTf(char *fileName, char *word);
 float calcIdf();
-static void trim(char *str);
-static char **tokenise(char *str, char *sep);
 
 int main(int argc, char **argv) 
 {
@@ -49,7 +47,7 @@ int main(int argc, char **argv)
             tf = calcTf(URLs[j], search);
             idf = calcIdf();
             tfIdf = tf * idf;
-            insertTfIdf(sortedTfIdf, tfIdf);
+            // insertTfIdf(sortedTfIdf, tfIdf);
         }
     }
 
@@ -93,46 +91,3 @@ float calcIdf()
 }
 
 
-/* Trims leading and ending spaces 
- * Written by jas for 1521 mymysh.c
- */
-static void trim(char *str) 
-{
-	int first, last;
-	first = 0;
-	while (isspace(str[first])) first++;
-	last  = strlen(str)-1;
-	while (isspace(str[last])) last--;
-	int i, j = 0;
-	for (i = first; i <= last; i++) str[j++] = str[i];
-	str[j] = '\0';
-}
-
-/* Tokenises a string based on a delimiter. 
- * Places tokens into an array of strings.
- * Written by jas for 1521 mymysh.c
- */
-static char **tokenise(char *str, char *sep)
-{
-	// temp copy of string, because strtok() mangles it
-	char *tmp;
-	// count tokens
-	tmp = strdup(str);
-	int n = 0;
-	strtok(tmp, sep); n++;
-	while (strtok(NULL, sep) != NULL) n++;
-	free(tmp);
-	// allocate array for argv strings
-	char **strings = malloc((n+1)*sizeof(char *));
-	assert(strings != NULL);
-	// now tokenise and fill array
-	tmp = strdup(str);
-	char *next; int i = 0;
-	next = strtok(tmp, sep);
-	strings[i++] = strdup(next);
-	while ((next = strtok(NULL,sep)) != NULL)
-	strings[i++] = strdup(next);
-	strings[i] = NULL;
-	free(tmp);
-	return strings;
-}
