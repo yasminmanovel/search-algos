@@ -24,8 +24,17 @@
 #include "graph.h"
 #include "stack.h"
 #include "readData.h"
+#include <string.h>
 
 #define DEFAULT_VAL 1.0
+#define SHIFT 1
+#define NULL_TERM 1
+#define INVALID_VAL -1
+#define REQUIRED_ARGS 3
+#define DAMPING 1
+#define DIFFPR 2
+#define MAX_ITER 3
+
 
 typedef struct pageRankNode *PRNode;
 
@@ -51,11 +60,11 @@ float calculateDiffPR()
 // creating a new PageRank node and returning the pointer to it
 PRNode newPageRankNode(char *URLName, int nURLs) {
     PRNode newPRNode = calloc(1, sizeof(struct pageRankNode));
-    newPRNode->name = malloc(strlen(URLName)+1);
+    newPRNode->name = malloc(strlen(URLName)+NULL_TERM);
     newPRNode->name = strdup(URLName);
     newPRNode->nOutLinks = 0;
     newPRNode->prevPR = DEFAULT_VAL/nURLs;
-    newPRNode->currPR = -1;
+    newPRNode->currPR = INVALID_VAL;
     return newPRNode;
 }
 
@@ -95,7 +104,7 @@ PRNode *PageRankW(Set URLList, float damp, float diffPR, int maxIterations, Grap
 // helper function for the Merge Sort
 void merge(PRNode *array, int start, int middle, int end)
 {
-    int leftLength = middle - start + 1;
+    int leftLength = middle - start + SHIFT;
     int rightLength = end - middle;
 
     // split given array in half
@@ -119,14 +128,12 @@ void merge(PRNode *array, int start, int middle, int end)
     // merging remaining elements
     while (i < leftLength) {
         array[k] = left[i];
-        i++;   
-        k++;
+        i++; k++;
  
     }
     while (j < rightLength) {
         array[k] = right[j];
-        i++;   
-        k++;
+        i++; k++;
     }
 
     free(left); free(right);
@@ -138,10 +145,10 @@ void mergeSort(PRNode *array, int start, int end)
     if (start < end) {
         // same as (start + end)/2, but apparently avoids overflow for large 
         // numbers
-        int middle = start + (end - 1)/2;
+        int middle = start + (end - SHIFT)/2;
         // sort the two halves of the array
         mergeSort(array, start, middle);
-        mergeSort(array, middle + 1, end);
+        mergeSort(array, middle + SHIFT, end);
         // merge these sorted halves
         merge(array, start, middle, end);
 
@@ -151,19 +158,20 @@ void mergeSort(PRNode *array, int start, int end)
 /* Sorts URLs by decreasing page rank order. */
 void order(PRNode *urlPRs, int length)
 {
-    mergeSort(urlPRs, 0, length-1);
+    mergeSort(urlPRs, 0, length-SHIFT);
 }
+
 
 int main(int argc, char **argv)
 {
-    if (argc != 3) {
+    if (argc != REQUIRED_ARGS) {
         printf("Usage: ./pagerank damping diffPR maxIterations\n");
         exit(EXIT_FAILURE);
     } 
     // Get args.
-    int damp = argv[1];
-    int diffPR = argv[2];
-    int maxIterations = argv[3];
+    int damp = atoi(argv[DAMPING]);
+    int diffPR = atoi(argv[DIFFPR]);
+    int maxIterations = atoi(argv[MAX_ITER]);
     // Creates a set of URLs and creates an adjacency list graph.
     Set URLList = getCollection();
     Graph web = getGraph(URLList);
@@ -183,8 +191,3 @@ int main(int argc, char **argv)
 
     return 0;
 }
-
-
-
-
-
