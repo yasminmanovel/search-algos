@@ -125,10 +125,8 @@ static void readPage(char *urls, char *text, char *fileName) {
 		if (seen == SEEN_TWICE) { strcat(text, line); }
 	}
 	// Changes '\n's into space.
-	for (int i = 0; text[i] != '\0'; i++)
-		if (text[i] == '\n') text[i] = ' ';
-	for (int i = 0; urls[i] != '\0'; i++)
-		if (urls[i] == '\n') urls[i] = ' ';
+	for (int i = 0; text[i] != '\0'; i++) if (text[i] == '\n') text[i] = ' ';
+	for (int i = 0; urls[i] != '\0'; i++) if (urls[i] == '\n') urls[i] = ' ';
 	fclose(page);
 }
 
