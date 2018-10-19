@@ -11,7 +11,7 @@
 
 
 
-
+// creating the nodes that represent outlinks & inlinks
 struct urlLink *newGraphLinks(char *urlNum)
 {
     struct urlLink *newLink = calloc(1, sizeof(struct urlLink));
@@ -21,6 +21,7 @@ struct urlLink *newGraphLinks(char *urlNum)
     return newLink;
 }
 
+// creating the nodes that represent urls
 struct urlNode *newGraphNode(char *urlNum, char *text)
 {
     struct urlNode *newURL = calloc(1, sizeof(struct urlNode));
@@ -34,6 +35,7 @@ struct urlNode *newGraphNode(char *urlNum, char *text)
     return newURL;
 }
 
+// create a new Graph
 struct urlGraph *newGraph()
 {
     struct urlGraph *newGraph = calloc(1, sizeof(struct urlGraph));
@@ -42,6 +44,7 @@ struct urlGraph *newGraph()
     return newGraph;
 }
 
+// inserting outlinks for a URL
 void insertOutLinks(URL URLNode, char *URL)
 {
     if (URLNode->outLink == NULL) {
@@ -53,7 +56,7 @@ void insertOutLinks(URL URLNode, char *URL)
     }
 }
 
-
+// inserting inlinks for a URL
 void insertInLinks(URL URLNode, char *URL)
 {
     if (URLNode->inLink == NULL) {

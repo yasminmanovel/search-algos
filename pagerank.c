@@ -46,6 +46,7 @@ float calculateDiffPR()
     return 0;
 }
 
+// creating a new PageRank node and returning the pointer to it
 PRNode newPageRankNode(char *URLName, int nURLs) {
     PRNode newPRNode = calloc(1, sizeof(struct pageRankNode));
     newPRNode->name = malloc(strlen(URLName)+1);
@@ -89,11 +90,13 @@ PRNode *PageRankW(Set URLList, float damp, float diffPR, int maxIterations, Grap
 }
 
 
+// helper function for the Merge Sort
 void merge(PRNode *array, int start, int middle, int end)
 {
     int leftLength = middle - start + 1;
     int rightLength = end - middle;
 
+    // split given array in half
     PRNode *left = malloc(sizeof(URL) * leftLength);
     PRNode *right = malloc(sizeof(URL) * rightLength);
     for (int i = 0; i < leftLength; i++) left[i] = array[start + i];
@@ -110,6 +113,7 @@ void merge(PRNode *array, int start, int middle, int end)
     free(left); free(right);
 }
 
+// Merge Sort that is used to order the URLS by  their Page Rank
 void mergeSort(PRNode *array, int start, int end)
 {
     if (start < end) {
