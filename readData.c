@@ -23,6 +23,7 @@
 #define NULL_TERM_SPACE 1
 #define START_TAG_LEN   16
 #define END_TAG_LEN     14
+#define CHAR_LEN 1
 
 /* Trims leading and ending spaces 
  * Written by jas for 1521 mymysh.c 18s2
@@ -119,7 +120,7 @@ static void readPage(char *urls, char *text, char *fileName) {
 		// Ignores end tags and nwln.
 		if (strncmp(line, "#end Section-1", END_TAG_LEN) == 0
 		|| strncmp(line, "#end Section-2", END_TAG_LEN) == 0
-		|| strncmp(line, "\n", 1) == 0) continue;
+		|| strncmp(line, "\n", CHAR_LEN) == 0) continue;
 
 		if (seen == SEEN_ONCE) { strcat(urls, line); }
 		if (seen == SEEN_TWICE) { strcat(text, line); }
@@ -131,6 +132,9 @@ static void readPage(char *urls, char *text, char *fileName) {
 }
 
 /* Calculates space required for section 1 and 2 */
+
+
+
 // WORKS
 static void spaceRequired(char *fileName, int *url_size, int *text_size)
 {
@@ -140,17 +144,14 @@ static void spaceRequired(char *fileName, int *url_size, int *text_size)
 	*url_size = NULL_TERM_SPACE;
 	*text_size = NULL_TERM_SPACE;
 	while (fgets(line, MAX_LINE, page) != NULL) {
-		if (strncmp(line, "#start Section-1", 16) == 0 
-		|| strncmp(line, "#start Section-2", 16) == 0) { seen++; continue; }
-		if (strncmp(line, "#end Section-1", 14) == 0
-		|| strncmp(line, "#end Section-2", 14) == 0
-		|| strncmp(line, "\n", 1) == 0) continue;
+		if (strncmp(line, "#start Section-1", START_TAG_LEN) == 0 
+		|| strncmp(line, "#start Section-2", START_TAG_LEN) == 0) { seen++; continue; }
+		if (strncmp(line, "#end Section-1", END_TAG_LEN) == 0
+		|| strncmp(line, "#end Section-2", END_TAG_LEN) == 0
+		|| strncmp(line, "\n", CHAR_LEN) == 0) continue;
 		if (seen == SEEN_ONCE) *url_size = *url_size + strlen(line);
 		if (seen == SEEN_TWICE) *text_size = *text_size + strlen(line);
 	}
-	*url_size = *url_size * 2;
-	*text_size = *text_size * 2;
-
 	fclose(page);
 }
 
