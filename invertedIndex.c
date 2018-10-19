@@ -22,6 +22,8 @@
 #include "readData.h"
 #include "set.h"
 #include "BSTree.h"
+#include "invertedIndex.h"
+
 
 int main(int argc, char **argv) 
 {

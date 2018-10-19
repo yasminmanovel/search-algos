@@ -1,3 +1,6 @@
-// need access to the readData functions
+#ifndef INVERTEDINDEX_H
+#define INVERTEDINDEX_H
 
-// void printInvertedList(list InvertedIndex);
+
+
+#endif
