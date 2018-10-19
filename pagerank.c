@@ -25,6 +25,8 @@
 #include "stack.h"
 #include "readData.h"
 
+#define DEFAULT_VAL 1.0
+
 typedef struct pageRankNode *PRNode;
 
 struct pageRankNode {
@@ -52,7 +54,7 @@ PRNode newPageRankNode(char *URLName, int nURLs) {
     newPRNode->name = malloc(strlen(URLName)+1);
     newPRNode->name = strdup(URLName);
     newPRNode->nOutLinks = 0;
-    newPRNode->prevPR = 1.0/nURLs;
+    newPRNode->prevPR = DEFAULT_VAL/nURLs;
     newPRNode->currPR = -1;
     return newPRNode;
 }
