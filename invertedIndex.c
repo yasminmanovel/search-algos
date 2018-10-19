@@ -33,6 +33,7 @@ int main(int argc, char **argv)
     FILE *invtxt = fopen("invertedIndex.txt", "w");
     BSTreeInfix(invtxt, invList);
     fclose(invtxt);
+    BSTreeInfix(stdout, invList);
     return 0;
 }
 
