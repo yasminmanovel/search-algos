@@ -15,23 +15,7 @@
 #include "BSTree.h"
 #include "readData.h"
 
-// #include "invertedIndex.h"
-/*
-Functions we need to have:
-	getCollection()
-		returns List_of_Urls
-		Create a set (list) of urls to process by reading data from file "collection.txt"
-	getGraph(List_of_Urls)
-		Returns Graph g
-		Create empty graph (use graph ADT in say graph.h and graph.c)
-		For each url in the above list
-			- Read <url>.txt file, and update graph by adding a node and outgoing links
-	GetInvertedList(List_of_Urls)
-		Create empty inverted list (use say List of lists, BST where values are lists, etc)
-		For each url in List_of_Urls
-			- Read <url<.txt file, and update inverted index	
 
-*/
 #define SEEN_ONCE       1
 #define SEEN_TWICE      2
 #define URL_LENGTH      55
@@ -55,34 +39,6 @@ static void trim(char *str)
 	str[j] = '\0';
 }
 
-/* Tokenises a string based on a delimiter. 
- * Places tokens into an array of strings.
- * Written by jas for 1521 mymysh.c
- */
-// static char **tokenise(char *str, char *sep)
-// {
-// 	// temp copy of string, because strtok() mangles it
-// 	char *tmp;
-// 	// count tokens
-// 	tmp = strdup(str);
-// 	int n = 0;
-// 	strtok(tmp, sep); n++;
-// 	while (strtok(NULL, sep) != NULL) n++;
-// 	free(tmp);
-// 	// allocate array for argv strings
-// 	char **strings = malloc((n+1)*sizeof(char *));
-// 	assert(strings != NULL);
-// 	// now tokenise and fill array
-// 	tmp = strdup(str);
-// 	char *next; int i = 0;
-// 	next = strtok(tmp, sep);
-// 	strings[i++] = strdup(next);
-// 	while ((next = strtok(NULL,sep)) != NULL)
-// 	strings[i++] = strdup(next);
-// 	strings[i] = NULL;
-// 	free(tmp);
-// 	return strings;
-// }
 
 /* Creates a set of all URLs in collection.txt. */
 Set getCollection()
@@ -101,6 +57,7 @@ Set getCollection()
 }
 
 /* Places section 1 and section 2 of fileName into urls & texts */
+// WORKS
 static void readPage(char *urls, char *text, char *fileName) {
 	int seen = 0;
 	char line[MAX_LINE] = {0};
@@ -120,11 +77,13 @@ static void readPage(char *urls, char *text, char *fileName) {
 	// Changes '\n's into space.
 	for (int i = 0; text[i] != '\0'; i++)
 		if (text[i] == '\n') text[i] = ' ';
-
+	for (int i = 0; urls[i] != '\0'; i++)
+		if (urls[i] == '\n') urls[i] = ' ';
 	fclose(page);
 }
 
 /* Calculates space required for section 1 and 2 */
+// WORKS
 static void spaceRequired(char *fileName, int *url_size, int *text_size)
 {
 	int seen = 0;
@@ -135,35 +94,18 @@ static void spaceRequired(char *fileName, int *url_size, int *text_size)
 	while (fgets(line, MAX_LINE, page) != NULL) {
 		if (strncmp(line, "#start Section-1", 16) == 0 
 		|| strncmp(line, "#start Section-2", 16) == 0) { seen++; continue; }
-
 		if (strncmp(line, "#end Section-1", 14) == 0
 		|| strncmp(line, "#end Section-2", 14) == 0
 		|| strncmp(line, "\n", 1) == 0) continue;
 		if (seen == SEEN_ONCE) *url_size = *url_size + strlen(line);
 		if (seen == SEEN_TWICE) *text_size = *text_size + strlen(line);
 	}
+	*url_size = *url_size * 2;
+	*text_size = *text_size * 2;
 
 	fclose(page);
 }
 
-/* Creates a graph of URLs. */
-Graph getGraph(Set URLList)
-{
-	Graph g = newGraph();
-	char fileName[URL_LENGTH] = {0};
-	for (Link curr = URLList->elems; curr != NULL; curr = curr->next) {
-		strcpy(fileName, curr->val);
-		strcat(fileName, ".txt");
-		int url_size; int text_size;
-		spaceRequired(fileName, &url_size, &text_size);
-		char *urls = calloc(url_size, sizeof(char));
-		char *text = calloc(text_size, sizeof(char));
-		readPage(urls, text, fileName);
-		//insertIntoGraph(g, curr->val);
-	}
-	// go through listOfUrls and update the graph by adding a node and outgoing links
-	return g;
-}
 
 /* Removes trailing spaces and punctuation at the end of word
  * Also converts all letters to lowercase.
@@ -193,7 +135,7 @@ BSTree getInvertedList(Set URLList)
 	char fileName[URL_LENGTH] = {0};
 
 	// Iterate through set to get urls.
-	Link curr = URLList->elems;
+	SetNode curr = URLList->elems;
 	while (curr != NULL) {
 		sprintf(fileName, "%s.txt", curr->val);
 		// Gets information from txt file.
@@ -217,6 +159,75 @@ BSTree getInvertedList(Set URLList)
 	return invList;
 }
 
+// tokenise: split a string around a set of separators
+// create an array of separate strings
+// final array element contains NULL
+char **tokenise(char *str, char *sep)
+{
+   // temp copy of string, because strtok() mangles it
+   char *tmp;
+   // count tokens
+   tmp = strdup(str);
+   int n = 0;
+   strtok(tmp, sep); n++;
+   while (strtok(NULL, sep) != NULL) n++;
+   free(tmp);
+   // allocate array for argv strings
+   char **strings = malloc((n+1)*sizeof(char *));
+   assert(strings != NULL);
+   // now tokenise and fill array
+   tmp = strdup(str);
+   char *next; int i = 0;
+   next = strtok(tmp, sep);
+   strings[i++] = strdup(next);
+   while ((next = strtok(NULL,sep)) != NULL)
+      strings[i++] = strdup(next);
+   strings[i] = NULL;
+   free(tmp);
+   return strings;
+}
+
+/* Creates a graph of URLs. */
+Graph getGraph(Set URLList)
+{
+	Graph g = newGraph();
+	g->listOfUrls = malloc(sizeof(URL) * URLList->nelems);
+	char fileName[URL_LENGTH] = {0};
+	int i = 0;
+	for (SetNode curr = URLList->elems; curr != NULL; curr = curr->next) {
+		strcpy(fileName, curr->val);
+		strcat(fileName, ".txt");
+		int url_size; int text_size;
+		spaceRequired(fileName, &url_size, &text_size);
+		char *urls = calloc(url_size + 1, sizeof(char));
+		char *text = calloc(text_size + 1, sizeof(char));
+		readPage(urls, text, fileName);
+		trim(urls); trim(text);
+		g->listOfUrls[i] = newGraphNode(curr->val, text);
+		//insert outlinks
+		if (strlen(urls) != 0) {
+			char **urlsTokenised = urlsTokenised = tokenise(urls, " ");
+			for (int j = 0; urlsTokenised[j] != NULL; j++) {
+				insertOutLinks(g->listOfUrls[i], urlsTokenised[j]);
+				g->listOfUrls[i]->numEdges++;
+			}
+		}
+		i++;
+		g->numURLs++;
+	}
+	// insert inLinks
+	for (int i = 0; i < g->numURLs; i++) {
+		for (int j = 0; j < g->numURLs; j++) {
+			if (strcmp(g->listOfUrls[i]->URLName, g->listOfUrls[j]->URLName) == 0) continue;
+			for (Link curr = g->listOfUrls[j]->outLink; curr != NULL; curr = curr->next) {
+				if (strcmp(g->listOfUrls[i]->URLName, curr->URLName) == 0) {
+					insertInLinks(g->listOfUrls[i], g->listOfUrls[j]->URLName);
+				}
+			}
+		}
+	}
+	return g;
+}
 
 // int main(int argc, char **argv) {
 // 	Set URLList = getCollection();
