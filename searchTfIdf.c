@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <assert.h>
 #include "set.h"
 #include "graph.h"
@@ -27,17 +28,18 @@
 
 char **getURLs(char *word);
 float tf(FILE *URLFile, char *word);
+static void trim(char *str);
 static char **tokenise(char *str, char *sep);
 
 int main(int argc, char **argv) 
 {
     float tf, idf, tfIdf;
-    char **urls; // Array of URL names.
+    int nSearchwords = argc - 1;
+    char **URLs; // Array of URL names.
     // For each search word in command line argument.
-    int i;
-    for(i = 0; i < argc; i++) {
-        urls = getURLs(argv[i+1]); // Gets the URLs containing word.
-        
+    int i, j;
+    for(i = 0; i < nSearchwords; i++) {
+        URLs = getURLs(argv[i+1]); // Gets the URLs containing word.
     }
 
     return 0;
@@ -56,8 +58,10 @@ char **getURLs(char *word)
         // Finds the wanted word.
         if (strstr(line, word) != NULL) {
             urlString = line + strlen(word); // Moves pointer to urls part.
+            trim(urlString);
             // Get an array of url names.
             urls = tokenise(urlString, " ");
+            break;
         }
     }
     return urls;
@@ -67,6 +71,21 @@ char **getURLs(char *word)
 float tf(FILE *URLFile, char *word) 
 {
     return 1.0;
+}
+
+/* Trims leading and ending spaces 
+ * Written by jas for 1521 mymysh.c
+ */
+static void trim(char *str) 
+{
+	int first, last;
+	first = 0;
+	while (isspace(str[first])) first++;
+	last  = strlen(str)-1;
+	while (isspace(str[last])) last--;
+	int i, j = 0;
+	for (i = first; i <= last; i++) str[j++] = str[i];
+	str[j] = '\0';
 }
 
 /* Tokenises a string based on a delimiter. 

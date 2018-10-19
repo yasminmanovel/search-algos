@@ -1,14 +1,15 @@
 # -*- Makefile -*-
 CC=gcc
-CFLAGS=-Wall -Werror
+CFLAGS=-Wall -Werror -g
+OBJS=set.o graph.o BSTree.o readData.o
 
-searchTfIdf : searchTfIdf.o readData.o set.o graph.o BSTree.o
-	gcc searchTfIdf.o readData.o set.o graph.o BSTree.o -o searchTfIdf
+searchTfIdf : searchTfIdf.o $(OBJS)
+	gcc searchTfIdf.o $(OBJS) -o searchTfIdf
 
-invertedIndex : invertedIndex.o readData.o graph.o set.o BSTree.o
-	gcc invertedIndex.o readData.o graph.o set.o BSTree.o -o invertedIndex
+invertedIndex : invertedIndex.o $(OBJS)
+	gcc invertedIndex.o $(OBJS) -o invertedIndex
 
-readData : readData.o graph.o set.o BSTree.o
+readData : $(OBJS)
 	gcc readData.o graph.o set.o BSTree.o -o readData
 
 searchTfIdf.o : searchTfIdf.c 
@@ -28,3 +29,6 @@ set.o : set.c
 
 BSTree.o : BSTree.c
 	gcc -c BSTree.c
+
+clean:
+	rm -f $(OBJS) searchTfIdf.o invertedIndex.o
