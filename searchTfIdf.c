@@ -27,19 +27,30 @@
 #define MAX_LINE 1000
 
 char **getURLs(char *word);
-float tf(FILE *URLFile, char *word);
+float calcTf(char *fileName, char *word);
+float calcIdf();
 static void trim(char *str);
 static char **tokenise(char *str, char *sep);
 
 int main(int argc, char **argv) 
 {
     float tf, idf, tfIdf;
-    int nSearchwords = argc - 1;
     char **URLs; // Array of URL names.
+    char *search;
+    int nSearchwords = argc - 1;
     // For each search word in command line argument.
     int i, j;
     for(i = 0; i < nSearchwords; i++) {
-        URLs = getURLs(argv[i+1]); // Gets the URLs containing word.
+        search = argv[i+1];
+        URLs = getURLs(search);
+        // For each URL containing the word, calculate tf-idf
+        // and then insert into a sorted list.
+        for(j = 0; URLs[j] != NULL; j++) {
+            tf = calcTf(URLs[j], search);
+            idf = calcIdf();
+            tfIdf = tf * idf;
+            insertTfIdf(sortedTfIdf, tfIdf);
+        }
     }
 
     return 0;
@@ -67,11 +78,20 @@ char **getURLs(char *word)
     return urls;
 }
 
+
 /* Calculates how frequently a term appears in a url. */
-float tf(FILE *URLFile, char *word) 
+float calcTf(char *fileName, char *word) 
 {
+    
     return 1.0;
 }
+
+/* Calculates the idf for a term. */
+float calcIdf()
+{
+
+}
+
 
 /* Trims leading and ending spaces 
  * Written by jas for 1521 mymysh.c

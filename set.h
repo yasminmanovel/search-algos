@@ -12,7 +12,7 @@ typedef struct Node {
 } Node;
 	
 typedef struct SetRep {
-	int   nelems;
+	int      nelems;
 	SetNode  elems;
 } SetRep;
 
