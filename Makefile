@@ -2,17 +2,18 @@
 CC=gcc
 CFLAGS=-Wall -Werror
 
-# searchTfIdf : searchTfIdf.o readData.o set.o graph.o BSTree.o
-# 	gcc searchTfIdf.o readData.o set.o graph.o BSTree.o -o searchTfIdf
-
-# invertedIndex : invertedIndex.o readData.o graph.o set.o BSTree.o
-# 	gcc invertedIndex.o readData.o graph.o set.o BSTree.o -o invertedIndex
-
-# readData : readData.o graph.o set.o BSTree.o
-# 	gcc readData.o graph.o set.o BSTree.o -o readData
 
 pagerank: pagerank.o readData.o graph.o set.o BSTree.o
 	gcc pagerank.o readData.o graph.o set.o BSTree.o -o pagerank
+
+searchTfIdf : searchTfIdf.o readData.o set.o graph.o BSTree.o
+	gcc searchTfIdf.o readData.o set.o graph.o BSTree.o -o searchTfIdf
+
+invertedIndex : invertedIndex.o readData.o graph.o set.o BSTree.o
+	gcc invertedIndex.o readData.o graph.o set.o BSTree.o -o invertedIndex
+
+readData : readData.o graph.o set.o BSTree.o
+	gcc readData.o graph.o set.o BSTree.o -o readData
 
 pagerank.o : pagerank.c 
 	gcc -c pagerank.c 

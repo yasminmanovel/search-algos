@@ -111,7 +111,7 @@ void merge(PRNode *array, int start, int middle, int end)
     PRNode *left = malloc(sizeof(URL) * leftLength);
     PRNode *right = malloc(sizeof(URL) * rightLength);
     for (int i = 0; i < leftLength; i++) left[i] = array[start + i];
-    for (int i = 0; i < rightLength; i++) right[i] = array[middle + start + i];
+    for (int i = 0; i < rightLength; i++) right[i] = array[middle + 1 + i];
 
     // merging back in order
     int i = 0, j = 0, k = start;
@@ -133,7 +133,7 @@ void merge(PRNode *array, int start, int middle, int end)
     }
     while (j < rightLength) {
         array[k] = right[j];
-        i++; k++;
+        j++; k++;
     }
 
     free(left); free(right);
@@ -145,7 +145,7 @@ void mergeSort(PRNode *array, int start, int end)
     if (start < end) {
         // same as (start + end)/2, but apparently avoids overflow for large 
         // numbers
-        int middle = start + (end - SHIFT)/2;
+        int middle = start + (end - start)/2;
         // sort the two halves of the array
         mergeSort(array, start, middle);
         mergeSort(array, middle + SHIFT, end);
@@ -179,7 +179,6 @@ int main(int argc, char **argv)
 
     // Calculates pageranks and sorts them in order.
     PRNode *urlPRs = PageRankW(URLList, damp, diffPR, maxIterations, web);
-    printf("Okay here\n");
     order(urlPRs, web->numURLs);
 
     // Opens file and prints to it.
@@ -187,8 +186,9 @@ int main(int argc, char **argv)
     if (PRList == NULL) { perror("fopen failed"); exit(EXIT_FAILURE); }
     int i;
     for(i = 0; i < nURLs; i++)
-        fprintf(PRList, "%s, %d, %.7f\n", 
-                    urlPRs[i]->name, urlPRs[i]->nOutLinks, urlPRs[i]->currPR);
+        fprintf(PRList, "%s, %d, %.7f\n", urlPRs[i]->name, urlPRs[i]->nOutLinks, urlPRs[i]->currPR);
     fclose(PRList);
+    for(i = 0; i < nURLs; i++)
+        printf("%s, %d, %.7f\n", urlPRs[i]->name, urlPRs[i]->nOutLinks, urlPRs[i]->currPR);
     return 0;
 }
