@@ -125,11 +125,26 @@ int BSTreeNumLeaves(BSTree t)
 static void urlListInsert(BSTree t, char *url) 
 {
 	assert(t != NULL);
+	int exists = FALSE; // So that we don't add duplicates.
 	listNode *new = newListNode(url);
 	// Get to the end of current urlList.
-	listNode *curr = t->urlList;
+	listNode *curr;
+	// Checks if the word already exists.
+	curr = t->urlList;
+	while (curr != NULL) {
+		if (strcmp(curr->url, url) == 0) exists = TRUE;
+		curr = curr->next;
+	}
+	// Iterates to the last node.
+	curr = t->urlList;
 	while (curr->next != NULL) curr = curr->next;
-	curr->next = new;
+	// Only adds to list if not already in it.
+	if (!exists) 
+		curr->next = new;
+	else {
+		free(new->url);
+		free(new);
+	}
 }
 
 // Inserts anew string into a BSTree.

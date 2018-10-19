@@ -2,14 +2,32 @@
 #define GRAPH_H
 
 typedef struct urlNode *URL;
-typedef struct urlLink *outLink;
+typedef struct urlLink *Link;
 typedef struct urlGraph *Graph;
 
+struct urlLink {
+    char *URLName;
+    Link next;
+};
 
-outLink newGraphLinks(char *);
+struct urlNode {
+    char *URLName;
+    int numEdges;
+    char *text;
+    Link inLink;
+    Link outLink;
+};
+
+struct urlGraph {
+    int numURLs;
+    URL *listOfUrls;
+};
+
+Link newGraphLinks(char *);
 URL newGraphNode(char *, char *);
 Graph newGraph();
 void insertIntoGraph(Graph, char*);
-
+void insertOutLinks(URL, char*);
+void insertInLinks(URL, char*);
 
 #endif

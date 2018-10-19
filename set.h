@@ -4,16 +4,16 @@
 #ifndef SET_H
 #define SET_H
 
-typedef struct Node *Link;
+typedef struct Node *SetNode;
 
 typedef struct Node {
 	char *val;
-	Link  next;
+	SetNode  next;
 } Node;
 	
 typedef struct SetRep {
 	int   nelems;
-	Link  elems;
+	SetNode  elems;
 } SetRep;
 
 typedef struct SetRep *Set;

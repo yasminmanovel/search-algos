@@ -12,26 +12,6 @@
 
 
 
-struct urlLink {
-    char *URLName;
-    outLink next;
-};
-
-struct urlNode {
-    char *URLName;
-    int numEdges;
-    float pageRank;
-    char *text;
-    outLink firstLink;
-    URL next;
-};
-
-struct urlGraph {
-    int numURLs;
-    URL *listOfUrls;
-};
-
-
 struct urlLink *newGraphLinks(char *urlNum)
 {
     struct urlLink *newLink = calloc(1, sizeof(struct urlLink));
@@ -49,8 +29,8 @@ struct urlNode *newGraphNode(char *urlNum, char *text)
     newURL->numEdges = 0;
     newURL->text = malloc(strlen(text)+1);
     newURL->text = strdup(text);
-    newURL->firstLink = NULL;
-    newURL->next = NULL;
+    newURL->inLink = NULL;
+    newURL->outLink = NULL;
     return newURL;
 }
 
@@ -62,8 +42,27 @@ struct urlGraph *newGraph()
     return newGraph;
 }
 
-void insertIntoGraph(Graph g, char *name)
+void insertOutLinks(URL URLNode, char *URL)
 {
+    if (URLNode->outLink == NULL) {
+        URLNode->outLink = newGraphLinks(URL);
+    } else {
+        Link curr = URLNode->outLink;
+        while (curr->next != NULL) curr = curr->next;
+        curr->next = newGraphLinks(URL);
+    }
+}
+
+
+void insertInLinks(URL URLNode, char *URL)
+{
+    if (URLNode->inLink == NULL) {
+        URLNode->inLink = newGraphLinks(URL);
+    } else {
+        Link curr = URLNode->inLink;
+        while (curr->next != NULL) curr = curr->next;
+        curr->next = newGraphLinks(URL);
+    }
 }
 
 
