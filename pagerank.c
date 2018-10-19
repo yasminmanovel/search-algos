@@ -46,13 +46,19 @@ float calculateDiffPR()
     return 0;
 }
 
-PRNode newPageRankNode(char *URLName) {
-
+PRNode newPageRankNode(char *URLName, int nURLs) {
+    PRNode newPRNode = calloc(1, sizeof(struct pageRankNode));
+    newPRNode->name = malloc(strlen(URLName)+1);
+    newPRNode->name = strdup(URLName);
+    newPRNode->nOutLinks = 0;
+    newPRNode->prevPR = 1.0/nURLs;
+    newPRNode->currPR = -1;
+    return newPRNode;
 }
 
 
 /* Calculates pageranks of all URLs by DFS traversal. */
-PRNode *PageRankW(Set URLList, float damp, float diffPR, int maxIterations)  
+PRNode *PageRankW(Set URLList, float damp, float diffPR, int maxIterations, Graph web)  
 {
     int i, j; // Generic counters.
     int nURLs = nElems(URLList);
@@ -63,10 +69,8 @@ PRNode *PageRankW(Set URLList, float damp, float diffPR, int maxIterations)
     // Initialise all prevPRs to 1/N and currPRs to -1.
     SetNode currLink = URLList->elems;
     for (i = 0; i < nURLs; ++i) {
-        urlPRs[i]->name = strdup(currLink->val);
-        urlPRs[i]->nOutLinks = 0;    // CHANGE THIS.
-        urlPRs[i]->prevPR = 1.0/nURLs;
-        urlPRs[i]->currPR = -1;
+        urlPRs[i] = newPageRankNode(currLink->val, nURLs);
+        urlPRs[i]->nOutLinks = web->listOfUrls[i]->numEdges;    // CHANGE THIS.
         currLink = currLink->next;
     }
 
@@ -143,7 +147,7 @@ int main(int argc, char **argv)
     int nURLs = nElems(URLList);
 
     // Calculates pageranks and sorts them in order.
-    PRNode *urlPRs = PageRankW(URLList, damp, diffPR, maxIterations);
+    PRNode *urlPRs = PageRankW(URLList, damp, diffPR, maxIterations, web);
     order(urlPRs, web->numURLs);
 
     // Opens file and prints to it.
@@ -152,7 +156,7 @@ int main(int argc, char **argv)
     int i;
     for(i = 0; i < nURLs; i++)
         fprintf(PRList, "%s, %d, %.7f\n", 
-                    urlPRs[i].name, urlPRs[i].nOutLinks, urlPRs[i].currPR);
+                    urlPRs[i]->name, urlPRs[i]->nOutLinks, urlPRs[i]->currPR);
 
     return 0;
 }
