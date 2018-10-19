@@ -39,6 +39,56 @@ static void trim(char *str)
 	str[j] = '\0';
 }
 
+/* tokenise: split a string around a set of separators
+ * create an array of separate strings
+ * final array element contains NULL
+ * Written by jas for 1521 mymysh.c
+ */
+char **tokenise(char *str, char *sep)
+{
+   // temp copy of string, because strtok() mangles it
+   char *tmp;
+   // count tokens
+   tmp = strdup(str);
+   int n = 0;
+   strtok(tmp, sep); n++;
+   while (strtok(NULL, sep) != NULL) n++;
+   free(tmp);
+   // allocate array for argv strings
+   char **strings = malloc((n+1)*sizeof(char *));
+   assert(strings != NULL);
+   // now tokenise and fill array
+   tmp = strdup(str);
+   char *next; int i = 0;
+   next = strtok(tmp, sep);
+   strings[i++] = strdup(next);
+   while ((next = strtok(NULL,sep)) != NULL)
+      strings[i++] = strdup(next);
+   strings[i] = NULL;
+   free(tmp);
+   return strings;
+}
+
+/* Removes trailing spaces and punctuation at the end of word
+ * Also converts all letters to lowercase.
+ */
+static char *normalise(char *str) 
+{
+	char *word = strdup(str);
+	trim(word);
+	// Converts to all lowercase.
+	int i;
+	for (i = 0; word[i] != '\0'; i++) 
+		word[i] = tolower(word[i]);
+	// Removes punctuation at the end.
+	int lastLetter = strlen(word) - 1;
+	if (word[lastLetter] == '.'
+	 || word[lastLetter] == '?'
+	 || word[lastLetter] == ','
+	 || word[lastLetter] == ';') word[lastLetter] = '\0';
+	
+	return word;
+}
 
 /* Creates a set of all URLs in collection.txt. */
 Set getCollection()
@@ -107,26 +157,7 @@ static void spaceRequired(char *fileName, int *url_size, int *text_size)
 }
 
 
-/* Removes trailing spaces and punctuation at the end of word
- * Also converts all letters to lowercase.
- */
-static char *normalise(char *str) 
-{
-	char *word = strdup(str);
-	trim(word);
-	// Converts to all lowercase.
-	int i;
-	for (i = 0; word[i] != '\0'; i++) 
-		word[i] = tolower(word[i]);
-	// Removes punctuation at the end.
-	int lastLetter = strlen(word) - 1;
-	if (word[lastLetter] == '.'
-	 || word[lastLetter] == '?'
-	 || word[lastLetter] == ','
-	 || word[lastLetter] == ';') word[lastLetter] = '\0';
-	
-	return word;
-}
+
 
 /* Creates a list of url for each word found in urls. */
 BSTree getInvertedList(Set URLList)
@@ -159,33 +190,7 @@ BSTree getInvertedList(Set URLList)
 	return invList;
 }
 
-// tokenise: split a string around a set of separators
-// create an array of separate strings
-// final array element contains NULL
-char **tokenise(char *str, char *sep)
-{
-   // temp copy of string, because strtok() mangles it
-   char *tmp;
-   // count tokens
-   tmp = strdup(str);
-   int n = 0;
-   strtok(tmp, sep); n++;
-   while (strtok(NULL, sep) != NULL) n++;
-   free(tmp);
-   // allocate array for argv strings
-   char **strings = malloc((n+1)*sizeof(char *));
-   assert(strings != NULL);
-   // now tokenise and fill array
-   tmp = strdup(str);
-   char *next; int i = 0;
-   next = strtok(tmp, sep);
-   strings[i++] = strdup(next);
-   while ((next = strtok(NULL,sep)) != NULL)
-      strings[i++] = strdup(next);
-   strings[i] = NULL;
-   free(tmp);
-   return strings;
-}
+
 
 /* Creates a graph of URLs. */
 Graph getGraph(Set URLList)
@@ -198,6 +203,7 @@ Graph getGraph(Set URLList)
 		strcpy(fileName, curr->val);
 		strcat(fileName, ".txt");
 		int url_size; int text_size;
+		// reading in url outlinks and text from webpage (textfile)
 		spaceRequired(fileName, &url_size, &text_size);
 		char *urls = calloc(url_size + 1, sizeof(char));
 		char *text = calloc(text_size + 1, sizeof(char));
@@ -229,12 +235,3 @@ Graph getGraph(Set URLList)
 	}
 	return g;
 }
-
-// int main(int argc, char **argv) {
-// 	Set URLList = getCollection();
-// 	showSet(URLList);
-// 	BSTree invList = getInvertedList(URLList);
-// 	BSTreeInfix(stdout, invList);
-// 	printf("\n");
-// 	return 0;
-// }
