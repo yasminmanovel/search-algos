@@ -46,6 +46,11 @@ float calculateDiffPR()
     return 0;
 }
 
+PRNode newPageRankNode(char *URLName) {
+
+}
+
+
 /* Calculates pageranks of all URLs by DFS traversal. */
 PRNode *PageRankW(Set URLList, float damp, float diffPR, int maxIterations)  
 {
