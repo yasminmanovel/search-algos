@@ -30,7 +30,7 @@ int main(int argc, char **argv)
 
     FILE *invtxt = fopen("invertedIndex.txt", "w");
     BSTreeInfix(invtxt, invList);
-
+    fclose(invtxt);
     return 0;
 }
 
