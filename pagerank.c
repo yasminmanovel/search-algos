@@ -115,8 +115,17 @@ void merge(PRNode *array, int start, int middle, int end)
         k++;
     }
     // merging remaining elements
-    while (i < leftLength) { array[k] = left[i]; i++; k++; }
-    while (j < rightLength) { array[k] = right[j]; i++; k++; }
+    while (i < leftLength) {
+        array[k] = left[i];
+        i++;   
+        k++;
+ 
+    }
+    while (j < rightLength) {
+        array[k] = right[j];
+        i++;   
+        k++;
+    }
 
     free(left); free(right);
 }
