@@ -30,7 +30,7 @@
 #define SHIFT 1
 #define NULL_TERM 1
 #define INVALID_VAL -1
-#define REQUIRED_ARGS 3
+#define REQUIRED_ARGS 4
 #define DAMPING 1
 #define DIFFPR 2
 #define MAX_ITER 3
@@ -74,7 +74,6 @@ PRNode *PageRankW(Set URLList, float damp, float diffPR, int maxIterations, Grap
 {
     int i, j; // Generic counters.
     int nURLs = nElems(URLList);
-
     // Make a before and current PR array.
     PRNode *urlPRs = malloc(nURLs * sizeof(URL));
 
@@ -91,8 +90,9 @@ PRNode *PageRankW(Set URLList, float damp, float diffPR, int maxIterations, Grap
     // While less than max iterations or difference is not small enough.
     while (i < maxIterations && diff >= diffPR) {
         // For each URL, calculate the new pagerank.
-        for (j = 0; j < nURLs; j++) {
-            urlPRs[i]->currPR = calculateCurrPR(urlPRs);
+        //printf("%d\n",i);
+        for (j = 0; j < web->numURLs; j++) {
+            urlPRs[j]->currPR = calculateCurrPR(urlPRs);
             diff = calculateDiffPR();
         }
         i++;
@@ -179,15 +179,16 @@ int main(int argc, char **argv)
 
     // Calculates pageranks and sorts them in order.
     PRNode *urlPRs = PageRankW(URLList, damp, diffPR, maxIterations, web);
+    printf("Okay here\n");
     order(urlPRs, web->numURLs);
 
     // Opens file and prints to it.
     FILE *PRList = fopen("pagerankList.txt", "w");
-    if (!PRList) { perror("fopen failed"); exit(EXIT_FAILURE); }
+    if (PRList == NULL) { perror("fopen failed"); exit(EXIT_FAILURE); }
     int i;
     for(i = 0; i < nURLs; i++)
         fprintf(PRList, "%s, %d, %.7f\n", 
                     urlPRs[i]->name, urlPRs[i]->nOutLinks, urlPRs[i]->currPR);
-
+    fclose(PRList);
     return 0;
 }
