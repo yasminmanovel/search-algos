@@ -25,7 +25,7 @@
 #define END_TAG_LEN     14
 
 /* Trims leading and ending spaces 
- * Written by jas for 1521 mymysh.c
+ * Written by jas for 1521 mymysh.c 18s2
  */
 static void trim(char *str) 
 {
@@ -42,7 +42,7 @@ static void trim(char *str)
 /* tokenise: split a string around a set of separators
  * create an array of separate strings
  * final array element contains NULL
- * Written by jas for 1521 mymysh.c
+ * Written by jas for 1521 mymysh.c 18s2
  */
 char **tokenise(char *str, char *sep)
 {
