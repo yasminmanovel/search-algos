@@ -159,7 +159,6 @@ BSTree getInvertedList(Set URLList)
 	return invList;
 }
 
-
 // tokenise: split a string around a set of separators
 // create an array of separate strings
 // final array element contains NULL
@@ -229,3 +228,12 @@ Graph getGraph(Set URLList)
 	}
 	return g;
 }
+
+// int main(int argc, char **argv) {
+// 	Set URLList = getCollection();
+// 	showSet(URLList);
+// 	BSTree invList = getInvertedList(URLList);
+// 	BSTreeInfix(stdout, invList);
+// 	printf("\n");
+// 	return 0;
+// }
