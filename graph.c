@@ -31,7 +31,6 @@ struct urlNode *newGraphNode(char *urlNum, char *text)
     newURL->text = strdup(text);
     newURL->inLink = NULL;
     newURL->outLink = NULL;
-    newURL->next = NULL;
     return newURL;
 }
 

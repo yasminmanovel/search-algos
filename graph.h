@@ -13,11 +13,9 @@ struct urlLink {
 struct urlNode {
     char *URLName;
     int numEdges;
-    float pageRank;
     char *text;
     Link inLink;
     Link outLink;
-    URL next;
 };
 
 struct urlGraph {

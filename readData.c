@@ -94,10 +94,10 @@ static void readPage(char *urls, char *text, char *fileName) {
 		if (seen == SEEN_TWICE) { strcat(text, line); }
 	}
 	// Changes '\n's into space.
-	text[strlen(text)] = '\0';
-	urls[strlen(urls)] = '\0';
 	for (int i = 0; text[i] != '\0'; i++)
 		if (text[i] == '\n') text[i] = ' ';
+	for (int i = 0; urls[i] != '\0'; i++)
+		if (urls[i] == '\n') urls[i] = ' ';
 	fclose(page);
 }
 
@@ -179,39 +179,33 @@ BSTree getInvertedList(Set URLList)
 }
 
 
-/* Tokenises a string based on a delimiter. 
- * Places tokens into an array of strings.
- * Written by jas for 1521 mymysh.c
- */
-static char **tokenise(char *str, char *sep)
+// tokenise: split a string around a set of separators
+// create an array of separate strings
+// final array element contains NULL
+char **tokenise(char *str, char *sep)
 {
-	// temp copy of string, because strtok() mangles it
-	char *tmp;
-	// count tokens
-	tmp = strdup(str);
-	int n = 0;
-	strtok(tmp, sep); n++;
-	while (strtok(NULL, sep) != NULL) n++;
-	free(tmp);
-	// allocate array for argv strings
-	char **strings = malloc((n+1)*sizeof(char *));
-	assert(strings != NULL);
-	// now tokenise and fill array
-	tmp = strdup(str);
-	char *next; int i = 0;
-	next = strtok(tmp, sep);
-	strings[i++] = strdup(next);
-	while ((next = strtok(NULL,sep)) != NULL)
-	printf("In tokenise %s", strings[i]);
-	strings[i++] = strdup(next);
-	strings[i] = NULL;
-	free(tmp);
-	return strings;
+   // temp copy of string, because strtok() mangles it
+   char *tmp;
+   // count tokens
+   tmp = strdup(str);
+   int n = 0;
+   strtok(tmp, sep); n++;
+   while (strtok(NULL, sep) != NULL) n++;
+   free(tmp);
+   // allocate array for argv strings
+   char **strings = malloc((n+1)*sizeof(char *));
+   assert(strings != NULL);
+   // now tokenise and fill array
+   tmp = strdup(str);
+   char *next; int i = 0;
+   next = strtok(tmp, sep);
+   strings[i++] = strdup(next);
+   while ((next = strtok(NULL,sep)) != NULL)
+      strings[i++] = strdup(next);
+   strings[i] = NULL;
+   free(tmp);
+   return strings;
 }
-
-
-
-
 
 /* Creates a graph of URLs. */
 Graph getGraph(Set URLList)
@@ -220,39 +214,58 @@ Graph getGraph(Set URLList)
 	g->listOfUrls = malloc(sizeof(URL) * URLList->nelems);
 	char fileName[URL_LENGTH] = {0};
 	int i = 0;
-	printf("Segfaulting in getGraph");
 	for (SetNode curr = URLList->elems; curr != NULL; curr = curr->next) {
 		strcpy(fileName, curr->val);
 		strcat(fileName, ".txt");
 		int url_size; int text_size;
 		spaceRequired(fileName, &url_size, &text_size);
-		char *urls = calloc(url_size, sizeof(char));
-		char *text = calloc(text_size, sizeof(char));
+		char *urls = calloc(url_size + 1, sizeof(char));
+		char *text = calloc(text_size + 1, sizeof(char));
 		readPage(urls, text, fileName);
-		char **urlsTokenised = NULL;
-		trim(urls);
-		//printf("URLS: %s\n TEXT: %s\n", urls, text);
-		if (urls != NULL && strncmp(urls, " ",1) != 0) {
-			urlsTokenised = tokenise(urls, " ");
-		}
-
+		trim(urls); trim(text);
 		g->listOfUrls[i] = newGraphNode(curr->val, text);
-		for (int j = 0; urlsTokenised[j] != NULL; j++) {
-			insertOutLinks(g->listOfUrls[i], urlsTokenised[j]);
+		//insert outlinks
+		if (strlen(urls) != 0) {
+			char **urlsTokenised = urlsTokenised = tokenise(urls, " ");
+			for (int j = 0; urlsTokenised[j] != NULL; j++) {
+				insertOutLinks(g->listOfUrls[i], urlsTokenised[j]);
+				g->listOfUrls[i]->numEdges++;
+			}
 		}
 		i++;
+		g->numURLs++;
 	}
-	// go through listOfUrls and update the graph by adding a node and outgoing
-	// links
+	// insert inLinks
+	for (int i = 0; i < g->numURLs; i++) {
+		for (int j = 0; j < g->numURLs; j++) {
+			if (strcmp(g->listOfUrls[i]->URLName, g->listOfUrls[j]->URLName) == 0) continue;
+			for (Link curr = g->listOfUrls[j]->outLink; curr != NULL; curr = curr->next) {
+				if (strcmp(g->listOfUrls[i]->URLName, curr->URLName) == 0) {
+					insertInLinks(g->listOfUrls[i], g->listOfUrls[j]->URLName);
+				}
+			}
+		}
+	}
 	return g;
 }
 
-int main(int argc, char **argv) {
+/*
+int main(void) {
 	Set URLList = getCollection();
 	showSet(URLList);
 	Graph g = getGraph(URLList);
-	/*for (int i = 0; i < g->numURLs; i++) {
-		printf("Node is %s", g->listOfUrls[i]->URLName);
-	}*/
-	return 0;
+	for (int i = 0; i < g->numURLs; i++) {
+		printf("%d node is %s\n",i, g->listOfUrls[i]->URLName);
+		int j = 0;
+		for (Link curr = g->listOfUrls[i]->outLink; curr != NULL; curr = curr->next) {
+			printf("%d outlink is %s\n",j,curr->URLName);
+			j++;
+		}
+		j = 0;
+		for (Link curr = g->listOfUrls[i]->inLink; curr != NULL; curr = curr->next) {
+			printf("%d inlink is %s\n",j,curr->URLName);
+			j++;
+		}
+	}
 }
+*/
