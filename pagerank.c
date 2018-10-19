@@ -77,10 +77,45 @@ URL *PageRankW(Set URLList, float damp, float diffPR, int maxIterations)
     return urlPRs;
 }
 
-/* Sorts URLs by decreasing page rank order. */
-void order(URL *urlPRs)
+
+void merge(URL *array, int start, int middle, int end)
 {
-    
+    int leftLength = middle - start + 1;
+    int rightLength = end - middle;
+
+    URL *left = malloc(sizeof(URL) * leftLength);
+    URL *right = malloc(sizeof(URL) * rightLength);
+    for (int i = 0; i < leftLength; i++) left[i] = array[start + i];
+    for (int i = 0; i < leftLength; i++) left[i] = array[start + i];
+
+    int i = 0, j = 0, k = start;
+    while (i < leftLength && j < rightLength) {
+        if (left[i]->page <= right[j])
+    }
+
+
+    free(left); free(right);
+}
+
+void mergeSort(URL *array, int start, int end)
+{
+    if (start < end) {
+        // same as (start + end)/2, but apparently avoids overflow for large 
+        // numbers
+        int middle = start + (end - 1)/2;
+        // sort the two halves of the array
+        mergeSort(array, start, middle);
+        mergeSort(array, middle + 1, end);
+        // merge these sorted halves
+        merge(array, start, middle, end);
+
+    }
+}
+
+/* Sorts URLs by decreasing page rank order. */
+void order(URL *urlPRs, int length)
+{
+    mergeSort(urlPRs, 0, length-1);
 }
 
 int main(int argc, char **argv)
@@ -100,7 +135,7 @@ int main(int argc, char **argv)
 
     // Calculates pageranks and sorts them in order.
     URL *urlPRs = PageRankW(URLList, damp, diffPR, maxIterations);
-    order(urlPRs);
+    order(urlPRs, web->numURLs);
 
     // Opens file and prints to it.
     FILE *PRList = fopen("pagerankList.txt", "w");
