@@ -102,6 +102,7 @@ void merge(PRNode *array, int start, int middle, int end)
     for (int i = 0; i < leftLength; i++) left[i] = array[start + i];
     for (int i = 0; i < rightLength; i++) right[i] = array[middle + start + i];
 
+    // merging back in order
     int i = 0, j = 0, k = start;
     while (i < leftLength && j < rightLength) {
         if (left[i]->currPR <= right[j]->currPR) {
@@ -113,7 +114,18 @@ void merge(PRNode *array, int start, int middle, int end)
         }
         k++;
     }
-
+    // merging remaining elements
+    while (i < leftLength) {
+        array[k] = left[i];
+        i++;   
+        k++;
+ 
+    }
+    while (j < rightLength) {
+        array[k] = right[j];
+        i++;   
+        k++;
+    }
 
     free(left); free(right);
 }
