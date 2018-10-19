@@ -209,7 +209,7 @@ Graph getGraph(Set URLList)
 			char **urlsTokenised = urlsTokenised = tokenise(urls, " ");
 			for (int j = 0; urlsTokenised[j] != NULL; j++) {
 				insertOutLinks(g->listOfUrls[i], urlsTokenised[j]);
-				g->listOfUrls[i]->numEdges++;
+				g->listOfUrls[i]->numOutLinks++;
 			}
 		}
 		i++;
@@ -222,6 +222,7 @@ Graph getGraph(Set URLList)
 			for (Link curr = g->listOfUrls[j]->outLink; curr != NULL; curr = curr->next) {
 				if (strcmp(g->listOfUrls[i]->URLName, curr->URLName) == 0) {
 					insertInLinks(g->listOfUrls[i], g->listOfUrls[j]->URLName);
+					g->listOfUrls[i]->numInLinks++;
 				}
 			}
 		}

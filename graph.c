@@ -26,7 +26,7 @@ struct urlNode *newGraphNode(char *urlNum, char *text)
     struct urlNode *newURL = calloc(1, sizeof(struct urlNode));
     newURL->URLName = malloc(strlen(urlNum)+1);
     newURL->URLName = strdup(urlNum);
-    newURL->numEdges = 0;
+    newURL->numOutLinks = 0;newURL->numInLinks = 0;
     newURL->text = malloc(strlen(text)+1);
     newURL->text = strdup(text);
     newURL->inLink = NULL;
