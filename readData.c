@@ -15,26 +15,7 @@
 #include "BSTree.h"
 #include "readData.h"
 
-// #include "invertedIndex.h"
-/*
-Functions we need to have:
-	getCollection()
-		returns List_of_Urls
-		Create a set (list) of urls to process by reading data from file
-		 "collection.txt"
-	getGraph(List_of_Urls)
-		Returns Graph g
-		Create empty graph (use graph ADT in say graph.h and graph.c)
-		For each url in the above list
-			- Read <url>.txt file, and update graph by adding a node and
-			 outgoing links
-	GetInvertedList(List_of_Urls)
-		Create empty inverted list (use say List of lists, BST where values are 
-		lists, etc)
-		For each url in List_of_Urls
-			- Read <url<.txt file, and update inverted index	
 
-*/
 #define SEEN_ONCE       1
 #define SEEN_TWICE      2
 #define URL_LENGTH      55
@@ -248,24 +229,3 @@ Graph getGraph(Set URLList)
 	}
 	return g;
 }
-
-/*
-int main(void) {
-	Set URLList = getCollection();
-	showSet(URLList);
-	Graph g = getGraph(URLList);
-	for (int i = 0; i < g->numURLs; i++) {
-		printf("%d node is %s\n",i, g->listOfUrls[i]->URLName);
-		int j = 0;
-		for (Link curr = g->listOfUrls[i]->outLink; curr != NULL; curr = curr->next) {
-			printf("%d outlink is %s\n",j,curr->URLName);
-			j++;
-		}
-		j = 0;
-		for (Link curr = g->listOfUrls[i]->inLink; curr != NULL; curr = curr->next) {
-			printf("%d inlink is %s\n",j,curr->URLName);
-			j++;
-		}
-	}
-}
-*/
