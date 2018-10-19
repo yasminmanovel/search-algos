@@ -28,7 +28,7 @@
 /* Trims leading and ending spaces 
  * Written by jas for 1521 mymysh.c 18s2
  */
-static void trim(char *str) 
+void trim(char *str) 
 {
 	int first, last;
 	first = 0;
@@ -73,7 +73,7 @@ char **tokenise(char *str, char *sep)
 /* Removes trailing spaces and punctuation at the end of word
  * Also converts all letters to lowercase.
  */
-static char *normalise(char *str) 
+char *normalise(char *str) 
 {
 	char *word = strdup(str);
 	trim(word);
@@ -109,7 +109,8 @@ Set getCollection()
 
 /* Places section 1 and section 2 of fileName into urls & texts */
 // WORKS
-static void readPage(char *urls, char *text, char *fileName) {
+void readPage(char *urls, char *text, char *fileName)
+{
 	int seen = 0;
 	char line[MAX_LINE] = {0};
 	FILE *page = fopen(fileName, "r");
@@ -136,7 +137,7 @@ static void readPage(char *urls, char *text, char *fileName) {
 
 
 // WORKS
-static void spaceRequired(char *fileName, int *url_size, int *text_size)
+void spaceRequired(char *fileName, int *url_size, int *text_size)
 {
 	int seen = 0;
 	char line[MAX_LINE] = {0};
