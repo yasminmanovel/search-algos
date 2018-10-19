@@ -94,7 +94,7 @@ float calcTf(char *URLName, char *word)
 
     char *dump = text; // For freeing.
     char *found;
-    int wordCount = 0, searchCount = 0;
+    float wordCount = 0, searchCount = 0;
     char *wanted = normalise(word);
     // Counts total words & num of wanted word in file.
     while ((found = strsep(&text, " ")) != NULL) {
@@ -107,7 +107,8 @@ float calcTf(char *URLName, char *word)
     }
     free(wanted);
     free(dump);
-    // printf("%s\t search %d\t word %d\n", fileName, searchCount, wordCount);
+    // printf("%s\t search %f\t word %f\n", fileName, searchCount, wordCount);
+    // printf("Tf = %f\n", searchCount/wordCount);
 
     return searchCount/wordCount;
 }
