@@ -51,11 +51,13 @@ float calculateCurrPR(PRNode *urlPRs)
     return 0;
 }
 
+
 /* Calculates the new diff. */
 float calculateDiffPR()
 {
     return 0;
 }
+
 
 // creating a new PageRank node and returning the pointer to it
 PRNode newPageRankNode(char *URLName, int nURLs) {
@@ -139,6 +141,7 @@ void merge(PRNode *array, int start, int middle, int end)
     free(left); free(right);
 }
 
+
 // Merge Sort that is used to order the URLS by  their Page Rank
 void mergeSort(PRNode *array, int start, int end)
 {
@@ -154,6 +157,7 @@ void mergeSort(PRNode *array, int start, int end)
 
     }
 }
+
 
 /* Sorts URLs by decreasing page rank order. */
 void order(PRNode *urlPRs, int length)

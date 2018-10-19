@@ -40,6 +40,7 @@ void trim(char *str)
 	str[j] = '\0';
 }
 
+
 /* tokenise: split a string around a set of separators
  * create an array of separate strings
  * final array element contains NULL
@@ -70,6 +71,7 @@ char **tokenise(char *str, char *sep)
    return strings;
 }
 
+
 /* Removes trailing spaces and punctuation at the end of word
  * Also converts all letters to lowercase.
  */
@@ -91,6 +93,7 @@ char *normalise(char *str)
 	return word;
 }
 
+
 /* Creates a set of all URLs in collection.txt. */
 Set getCollection()
 {
@@ -107,8 +110,8 @@ Set getCollection()
 	return URLList;
 }
 
+
 /* Places section 1 and section 2 of fileName into urls & texts */
-// WORKS
 void readPage(char *urls, char *text, char *fileName)
 {
 	int seen = 0;
@@ -132,11 +135,8 @@ void readPage(char *urls, char *text, char *fileName)
 	fclose(page);
 }
 
+
 /* Calculates space required for section 1 and 2 */
-
-
-
-// WORKS
 void spaceRequired(char *fileName, int *url_size, int *text_size)
 {
 	int seen = 0;
@@ -155,8 +155,6 @@ void spaceRequired(char *fileName, int *url_size, int *text_size)
 	}
 	fclose(page);
 }
-
-
 
 
 /* Creates a list of url for each word found in urls. */
@@ -189,7 +187,6 @@ BSTree getInvertedList(Set URLList)
 	}
 	return invList;
 }
-
 
 
 /* Creates a graph of URLs. */
