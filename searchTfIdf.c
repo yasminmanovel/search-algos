@@ -25,9 +25,10 @@
 #include "readData.h"
 
 #define MAX_LINE 1000
+#define URL_LENGTH      55
 
 char **getURLs(char *word);
-float calcTf(char *fileName, char *word);
+float calcTf(char *URLName, char *word);
 float calcIdf();
 
 int main(int argc, char **argv) 
@@ -78,16 +79,43 @@ char **getURLs(char *word)
 
 
 /* Calculates how frequently a term appears in a url. */
-float calcTf(char *fileName, char *word) 
+float calcTf(char *URLName, char *word) 
 {
-    
-    return 1.0;
+    // Opening URL.txt file.
+    char fileName[URL_LENGTH] = {0};
+    sprintf(fileName, "%s.txt", URLName);
+
+    // Gets information from txt file.
+    int url_size; int text_size;
+    spaceRequired(fileName, &url_size, &text_size);
+    char *urls = calloc(url_size, sizeof(char));
+    char *text = calloc(text_size, sizeof(char));
+    readPage(urls, text, fileName);
+
+    char *dump = text; // For freeing.
+    char *found;
+    int wordCount = 0, searchCount = 0;
+    char *wanted = normalise(word);
+    // Counts total words & num of wanted word in file.
+    while ((found = strsep(&text, " ")) != NULL) {
+        char *str = normalise(found);
+        if (strcmp(str, "") != 0) {
+            if (strcmp(str, wanted) == 0) searchCount++;
+            wordCount++;
+        }
+        free(str);
+    }
+    free(wanted);
+    free(dump);
+    // printf("%s\t search %d\t word %d\n", fileName, searchCount, wordCount);
+
+    return searchCount/wordCount;
 }
 
 /* Calculates the idf for a term. */
 float calcIdf()
 {
-
+    return 1.0;
 }
 
 

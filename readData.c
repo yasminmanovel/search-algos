@@ -23,7 +23,7 @@
 #define NULL_TERM_SPACE 1
 #define START_TAG_LEN   16
 #define END_TAG_LEN     14
-#define CHAR_LEN 1
+#define CHAR_LEN        1
 
 /* Trims leading and ending spaces 
  * Written by jas for 1521 mymysh.c 18s2
