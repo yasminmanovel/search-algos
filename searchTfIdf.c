@@ -19,6 +19,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <assert.h>
+#include <math.h>
 #include "set.h"
 #include "graph.h"
 #include "BSTree.h"
@@ -28,15 +29,18 @@
 #define URL_LENGTH      55
 
 char **getURLs(char *word);
-float calcTf(char *URLName, char *word);
-float calcIdf();
+double calcTf(char *URLName, char *word);
+double calcIdf(char **URLs, int totalURLs);
 
 int main(int argc, char **argv) 
 {
-    float tf, idf, tfIdf;
+    double tf, idf, tfIdf;
     char **URLs; // Array of URL names.
     char *search;
+
     int nSearchwords = argc - 1;
+    Set URLList = getCollection();
+    int totalURLs = nElems(URLList);
     // For each search word in command line argument.
     int i, j;
     for(i = 0; i < nSearchwords; i++) {
@@ -46,7 +50,7 @@ int main(int argc, char **argv)
         // and then insert into a sorted list.
         for(j = 0; URLs[j] != NULL; j++) {
             tf = calcTf(URLs[j], search);
-            idf = calcIdf();
+            idf = calcIdf(URLs, totalURLs);
             tfIdf = tf * idf;
             // insertTfIdf(sortedTfIdf, tfIdf);
         }
@@ -79,7 +83,7 @@ char **getURLs(char *word)
 
 
 /* Calculates how frequently a term appears in a url. */
-float calcTf(char *URLName, char *word) 
+double calcTf(char *URLName, char *word) 
 {
     // Opening URL.txt file.
     char fileName[URL_LENGTH] = {0};
@@ -94,7 +98,7 @@ float calcTf(char *URLName, char *word)
 
     char *dump = text; // For freeing.
     char *found;
-    float wordCount = 0, searchCount = 0;
+    double wordCount = 0, searchCount = 0;
     char *wanted = normalise(word);
     // Counts total words & num of wanted word in file.
     while ((found = strsep(&text, " ")) != NULL) {
@@ -113,10 +117,15 @@ float calcTf(char *URLName, char *word)
     return searchCount/wordCount;
 }
 
-/* Calculates the idf for a term. */
-float calcIdf()
+/* Calculates the idf for a term in a file. */
+double calcIdf(char **URLs, int totalURLs)
 {
-    return 1.0;
+    // Count num of URLs containing the word.
+    int i;
+    double count = 0;
+    for(i = 0; URLs[i] != NULL; i++) count++;
+
+    return log10(count/totalURLs);
 }
 
 
