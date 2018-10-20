@@ -48,6 +48,7 @@ struct pageRankNode {
 /* Calculates the current PR of a URL given its prev PR. */
 float calculateCurrPR(PRNode *urlPRs)
 {
+    
     return 0;
 }
 
@@ -92,7 +93,6 @@ PRNode *PageRankW(Set URLList, float damp, float diffPR, int maxIterations, Grap
     // While less than max iterations or difference is not small enough.
     while (i < maxIterations && diff >= diffPR) {
         // For each URL, calculate the new pagerank.
-        //printf("%d\n",i);
         for (j = 0; j < web->numURLs; j++) {
             urlPRs[j]->currPR = calculateCurrPR(urlPRs);
             diff = calculateDiffPR();

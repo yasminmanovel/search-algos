@@ -66,13 +66,13 @@ int main(int argc, char **argv)
         // Gets URLs containing search word.
         URLs = getURLs(search);
         nURLs = numURLs(URLs);
+        idf = calcIdf(nURLs, totalURLs);
         URLTfIdf = malloc(nURLs * sizeof(TFNode));
         if (!URLTfIdf) { perror("malloc failed"); exit(EXIT_FAILURE); }
         // For each URL containing word, calc tf-idf and insert into array.
         index = 0;
         for(j = 0; URLs[j] != NULL; j++) {
             tf = calcTf(URLs[j], search);
-            idf = calcIdf(nURLs, totalURLs);
             tfIdf = tf * idf;
             // Inserts into array.
             URLTfIdf[index] = newTFIDFNode(URLs[j]);
