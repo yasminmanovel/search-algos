@@ -83,7 +83,7 @@ PRNode *PageRankW(Set URLList, float damp, float diffPR, int maxIterations, Grap
     SetNode currLink = URLList->elems;
     for (i = 0; i < nURLs; ++i) {
         urlPRs[i] = newPageRankNode(currLink->val, nURLs);
-        urlPRs[i]->nOutLinks = web->listOfUrls[i]->numOutLinks;    // CHANGE THIS.
+        urlPRs[i]->nOutLinks = web->listOfUrls[i]->numOutLinks;
         currLink = currLink->next;
     }
 

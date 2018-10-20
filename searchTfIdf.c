@@ -28,13 +28,22 @@
 #define MAX_LINE 1000
 #define URL_LENGTH      55
 #define SHIFT 1
+#define NULL_TERM 1
 
 
 char **getURLs(char *word);
 double calcTf(char *URLName, char *word);
 double calcIdf(char **URLs, int totalURLs);
-void TFMerge(double *array, int start, int middle, int end);
-void TFmergeSort(double *array, int start, int end);
+void TFMerge(TFNode *array, int start, int middle, int end);
+void TFmergeSort(TFNode *array, int start, int end);
+TFNode newTFIDFNode(char *URLName);
+
+typedef struct TFIDFNode *TFNode;
+
+struct TFIDFNode {
+    char *name;
+    double tfldf;
+};
 
 
 int main(int argc, char **argv) 
@@ -134,23 +143,33 @@ double calcIdf(char **URLs, int totalURLs)
 }
 
 
+// creating a new tfidf node and returning the pointer to it
+TFNode newTFIDFNode(char *URLName) {
+    TFNode newTFNode = calloc(1, sizeof(struct TFIDFNode));
+    newTFNode->name = malloc(strlen(URLName)+NULL_TERM);
+    newTFNode->name = strdup(URLName);
+    newTFNode->tfldf = 0;
+    return newTFNode;
+}
+
+
 
 // helper function for the Merge Sort
-void TFMerge(double *array, int start, int middle, int end)
+void TFMerge(TFNode *array, int start, int middle, int end)
 {
     int leftLength = middle - start + SHIFT;
     int rightLength = end - middle;
 
     // split given array in half
-    double *left = malloc(sizeof(URL) * leftLength);
-    double *right = malloc(sizeof(URL) * rightLength);
+    TFNode *left = malloc(sizeof(URL) * leftLength);
+    TFNode *right = malloc(sizeof(URL) * rightLength);
     for (int i = 0; i < leftLength; i++) left[i] = array[start + i];
     for (int i = 0; i < rightLength; i++) right[i] = array[middle + 1 + i];
 
     // merging back in order
     int i = 0, j = 0, k = start;
     while (i < leftLength && j < rightLength) {
-        if (left[i] <= right[j]) {
+        if (left[i]->tfldf <= right[j]->tfldf) {
             array[k] = left[i];
             i++;
         } else {
@@ -175,7 +194,7 @@ void TFMerge(double *array, int start, int middle, int end)
 
 
 // Merge Sort that is used to order the URLS by  their Page Rank
-void TFmergeSort(double *array, int start, int end)
+void TFmergeSort(TFNode *array, int start, int end)
 {
     if (start < end) {
         // same as (start + end)/2, but apparently avoids overflow for large 
