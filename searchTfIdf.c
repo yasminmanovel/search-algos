@@ -27,10 +27,15 @@
 
 #define MAX_LINE 1000
 #define URL_LENGTH      55
+#define SHIFT 1
+
 
 char **getURLs(char *word);
 double calcTf(char *URLName, char *word);
 double calcIdf(char **URLs, int totalURLs);
+void TFMerge(double *array, int start, int middle, int end);
+void TFmergeSort(double *array, int start, int end);
+
 
 int main(int argc, char **argv) 
 {
@@ -128,4 +133,60 @@ double calcIdf(char **URLs, int totalURLs)
     return log10(count/totalURLs);
 }
 
+
+
+// helper function for the Merge Sort
+void TFMerge(double *array, int start, int middle, int end)
+{
+    int leftLength = middle - start + SHIFT;
+    int rightLength = end - middle;
+
+    // split given array in half
+    double *left = malloc(sizeof(URL) * leftLength);
+    double *right = malloc(sizeof(URL) * rightLength);
+    for (int i = 0; i < leftLength; i++) left[i] = array[start + i];
+    for (int i = 0; i < rightLength; i++) right[i] = array[middle + 1 + i];
+
+    // merging back in order
+    int i = 0, j = 0, k = start;
+    while (i < leftLength && j < rightLength) {
+        if (left[i] <= right[j]) {
+            array[k] = left[i];
+            i++;
+        } else {
+            array[k] = right[j];
+            j++;
+        }
+        k++;
+    }
+    // merging remaining elements
+    while (i < leftLength) {
+        array[k] = left[i];
+        i++; k++;
+ 
+    }
+    while (j < rightLength) {
+        array[k] = right[j];
+        j++; k++;
+    }
+
+    free(left); free(right);
+}
+
+
+// Merge Sort that is used to order the URLS by  their Page Rank
+void TFmergeSort(double *array, int start, int end)
+{
+    if (start < end) {
+        // same as (start + end)/2, but apparently avoids overflow for large 
+        // numbers
+        int middle = start + (end - start)/2;
+        // sort the two halves of the array
+        TFmergeSort(array, start, middle);
+        TFmergeSort(array, middle + SHIFT, end);
+        // merge these sorted halves
+        TFMerge(array, start, middle, end);
+
+    }
+}
 
