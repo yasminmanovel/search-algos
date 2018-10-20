@@ -104,7 +104,7 @@ PRNode *PageRankW(Set URLList, float damp, float diffPR, int maxIterations, Grap
 
 
 // helper function for the Merge Sort
-void merge(PRNode *array, int start, int middle, int end)
+void PRmerge(PRNode *array, int start, int middle, int end)
 {
     int leftLength = middle - start + SHIFT;
     int rightLength = end - middle;
@@ -143,17 +143,17 @@ void merge(PRNode *array, int start, int middle, int end)
 
 
 // Merge Sort that is used to order the URLS by  their Page Rank
-void mergeSort(PRNode *array, int start, int end)
+void PRmergeSort(PRNode *array, int start, int end)
 {
     if (start < end) {
         // same as (start + end)/2, but apparently avoids overflow for large 
         // numbers
         int middle = start + (end - start)/2;
         // sort the two halves of the array
-        mergeSort(array, start, middle);
-        mergeSort(array, middle + SHIFT, end);
+        PRmergeSort(array, start, middle);
+        PRmergeSort(array, middle + SHIFT, end);
         // merge these sorted halves
-        merge(array, start, middle, end);
+        PRmerge(array, start, middle, end);
 
     }
 }
@@ -162,7 +162,7 @@ void mergeSort(PRNode *array, int start, int end)
 /* Sorts URLs by decreasing page rank order. */
 void order(PRNode *urlPRs, int length)
 {
-    mergeSort(urlPRs, 0, length-SHIFT);
+    PRmergeSort(urlPRs, 0, length-SHIFT);
 }
 
 
