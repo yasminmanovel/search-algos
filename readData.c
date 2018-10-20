@@ -114,6 +114,8 @@ Set getCollection()
 /* Places section 1 and section 2 of fileName into urls & texts */
 void readPage(char *urls, char *text, char *fileName)
 {
+	int i;
+
 	int seen = 0;
 	char line[MAX_LINE] = {0};
 	FILE *page = fopen(fileName, "r");
@@ -130,8 +132,8 @@ void readPage(char *urls, char *text, char *fileName)
 		if (seen == SEEN_TWICE) { strcat(text, line); }
 	}
 	// Changes '\n's into space.
-	for (int i = 0; text[i] != '\0'; i++) if (text[i] == '\n') text[i] = ' ';
-	for (int i = 0; urls[i] != '\0'; i++) if (urls[i] == '\n') urls[i] = ' ';
+	for (i = 0; text[i] != '\0'; i++) if (text[i] == '\n') text[i] = ' ';
+	for (i = 0; urls[i] != '\0'; i++) if (urls[i] == '\n') urls[i] = ' ';
 	fclose(page);
 }
 
@@ -192,11 +194,13 @@ BSTree getInvertedList(Set URLList)
 /* Creates a graph of URLs. */
 Graph getGraph(Set URLList)
 {
+	int j;
 	Graph g = newGraph();
 	g->listOfUrls = malloc(sizeof(URL) * URLList->nelems);
 	char fileName[URL_LENGTH] = {0};
 	int i = 0;
-	for (SetNode curr = URLList->elems; curr != NULL; curr = curr->next) {
+	SetNode curr;
+	for (curr = URLList->elems; curr != NULL; curr = curr->next) {
 		strcpy(fileName, curr->val);
 		strcat(fileName, ".txt");
 		int url_size; int text_size;
@@ -210,7 +214,7 @@ Graph getGraph(Set URLList)
 		//insert outlinks
 		if (strlen(urls) != 0) {
 			char **urlsTokenised = urlsTokenised = tokenise(urls, " ");
-			for (int j = 0; urlsTokenised[j] != NULL; j++) {
+			for (j = 0; urlsTokenised[j] != NULL; j++) {
 				insertOutLinks(g->listOfUrls[i], urlsTokenised[j]);
 				g->listOfUrls[i]->numOutLinks++;
 			}
@@ -219,8 +223,8 @@ Graph getGraph(Set URLList)
 		g->numURLs++;
 	}
 	// insert inLinks
-	for (int i = 0; i < g->numURLs; i++) {
-		for (int j = 0; j < g->numURLs; j++) {
+	for (i = 0; i < g->numURLs; i++) {
+		for (j = 0; j < g->numURLs; j++) {
 			if (strcmp(g->listOfUrls[i]->URLName, g->listOfUrls[j]->URLName) == 0) continue;
 			for (Link curr = g->listOfUrls[j]->outLink; curr != NULL; curr = curr->next) {
 				if (strcmp(g->listOfUrls[i]->URLName, curr->URLName) == 0) {

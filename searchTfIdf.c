@@ -30,20 +30,21 @@
 #define SHIFT 1
 #define NULL_TERM 1
 
-
-char **getURLs(char *word);
-double calcTf(char *URLName, char *word);
-double calcIdf(char **URLs, int totalURLs);
-void TFMerge(TFNode *array, int start, int middle, int end);
-void TFmergeSort(TFNode *array, int start, int end);
-TFNode newTFIDFNode(char *URLName);
-
 typedef struct TFIDFNode *TFNode;
 
 struct TFIDFNode {
     char *name;
-    double tfldf;
+    double tfIdf;
 };
+
+char **getURLs(char *word);
+double calcTf(char *URLName, char *word);
+double calcIdf(int nURLs, int totalURLs);
+void TFMerge(TFNode *array, int start, int middle, int end);
+void TFmergeSort(TFNode *array, int start, int end);
+TFNode newTFIDFNode(char *URLName);
+void printTfIdf(TFNode *array, int size);
+int numURLs(char **URLs);
 
 
 int main(int argc, char **argv) 
@@ -51,26 +52,56 @@ int main(int argc, char **argv)
     double tf, idf, tfIdf;
     char **URLs; // Array of URL names.
     char *search;
+    int  nURLs;
+    TFNode *URLTfIdf;
+    int i, j;
+    int index;
 
     int nSearchwords = argc - 1;
     Set URLList = getCollection();
     int totalURLs = nElems(URLList);
     // For each search word in command line argument.
-    int i, j;
     for(i = 0; i < nSearchwords; i++) {
         search = argv[i+1];
+        // Gets URLs containing search word.
         URLs = getURLs(search);
-        // For each URL containing the word, calculate tf-idf
-        // and then insert into a sorted list.
+        nURLs = numURLs(URLs);
+        URLTfIdf = malloc(nURLs * sizeof(TFNode));
+        if (!URLTfIdf) { perror("malloc failed"); exit(EXIT_FAILURE); }
+        // For each URL containing word, calc tf-idf and insert into array.
+        index = 0;
         for(j = 0; URLs[j] != NULL; j++) {
             tf = calcTf(URLs[j], search);
-            idf = calcIdf(URLs, totalURLs);
+            idf = calcIdf(nURLs, totalURLs);
             tfIdf = tf * idf;
-            // insertTfIdf(sortedTfIdf, tfIdf);
+            // Inserts into array.
+            URLTfIdf[index] = newTFIDFNode(URLs[j]);
+            URLTfIdf[index]->tfIdf = tfIdf;
+            index++;
         }
+        // Sorts the array of TFNodes and prints.
+        TFmergeSort(URLTfIdf, 0, nURLs-1);
+        printTfIdf(URLTfIdf, nURLs-1);
     }
 
     return 0;
+}
+
+/* Prints the tfidf to stdout */
+void printTfIdf(TFNode *array, int size)
+{
+    int i;
+    for(i = size; i >= 0; i--)
+        printf("%s %.6f\n", array[i]->name, array[i]->tfIdf);
+}
+
+/* Gets number of URLs containing the word. */
+int numURLs(char **URLs)
+{
+    int i, URLcount = 0;
+    for(i = 0; URLs[i] != NULL; i++)
+        URLcount++;
+    return URLcount;
 }
 
 /* Gets the URLs that contain word. */
@@ -132,44 +163,39 @@ double calcTf(char *URLName, char *word)
 }
 
 /* Calculates the idf for a term in a file. */
-double calcIdf(char **URLs, int totalURLs)
+double calcIdf(int nURLs, int totalURLs)
 {
-    // Count num of URLs containing the word.
-    int i;
-    double count = 0;
-    for(i = 0; URLs[i] != NULL; i++) count++;
-
-    return log10(count/totalURLs);
+    return log10( (double)totalURLs / nURLs);
 }
 
-
 // creating a new tfidf node and returning the pointer to it
-TFNode newTFIDFNode(char *URLName) {
+TFNode newTFIDFNode(char *URLName) 
+{
     TFNode newTFNode = calloc(1, sizeof(struct TFIDFNode));
     newTFNode->name = malloc(strlen(URLName)+NULL_TERM);
     newTFNode->name = strdup(URLName);
-    newTFNode->tfldf = 0;
+    newTFNode->tfIdf = 0;
     return newTFNode;
 }
-
-
 
 // helper function for the Merge Sort
 void TFMerge(TFNode *array, int start, int middle, int end)
 {
+    int i, j, k;
+    
     int leftLength = middle - start + SHIFT;
     int rightLength = end - middle;
 
     // split given array in half
     TFNode *left = malloc(sizeof(URL) * leftLength);
     TFNode *right = malloc(sizeof(URL) * rightLength);
-    for (int i = 0; i < leftLength; i++) left[i] = array[start + i];
-    for (int i = 0; i < rightLength; i++) right[i] = array[middle + 1 + i];
+    for (i = 0; i < leftLength; i++) left[i] = array[start + i];
+    for (i = 0; i < rightLength; i++) right[i] = array[middle + 1 + i];
 
     // merging back in order
-    int i = 0, j = 0, k = start;
+    i = 0, j = 0, k = start;
     while (i < leftLength && j < rightLength) {
-        if (left[i]->tfldf <= right[j]->tfldf) {
+        if (left[i]->tfIdf <= right[j]->tfIdf) {
             array[k] = left[i];
             i++;
         } else {
