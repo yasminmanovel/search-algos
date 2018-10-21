@@ -22,6 +22,7 @@ static void freeurlList(BSTree t)
 	while (curr != NULL) {
 		listNode *temp = curr;
 		curr = curr->next;
+		free(temp->url);
 		free(temp);
 	}
 }
@@ -60,6 +61,7 @@ void dropBSTree(BSTree t)
 	dropBSTree(t->left);
 	dropBSTree(t->right);
 	freeurlList(t);
+	free(t->value);
 	free(t);
 }
 

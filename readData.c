@@ -191,8 +191,9 @@ BSTree getInvertedList(Set URLList)
 			char *word = normalise(found);
 			if (strcmp(word, "") != 0)
 				invList = BSTreeInsert(invList, word, curr->val);
+			free(word);
 		}
-		free(dump);
+		free(dump); free(urls);
 		curr = curr->next;
 	}
 	return invList;
