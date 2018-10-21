@@ -34,7 +34,8 @@
 #define DAMPING 1
 #define DIFFPR 2
 #define MAX_ITER 3
-
+#define TRUE 1
+#define FALSE 0
 
 typedef struct pageRankNode *PRNode;
 
@@ -45,17 +46,33 @@ struct pageRankNode {
     float currPR;
 };
 
-/* Calculates the current PR of a URL given its prev PR. */
-float calculateCurrPR(PRNode *urlPRs)
+int hasInlink(char *checking, char *looking, Graph web)
 {
-    return 0;
+
+}
+
+/* Calculates the current PR of a URL given its prev PR. */
+float calculateCurrPR(PRNode currNode, PRNode *array, Graph web, float damp, int nURLs)
+{
+    float part1 = (1 - damp)/nURLs;
+    float sum = 0;
+    int i = 0;
+    for (i = 0; i < nURLs; i++) {
+        // cant just add all the page ranks, can only add the page ranks of the one the page has outlinks to
+        if (strcmp(array[i]->name, currNode->name) == 0 || array[i]->nOutLinks == 0) continue;
+        int j = 0;
+        if (hasInlink(array[i]->name, currNode->name, web)) sum = sum + array[i]->currPR/array[i]->nOutLinks;
+    }
+    float part2 = damp * sum;
+    float PR = part1 + part2;
+    return PR;
 }
 
 
 /* Calculates the new diff. */
-float calculateDiffPR()
+float calculateDiffPR(PRNode currNode)
 {
-    return 0;
+    return currNode->currPR - currNode->prevPR;
 }
 
 
@@ -94,8 +111,9 @@ PRNode *PageRankW(Set URLList, float damp, float diffPR, int maxIterations, Grap
         // For each URL, calculate the new pagerank.
         //printf("%d\n",i);
         for (j = 0; j < web->numURLs; j++) {
-            urlPRs[j]->currPR = calculateCurrPR(urlPRs);
-            diff = calculateDiffPR();
+            urlPRs[j]->currPR = calculateCurrPR(urlPRs[j], urlPRs, web, damp, nURLs);
+            diff = calculateDiffPR(urlPRs[j]);
+            urlPRs[j]->prevPR = urlPRs[j]->currPR;
         }
         i++;
     }
@@ -173,9 +191,9 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     } 
     // Get args.
-    int damp = atoi(argv[DAMPING]);
-    int diffPR = atoi(argv[DIFFPR]);
-    int maxIterations = atoi(argv[MAX_ITER]);
+    float damp = atoi(argv[DAMPING]);
+    float diffPR = atoi(argv[DIFFPR]);
+    float maxIterations = atoi(argv[MAX_ITER]);
     // Creates a set of URLs and creates an adjacency list graph.
     Set URLList = getCollection();
     Graph web = getGraph(URLList);
