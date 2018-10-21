@@ -51,7 +51,8 @@ struct pageRankNode {
 /* Calculate weight of inlinks */
 float calculateWin(PRNode v, PRNode u)
 {
-
+    float uIn = u->nInlinks;
+    //for i in v's outlinks: add inlink
 }
 
 /* Calculate weight of outlinks */
@@ -61,7 +62,7 @@ float calculateWout(PRNode v, PRNode u)
 }
 
 /* Checks if current node has inlink to another node */
-int hasInlink(char *looking_for, char *currNode, Graph web)
+int hasInlink(char *lookingFor, char *currNode, Graph web)
 {
     int i;
     for (i = 0; i < web->numURLs; i++) {
@@ -69,7 +70,7 @@ int hasInlink(char *looking_for, char *currNode, Graph web)
     }
     Link curr = web->listOfUrls[i]->inLink;
     for (; curr != NULL; curr = curr->next) {
-        if (strcmp(looking_for, curr->URLName) == 0) return TRUE;
+        if (strcmp(lookingFor, curr->URLName) == 0) return TRUE;
     }
     return FALSE;
 }
