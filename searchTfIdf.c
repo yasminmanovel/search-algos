@@ -65,6 +65,7 @@ int main(int argc, char **argv)
         search = argv[i+1];
         // Gets URLs containing search word.
         URLs = getURLs(search);
+        if (!URLs) { printf("\"%s\" not found anywhere.\n", search); continue; }
         nURLs = numURLs(URLs);
         idf = calcIdf(nURLs, totalURLs);
         URLTfIdf = malloc(nURLs * sizeof(TFNode));
