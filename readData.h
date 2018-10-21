@@ -13,6 +13,7 @@
 
 void trim(char *str);
 char **tokenise(char *str, char *sep);
+void freeTokens(char **toks);
 char *normalise(char *str);
 Set getCollection();
 void readPage(char *urls, char *text, char *fileName);

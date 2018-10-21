@@ -94,6 +94,7 @@ int main(int argc, char **argv)
 
     disposeSet(searchWords);
     disposeSet(URLList);
+    free(URLTfIdf);
 
     return 0;
 }

@@ -1,13 +1,13 @@
 # -*- Makefile -*-
 CC=gcc
-CFLAGS=-Wall -Werror -g
+CFLAGS=-std=gnu99 -Wall -Werror -g
 OBJS=set.o graph.o BSTree.o readData.o
 
 searchPagerank : pagerank.o $(OBJS)
 	gcc $(CFLAGS) pagerank.o $(OBJS) -o searchPagerank
 
 searchTfIdf : searchTfIdf.o $(OBJS)
-	gcc $(CFLAGS) searchTfIdf.o $(OBJS) -o searchTfIdf
+	gcc $(CFLAGS) searchTfIdf.o $(OBJS) -lm -o searchTfIdf
 
 pagerank: pagerank.o readData.o graph.o set.o BSTree.o
 	gcc $(CFLAGS) pagerank.o readData.o graph.o set.o BSTree.o -o pagerank

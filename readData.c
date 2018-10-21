@@ -71,6 +71,13 @@ char **tokenise(char *str, char *sep)
    return strings;
 }
 
+/* freeTokens: free memory associated with array of tokens */
+void freeTokens(char **toks)
+{
+	for (int i = 0; toks[i] != NULL; i++)
+		free(toks[i]);
+	free(toks);
+}
 
 /* Removes trailing spaces and punctuation at the end of word
  * Also converts all letters to lowercase.
