@@ -37,8 +37,8 @@ Output order urls on stdout
 typedef struct url *urlPR;
 
 struct url {
-	int search_terms;
-	float page_rank;
+	int searchTerms;
+	float pageRank;
 	char *URL;
 };
 
@@ -68,37 +68,61 @@ char **getURLs(char *word)
 }
 
 
-void getPageRanks(int elems, urlPR *searchPR) 
+
+urlPR newSearchPRNode() {
+    urlPR newSearchNode = calloc(1, sizeof(struct url));
+    newSearchNode->URL = calloc(URL_LENGTH, sizeof(char));
+    newSearchNode->pageRank = 0;
+    newSearchNode->searchTerms = 0;
+    return newSearchNode;
+}
+
+urlPR *getPageRanks(int *elems) 
 {
     FILE *pagerankList = fopen("pagerankList.txt", "r");
     if (!pagerankList) { perror("fopen failed"); exit(EXIT_FAILURE); }
     char line[MAX_LINE] = {0};
-	searchPR = malloc(sizeof(struct url) * elems);
 	int i = 0;
 	int links;
+	while (fgets(line, MAX_LINE, pagerankList) != NULL) i++;
+	*elems = i;
+	urlPR *searchPR = malloc(sizeof(struct url) * *elems);
+	i = 0;
     while (fgets(line, MAX_LINE, pagerankList) != NULL) {
-		searchPR[i]->URL = malloc(URL_LENGTH);
-        sscanf(line, "%s, %d, %f", searchPR[i]->URL, links, searchPR[i]->page_rank);
+		searchPR[i] = newSearchPRNode();
+        sscanf(line, "%s, %d, %f", searchPR[i]->URL, &links, &searchPR[i]->pageRank);
         // Finds the wanted word.
 		i++;
     }
+	return searchPR;
+}
+
+
+void countOccurences(char **URLs, urlPR *searchPR, int elems)
+{
+	int i;
+	for (i = 0; i < elems; i++) {
+		int j;
+		for (j = 0; URLs[j] != NULL; j++) {
+			if (strcmp(searchPR[i]->URL, URLs[j]) == 0) searchPR[i]->searchTerms++;
+		}
+	}
 }
 
 
 int main(int argc, char **argv)
 {
-	char **URLs;
 	int i;
-	Set WordsSearched;
-	urlPR *searchPR;
-	Set URLList = getCollection();
-	int elems = nElems(URLList);
-	getPageRanks(elems, searchPR);
-	//Graph g = getGraph(URLList);
+	printf("I'm okay");
+	int elems;
+	urlPR *searchPR = getPageRanks(&elems);
 	for (i = 1; i < argc; i++) {
-		insertInto(WordsSearched, argv[i]);
-		getURLs(argv[i]);
+		char **URLs = getURLs(argv[i]);
+		countOccurences(URLs, searchPR, elems);
 	}
+	/*for (i = 0; i < elems; i++) {
+		printf("%s\t%f\t%d\n", searchPR[i]->URL, searchPR[i]->pageRank, searchPR[i]->searchTerms);
+	}*/
 	// sort
 	// print
 }
