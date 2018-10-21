@@ -77,29 +77,13 @@ urlPR newSearchPRNode() {
     return newSearchNode;
 }
 
-urlPR *getPageRanks(int *elems) 
-{
-    FILE *pagerankList = fopen("pagerankList.txt", "r");
-    if (!pagerankList) { perror("fopen failed"); exit(EXIT_FAILURE); }
-    char line[MAX_LINE] = {0};
-	int i = 0;
-	int links;
-	while (fgets(line, MAX_LINE, pagerankList) != NULL) i++;
-	*elems = i;
-	urlPR *searchPR = malloc(sizeof(struct url) * *elems);
-	i = 0;
-    while (fgets(line, MAX_LINE, pagerankList) != NULL) {
-		searchPR[i] = newSearchPRNode();
-        sscanf(line, "%s, %d, %f", searchPR[i]->URL, &links, &searchPR[i]->pageRank);
-        // Finds the wanted word.
-		i++;
-    }
-	return searchPR;
-}
-
 
 void countOccurences(char **URLs, urlPR *searchPR, int elems)
 {
+	int j;
+	for (j = 0; URLs[j] != NULL; j++) {
+		printf("This URL: %s\n", URLs[j]);
+	}
 	int i;
 	for (i = 0; i < elems; i++) {
 		int j;
@@ -110,19 +94,52 @@ void countOccurences(char **URLs, urlPR *searchPR, int elems)
 }
 
 
+urlPR *getPageRanks(int *elems) 
+{
+	printf("in page rank\n");
+    FILE *pagerankList = fopen("pagerankList.txt", "r");
+    if (!pagerankList) { perror("fopen failed"); exit(EXIT_FAILURE); }
+    char line[MAX_LINE] = {0};
+	int links;
+	urlPR *searchPR = malloc(sizeof(struct url) * *elems);
+	int i = 0;
+    while (fgets(line, MAX_LINE, pagerankList) != NULL) {
+		searchPR[i] = newSearchPRNode();
+		printf("%s\n", line);
+        sscanf(line, "%s %d, %f", searchPR[i]->URL, &links, &searchPR[i]->pageRank);
+		searchPR[i]->URL[strlen(searchPR[i]->URL)-1] = '\0';
+		printf("%s, %d, %f\n", searchPR[i]->URL, links, searchPR[i]->pageRank);
+
+        // Finds the wanted word.
+		i++;
+    }
+	*elems = i;
+	for (i = 0; i < *elems; i++) {
+		printf("Just added: %s\t%f\t%d\n", searchPR[i]->URL, searchPR[i]->pageRank, searchPR[i]->searchTerms);
+	}
+	fclose(pagerankList);
+	return searchPR;
+}
+
+
 int main(int argc, char **argv)
 {
 	int i;
-	printf("I'm okay");
+	printf("I'm okay\n");
 	int elems;
 	urlPR *searchPR = getPageRanks(&elems);
+	for (i = 0; i < elems; i++) {
+		printf("URL: %s\t%f\t%d\n", searchPR[i]->URL, searchPR[i]->pageRank, searchPR[i]->searchTerms);
+	}
+	printf("argc is %d\n", argc);
 	for (i = 1; i < argc; i++) {
 		char **URLs = getURLs(argv[i]);
 		countOccurences(URLs, searchPR, elems);
 	}
-	/*for (i = 0; i < elems; i++) {
-		printf("%s\t%f\t%d\n", searchPR[i]->URL, searchPR[i]->pageRank, searchPR[i]->searchTerms);
-	}*/
+	for (i = 0; i < elems; i++) {
+		printf("URL: %s\t%f\t%d\n", searchPR[i]->URL, searchPR[i]->pageRank, searchPR[i]->searchTerms);
+	}
 	// sort
 	// print
 }
+
