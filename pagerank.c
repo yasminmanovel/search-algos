@@ -61,10 +61,9 @@ float calculateWin(PRNode v, PRNode u, Graph web)
     Link curr = web->listOfUrls[i]->outLink;
     int sum = 0;
     for (; curr != NULL; curr = curr->next) {
-        i = 0;
-
+        sum = sum + curr->URLPointer->numInLinks;
     }
-    return sum;
+    return uIn/sum;
 }
 
 /* Calculate weight of outlinks */
@@ -74,22 +73,20 @@ float calculateWout(Graph web, PRNode v, PRNode u)
 
     // Find v in graph.
     int i;
-    URL found;
     for(i = 0; i < web->numURLs; i++) {
         // Found v in graph.
         if (strcmp(web->listOfUrls[i]->URLName, v->name) == 0) {
-            found = web->listOfUrls[i];
             break; 
         }
     }
 
-    Link curr;
-    int bottom = 0;
+    Link curr = web->listOfUrls[i]->outLink;
+    int sum = 0;
     // For every outlink of v, add its outlinks.
-    for(curr = found->outLink; curr != NULL; curr = curr->next)
-        bottom += curr->numOutLinks;
+    for(; curr != NULL; curr = curr->next)
+        sum = sum + curr->URLPointer->numOutLinks;
     
-    return top/bottom;
+    return top/sum;
 }
 
 /* Checks if current node has inlink to another node */
