@@ -73,7 +73,7 @@ int main(int argc, char **argv)
     // For each URL, calcualte tf-idf.
     Link currURL = URLList->elems;
     for (i = 0; i < totalURLs; i++) {
-        
+
 
 
 
