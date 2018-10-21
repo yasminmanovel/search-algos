@@ -29,6 +29,7 @@
 #define URL_LENGTH      55
 #define SHIFT 1
 #define NULL_TERM 1
+#define MAX_OUTPUT 30
 
 typedef struct TFIDFNode *TFNode;
 
@@ -60,12 +61,58 @@ int main(int argc, char **argv)
     int nSearchwords = argc - 1;
     Set URLList = getCollection();
     int totalURLs = nElems(URLList);
+
+    // Inserts all search words into a set.
+    Set searchWords;
+    for (i = 0; i < nSearchwords; i++)
+        insertInto(searchWords, argv[i+1]);
+
+    // Array of size nURLs to keep track of tf-idf of each URL.
+    URLTfIdf = malloc(nURLs * sizeof(TFNode));
+    
+    // For each URL, calcualte tf-idf.
+    Link curr = URLList->elems;
+    for (i = 0; i < totalURLs; i++) {
+        URLTfIdf = newTFIDFNode(curr->URLName);
+
+        curr = curr->next;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    return 0;
+}
+
+/*
+    int nSearchwords = argc - 1;
+    Set URLList = getCollection();
+    int totalURLs = nElems(URLList);
     // For each search word in command line argument.
     for(i = 0; i < nSearchwords; i++) {
         search = argv[i+1];
         // Gets URLs containing search word.
         URLs = getURLs(search);
-        if (!URLs) { printf("\"%s\" not found anywhere.\n", search); continue; }
+        if (!URLs) continue; // If not found, look at next searchword.
         nURLs = numURLs(URLs);
         URLTfIdf = malloc(nURLs * sizeof(TFNode));
         if (!URLTfIdf) { perror("malloc failed"); exit(EXIT_FAILURE); }
@@ -87,12 +134,14 @@ int main(int argc, char **argv)
 
     return 0;
 }
+*/
 
 /* Prints the tfidf to stdout */
 void printTfIdf(TFNode *array, int size)
 {
     int i;
-    for(i = size; i >= 0; i--)
+    // Outputs only top 30.
+    for(i = size; i >= 0 && i >= (size - MAX_OUTPUT); i--)
         printf("%s %.6f\n", array[i]->name, array[i]->tfIdf);
 }
 
@@ -112,11 +161,13 @@ char **getURLs(char *word)
     if (!invIndex) { perror("fopen failed"); exit(EXIT_FAILURE); }
 
     char line[MAX_LINE] = {0};
+    char lineWord[MAX_LINE] = {0};
     char *urlString = NULL;
     char **urls = NULL;
     while (fgets(line, MAX_LINE, invIndex) != NULL) {
+        sscanf(line, "%s", lineWord);
         // Finds the wanted word.
-        if (strstr(line, word) != NULL) {
+        if (strcmp(lineWord, word) == 0) {
             urlString = line + strlen(word); // Moves pointer to urls part.
             trim(urlString);
             // Get an array of url names.
