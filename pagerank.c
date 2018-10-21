@@ -25,6 +25,7 @@
 #include "stack.h"
 #include "readData.h"
 #include <string.h>
+#include <math.h>
 
 #define DEFAULT_VAL 1.0
 #define SHIFT 1
@@ -34,13 +35,15 @@
 #define DAMPING 1
 #define DIFFPR 2
 #define MAX_ITER 3
-
+#define TRUE 1
+#define FALSE 0
 
 typedef struct pageRankNode *PRNode;
 
 struct pageRankNode {
     char *name;
     int   nOutLinks;
+    int   nInlinks;
     float prevPR;
     float currPR;
 };
@@ -57,17 +60,42 @@ float calculateWout(PRNode v, PRNode u)
 
 }
 
-/* Calculates the current PR of a URL given its prev PR. */
-float calculateCurrPR(PRNode *urlPRs)
+int hasInlink(char *looking_for, char *currNode, Graph web)
 {
-    return 0;
+    int i;
+    for (i = 0; i < web->numURLs; i++) {
+        if (strcmp(currNode, web->listOfUrls[i]->URLName) == 0) break;
+    }
+    Link curr = web->listOfUrls[i]->inLink;
+    for (; curr != NULL; curr = curr->next) {
+        if (strcmp(looking_for, curr->URLName) == 0) return TRUE;
+    }
+    return FALSE;
+}
+
+/* Calculates the current PR of a URL given its prev PR. */
+float calculateCurrPR(PRNode currNode, PRNode *array, Graph web, float damp, int nURLs)
+{
+    float part1 = (1 - damp)/nURLs;
+    float sum = 0;
+    int i;
+    for (i = 0; i < nURLs; i++) {
+        // cant just add all the page ranks, can only add the page ranks of the one the page has outlinks to
+        if (strcmp(array[i]->name, currNode->name) == 0 || array[i]->nOutLinks == 0) continue;
+        if (hasInlink(array[i]->name, currNode->name, web)) sum = sum + array[i]->currPR/array[i]->nOutLinks;
+    }
+    float part2 = damp * sum;
+    float part3 = currNode->prevPR/currNode->nInlinks;
+    float PR = part1 + part2 * part3;
+    return PR;
 }
 
 
 /* Calculates the new diff. */
-float calculateDiffPR()
+float calculateDiffPR(PRNode currNode, PRNode *array)
 {
-    return 0;
+
+    return fabsf(currNode->currPR - currNode->prevPR);
 }
 
 
@@ -95,7 +123,8 @@ PRNode *PageRankW(Set URLList, float damp, float diffPR, int maxIterations, Grap
     SetNode currLink = URLList->elems;
     for (i = 0; i < nURLs; ++i) {
         urlPRs[i] = newPageRankNode(currLink->val, nURLs);
-        urlPRs[i]->nOutLinks = web->listOfUrls[i]->numOutLinks;    // CHANGE THIS.
+        urlPRs[i]->nOutLinks = web->listOfUrls[i]->numOutLinks;
+        urlPRs[i]->nInlinks = web->listOfUrls[i]->numInLinks;
         currLink = currLink->next;
     }
 
@@ -106,8 +135,9 @@ PRNode *PageRankW(Set URLList, float damp, float diffPR, int maxIterations, Grap
         // For each URL, calculate the new pagerank.
         //printf("%d\n",i);
         for (j = 0; j < web->numURLs; j++) {
-            urlPRs[j]->currPR = calculateCurrPR(urlPRs);
-            diff = calculateDiffPR();
+            urlPRs[j]->currPR = calculateCurrPR(urlPRs[j], urlPRs, web, damp, nURLs);
+            diff = calculateDiffPR(urlPRs[j], urlPRs);
+            urlPRs[j]->prevPR = urlPRs[j]->currPR;
         }
         i++;
     }
@@ -116,7 +146,7 @@ PRNode *PageRankW(Set URLList, float damp, float diffPR, int maxIterations, Grap
 
 
 // helper function for the Merge Sort
-void merge(PRNode *array, int start, int middle, int end)
+void PRmerge(PRNode *array, int start, int middle, int end)
 {
     int leftLength = middle - start + SHIFT;
     int rightLength = end - middle;
@@ -155,17 +185,17 @@ void merge(PRNode *array, int start, int middle, int end)
 
 
 // Merge Sort that is used to order the URLS by  their Page Rank
-void mergeSort(PRNode *array, int start, int end)
+void PRmergeSort(PRNode *array, int start, int end)
 {
     if (start < end) {
         // same as (start + end)/2, but apparently avoids overflow for large 
         // numbers
         int middle = start + (end - start)/2;
         // sort the two halves of the array
-        mergeSort(array, start, middle);
-        mergeSort(array, middle + SHIFT, end);
+        PRmergeSort(array, start, middle);
+        PRmergeSort(array, middle + SHIFT, end);
         // merge these sorted halves
-        merge(array, start, middle, end);
+        PRmerge(array, start, middle, end);
 
     }
 }
@@ -174,7 +204,7 @@ void mergeSort(PRNode *array, int start, int end)
 /* Sorts URLs by decreasing page rank order. */
 void order(PRNode *urlPRs, int length)
 {
-    mergeSort(urlPRs, 0, length-SHIFT);
+    PRmergeSort(urlPRs, 0, length-SHIFT);
 }
 
 
@@ -185,9 +215,9 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     } 
     // Get args.
-    int damp = atoi(argv[DAMPING]);
-    int diffPR = atoi(argv[DIFFPR]);
-    int maxIterations = atoi(argv[MAX_ITER]);
+    float damp = atoi(argv[DAMPING]);
+    float diffPR = atoi(argv[DIFFPR]);
+    float maxIterations = atoi(argv[MAX_ITER]);
     // Creates a set of URLs and creates an adjacency list graph.
     Set URLList = getCollection();
     Graph web = getGraph(URLList);
