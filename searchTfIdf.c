@@ -208,9 +208,7 @@ double calcTf(char *URLName, char *word)
         }
         free(str);
     }
-    free(wanted);
-    free(dump);
-    free(urls);
+    free(wanted); free(dump); free(urls);
 
     return searchCount/wordCount;
 }
