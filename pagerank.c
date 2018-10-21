@@ -26,6 +26,7 @@
 #include "readData.h"
 #include <string.h>
 #include <math.h>
+#include <assert.h>
 
 #define DEFAULT_VAL 1.0
 #define SHIFT 1
@@ -49,58 +50,32 @@ struct pageRankNode {
 };
 
 /* Calculate weight of inlinks */
-float calculateWin(PRNode v, PRNode u, Graph web)
+float calculateWin(URL v, PRNode u, Graph web)
 {
     float uIn = u->nInlinks;
     //for i in v's outlinks: add inlink
-    int i;
-    for (i = 0; i < web->numURLs; i++) {
-        if (strcmp(v->name, web->listOfUrls[i]->URLName) == 0) break;
-    }
     // actual sum loop
-    Link curr = web->listOfUrls[i]->outLink;
+    Link curr = v->outLink;
     int sum = 0;
     for (; curr != NULL; curr = curr->next) {
         sum = sum + curr->URLPointer->numInLinks;
     }
+    assert(sum != 0);
     return uIn/sum;
 }
 
 /* Calculate weight of outlinks */
-float calculateWout(Graph web, PRNode v, PRNode u)
+float calculateWout(URL v, PRNode u, Graph web)
 {
     float top = u->nOutLinks;
-
     // Find v in graph.
-    int i;
-    for(i = 0; i < web->numURLs; i++) {
-        // Found v in graph.
-        if (strcmp(web->listOfUrls[i]->URLName, v->name) == 0) {
-            break; 
-        }
-    }
-
-    Link curr = web->listOfUrls[i]->outLink;
+    Link curr = v->outLink;
     int sum = 0;
     // For every outlink of v, add its outlinks.
     for(; curr != NULL; curr = curr->next)
         sum = sum + curr->URLPointer->numOutLinks;
-    
+    assert(sum != 0);
     return top/sum;
-}
-
-/* Checks if current node has inlink to another node */
-int hasInlink(char *lookingFor, char *currNode, Graph web)
-{
-    int i;
-    for (i = 0; i < web->numURLs; i++) {
-        if (strcmp(currNode, web->listOfUrls[i]->URLName) == 0) break;
-    }
-    Link curr = web->listOfUrls[i]->inLink;
-    for (; curr != NULL; curr = curr->next) {
-        if (strcmp(lookingFor, curr->URLName) == 0) return TRUE;
-    }
-    return FALSE;
 }
 
 /* Calculates the current PR of a URL given its prev PR. */
@@ -109,26 +84,30 @@ float calculateCurrPR(PRNode currNode, PRNode *array, Graph web, float damp, int
     float part1 = (1 - damp)/nURLs;
     float sum = 0;
     int i;
-    for (i = 0; i < nURLs; i++) {
-        if (strcmp(array[i]->name, currNode->name) == 0 || array[i]->nOutLinks == 0) continue;
-        if (hasInlink(array[i]->name, currNode->name, web)) {
-            float wIn = calculateWin(currNode, array[i], web);
-            float wOut = calculateWout(web, currNode, array[i]);
-            sum = sum + array[i]->currPR * wIn * wOut;
-        }
+    for (i = 0; i < web->numURLs; i++) {
+        if (strcmp(currNode->name, web->listOfUrls[i]->URLName) == 0) break;
+    }
+    Link curr = web->listOfUrls[i]->inLink;
+    for (; curr != NULL; curr = curr->next) {
+        float wIn = calculateWin(curr->URLPointer, currNode, web);
+        float wOut = calculateWout(curr->URLPointer, currNode, web);
+        sum = sum + array[i]->prevPR * wIn * wOut;
     }
     float part2 = damp * sum;
-    float part3 = currNode->prevPR/currNode->nInlinks;
-    float PR = part1 + part2 * part3;
+    float PR = part1 + part2;
     return PR;
 }
 
 
 /* Calculates the new diff. */
-float calculateDiffPR(PRNode currNode, PRNode *array)
+float calculateDiffPR(PRNode currNode, Graph web)
 {
-
-    return fabsf(currNode->currPR - currNode->prevPR);
+    int i;
+    int diff = 0;
+    for (i = 0; i < web->numURLs; i++) {
+        diff = diff + fabsf(currNode->currPR - currNode->prevPR);
+    }
+    return diff;
 }
 
 
@@ -169,7 +148,7 @@ PRNode *PageRankW(Set URLList, float damp, float diffPR, int maxIterations, Grap
         //printf("%d\n",i);
         for (j = 0; j < web->numURLs; j++) {
             urlPRs[j]->currPR = calculateCurrPR(urlPRs[j], urlPRs, web, damp, nURLs);
-            diff = calculateDiffPR(urlPRs[j], urlPRs);
+            diff = calculateDiffPR(urlPRs[j], web);
             urlPRs[j]->prevPR = urlPRs[j]->currPR;
         }
         i++;
