@@ -7,6 +7,7 @@ typedef struct urlGraph *Graph;
 
 struct urlLink {
     char *URLName;
+    URL URLPointer;
     Link next;
 };
 
@@ -24,11 +25,12 @@ struct urlGraph {
     URL *listOfUrls;
 };
 
-Link newGraphLinks(char *);
+Link newInLink(URL);
+Link newOutLink(char *);
 URL newGraphNode(char *, char *);
 Graph newGraph();
 void insertIntoGraph(Graph, char*);
-void insertOutLinks(URL, char*);
-void insertInLinks(URL, char*);
+void insertOutLinks(URL, char *);
+void insertInLinks(URL, URL);
 
 #endif

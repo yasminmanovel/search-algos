@@ -62,11 +62,7 @@ float calculateWin(PRNode v, PRNode u, Graph web)
     int sum = 0;
     for (; curr != NULL; curr = curr->next) {
         i = 0;
-        for (i = 0; i < web->numURLs; i++) {
-            if (strcmp(curr->URLName, web->listOfUrls[i]) == 0) {
-                sum = sum + web->listOfUrls[i]->numInLinks;
-            }
-        }
+
     }
     return sum;
 }
@@ -119,8 +115,8 @@ float calculateCurrPR(PRNode currNode, PRNode *array, Graph web, float damp, int
     for (i = 0; i < nURLs; i++) {
         if (strcmp(array[i]->name, currNode->name) == 0 || array[i]->nOutLinks == 0) continue;
         if (hasInlink(array[i]->name, currNode->name, web)) {
-            float wIn = 
-            float wOut =
+            float wIn = calculateWin(currNode, array[i], web);
+            float wOut = calculateWout(web, currNode, array[i]);
             sum = sum + array[i]->currPR * wIn * wOut;
         }
     }

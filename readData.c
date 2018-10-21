@@ -215,6 +215,7 @@ Graph getGraph(Set URLList)
 		if (strlen(urls) != 0) {
 			char **urlsTokenised = urlsTokenised = tokenise(urls, " ");
 			for (j = 0; urlsTokenised[j] != NULL; j++) {
+				if (strcmp(g->listOfUrls[i]->URLName, urlsTokenised[j]) == 0) continue;
 				insertOutLinks(g->listOfUrls[i], urlsTokenised[j]);
 				g->listOfUrls[i]->numOutLinks++;
 			}
@@ -222,17 +223,35 @@ Graph getGraph(Set URLList)
 		i++;
 		g->numURLs++;
 	}
-	// insert inLinks
+	// for each node
 	for (i = 0; i < g->numURLs; i++) {
+		// go through its outlinks
+		for (Link curr = g->listOfUrls[i]->outLink; curr != NULL; curr = curr->next) {
+			// set the outlink pointer to point to an actual node
+			for (j = 0; j < g->numURLs; j++) {
+				if (strcmp(g->listOfUrls[j]->URLName, curr->URLName) == 0) {
+					curr->URLPointer = g->listOfUrls[j];
+				}
+			}
+		}
+	}
+
+	// insert inLinks
+	// for each node
+	for (i = 0; i < g->numURLs; i++) {
+		// go through all the other nodes
 		for (j = 0; j < g->numURLs; j++) {
+			// go through their outlinks
 			if (strcmp(g->listOfUrls[i]->URLName, g->listOfUrls[j]->URLName) == 0) continue;
 			for (Link curr = g->listOfUrls[j]->outLink; curr != NULL; curr = curr->next) {
+				// if they have an outlink to the og node, there should be an outlink for the og node
 				if (strcmp(g->listOfUrls[i]->URLName, curr->URLName) == 0) {
-					insertInLinks(g->listOfUrls[i], g->listOfUrls[j]->URLName);
+					insertInLinks(g->listOfUrls[i], g->listOfUrls[j]);
 					g->listOfUrls[i]->numInLinks++;
 				}
 			}
 		}
 	}
+	calculateNumLinks(g);
 	return g;
 }

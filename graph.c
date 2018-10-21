@@ -12,11 +12,23 @@
 #define NULL_TERM 1
 
 // creating the nodes that represent outlinks & inlinks
-struct urlLink *newGraphLinks(char *urlNum)
+struct urlLink *newInLink(URL PointTo)
 {
     struct urlLink *newLink = calloc(1, sizeof(struct urlLink));
-    newLink->URLName = malloc(strlen(urlNum)+NULL_TERM);
-    newLink->URLName = strdup(urlNum);
+    newLink->URLName = malloc(strlen(PointTo->URLName)+NULL_TERM);
+    newLink->URLName = strdup(PointTo->URLName);
+    newLink->URLPointer = PointTo;
+    newLink->next = NULL;
+    return newLink;
+}
+
+
+struct urlLink *newOutLink(char *URLName)
+{
+    struct urlLink *newLink = calloc(1, sizeof(struct urlLink));
+    newLink->URLName = malloc(strlen(URLName)+NULL_TERM);
+    newLink->URLName = strdup(URLName);
+    newLink->URLPointer = NULL;
     newLink->next = NULL;
     return newLink;
 }
@@ -44,25 +56,25 @@ struct urlGraph *newGraph()
 }
 
 // inserting outlinks for a URL
-void insertOutLinks(URL URLNode, char *URL)
+void insertOutLinks(URL URLNode, char *URLName)
 {
     if (URLNode->outLink == NULL) {
-        URLNode->outLink = newGraphLinks(URL);
+        URLNode->outLink = newOutLink(URLName);
     } else {
         Link curr = URLNode->outLink;
         while (curr->next != NULL) curr = curr->next;
-        curr->next = newGraphLinks(URL);
+        curr->next = newOutLink(URLName);
     }
 }
 
 // inserting inlinks for a URL
-void insertInLinks(URL URLNode, char *URL)
+void insertInLinks(URL URLNode, URL URLPointer)
 {
     if (URLNode->inLink == NULL) {
-        URLNode->inLink = newGraphLinks(URL);
+        URLNode->inLink = newInLink(URLPointer);
     } else {
         Link curr = URLNode->inLink;
         while (curr->next != NULL) curr = curr->next;
-        curr->next = newGraphLinks(URL);
+        curr->next = newInLink(URLPointer);
     }
 }
