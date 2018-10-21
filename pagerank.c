@@ -60,6 +60,7 @@ float calculateWout(PRNode v, PRNode u)
 
 }
 
+/* Checks if current node has inlink to another node */
 int hasInlink(char *looking_for, char *currNode, Graph web)
 {
     int i;
@@ -80,9 +81,12 @@ float calculateCurrPR(PRNode currNode, PRNode *array, Graph web, float damp, int
     float sum = 0;
     int i;
     for (i = 0; i < nURLs; i++) {
-        // cant just add all the page ranks, can only add the page ranks of the one the page has outlinks to
         if (strcmp(array[i]->name, currNode->name) == 0 || array[i]->nOutLinks == 0) continue;
-        if (hasInlink(array[i]->name, currNode->name, web)) sum = sum + array[i]->currPR/array[i]->nOutLinks;
+        if (hasInlink(array[i]->name, currNode->name, web)) {
+            float wIn =
+            float wOut =
+            sum = sum + array[i]->currPR * wIn * wOut;
+        }
     }
     float part2 = damp * sum;
     float part3 = currNode->prevPR/currNode->nInlinks;
