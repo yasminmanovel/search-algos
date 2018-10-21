@@ -81,6 +81,7 @@ int main(int argc, char **argv)
             tf = calcTf(currURL->val, word->val);
             idf = calcIdf(numURLs(URLs), totalURLs);
             tfIdf += tf * idf;
+            freeTokens(URLs);
         }
         // Set a new tfidf struct for a URL.
         URLTfIdf[i] = newTFIDFNode(currURL->val);
@@ -94,6 +95,9 @@ int main(int argc, char **argv)
 
     disposeSet(searchWords);
     disposeSet(URLList);
+    for (i = 0; i < totalURLs; i++) {
+        free(URLTfIdf[i]->name);
+    }
     free(URLTfIdf);
 
     return 0;
@@ -206,6 +210,7 @@ double calcTf(char *URLName, char *word)
     }
     free(wanted);
     free(dump);
+    free(urls);
 
     return searchCount/wordCount;
 }
@@ -220,7 +225,6 @@ double calcIdf(int nURLs, int totalURLs)
 TFNode newTFIDFNode(char *URLName) 
 {
     TFNode newTFNode = calloc(1, sizeof(struct TFIDFNode));
-    newTFNode->name  = malloc(strlen(URLName)+NULL_TERM);
     newTFNode->name  = strdup(URLName);
     newTFNode->tfIdf = 0;
     return newTFNode;
