@@ -203,8 +203,6 @@ double calcTf(char *URLName, char *word)
     }
     free(wanted);
     free(dump);
-    // printf("%s\t search %f\t word %f\n", fileName, searchCount, wordCount);
-    // printf("Tf = %f\n", searchCount/wordCount);
 
     return searchCount/wordCount;
 }
@@ -219,8 +217,8 @@ double calcIdf(int nURLs, int totalURLs)
 TFNode newTFIDFNode(char *URLName) 
 {
     TFNode newTFNode = calloc(1, sizeof(struct TFIDFNode));
-    newTFNode->name = malloc(strlen(URLName)+NULL_TERM);
-    newTFNode->name = strdup(URLName);
+    newTFNode->name  = malloc(strlen(URLName)+NULL_TERM);
+    newTFNode->name  = strdup(URLName);
     newTFNode->tfIdf = 0;
     return newTFNode;
 }
