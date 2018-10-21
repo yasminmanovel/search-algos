@@ -27,11 +27,10 @@ struct urlNode *newGraphNode(char *urlNum, char *text)
     struct urlNode *newURL = calloc(1, sizeof(struct urlNode));
     newURL->URLName = malloc(strlen(urlNum)+NULL_TERM);
     newURL->URLName = strdup(urlNum);
-    newURL->numOutLinks = 0;newURL->numInLinks = 0;
+    newURL->numOutLinks = 0; newURL->numInLinks = 0;
     newURL->text = malloc(strlen(text)+NULL_TERM);
     newURL->text = strdup(text);
-    newURL->inLink = NULL;
-    newURL->outLink = NULL;
+    newURL->inLink = NULL; newURL->outLink = NULL;
     return newURL;
 }
 

@@ -168,7 +168,7 @@ BSTree getInvertedList(Set URLList)
 	// Iterate through set to get urls.
 	SetNode curr = URLList->elems;
 	while (curr != NULL) {
-		sprintf(fileName, "%s.txt", curr->val);
+		sprintf(fileName, "1ASampleFiles/ex2/%s.txt", curr->val);
 		// Gets information from txt file.
 		int url_size; int text_size;
 		spaceRequired(fileName, &url_size, &text_size);
