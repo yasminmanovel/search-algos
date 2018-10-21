@@ -114,6 +114,7 @@ Set getCollection()
 		trim(URL);
 		insertInto(URLList, URL);
 	}
+	fclose(file);
 	return URLList;
 }
 

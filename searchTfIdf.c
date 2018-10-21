@@ -46,6 +46,7 @@ void TFmergeSort(TFNode *array, int start, int end);
 TFNode newTFIDFNode(char *URLName);
 void printTfIdf(TFNode *array, int size);
 int numURLs(char **URLs);
+void disposeTfIdf(TFNode *URLTfIdf, int totalURLs);
 
 
 int main(int argc, char **argv) 
@@ -95,12 +96,19 @@ int main(int argc, char **argv)
 
     disposeSet(searchWords);
     disposeSet(URLList);
-    for (i = 0; i < totalURLs; i++) {
-        free(URLTfIdf[i]->name);
-    }
-    free(URLTfIdf);
+    disposeTfIdf(URLTfIdf, totalURLs);
 
     return 0;
+}
+
+void disposeTfIdf(TFNode *URLTfIdf, int totalURLs)
+{
+    int i;
+    for (i = 0; i < totalURLs; i++) {
+        free(URLTfIdf[i]->name);
+        free(URLTfIdf[i]);
+    }
+    free(URLTfIdf);
 }
 
 /*
@@ -177,6 +185,7 @@ char **getURLs(char *word)
             break;
         }
     }
+    fclose(invIndex);
     return urls;
 }
 
@@ -201,12 +210,14 @@ double calcTf(char *URLName, char *word)
     char *wanted = normalise(word);
     // Counts total words & num of wanted word in file.
     while ((found = strsep(&text, " ")) != NULL) {
-        char *str = normalise(found);
-        if (strcmp(str, "") != 0) {
+        // printf("found %s\n", found);
+        if (strcmp(found, "") != 0) {
+            char *str = normalise(found);
             if (strcmp(str, wanted) == 0) searchCount++;
             wordCount++;
+            free(str);
         }
-        free(str);
+        // free(str);
     }
     free(wanted); free(dump); free(urls);
 

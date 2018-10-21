@@ -45,6 +45,7 @@ void disposeSet(Set s)
 		disposeNode(curr);	
 		curr = next;
 	}
+	free(s);
 }
 
 // insertInto(Set,Str)
