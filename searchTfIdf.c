@@ -136,8 +136,10 @@ void printTfIdf(TFNode *array, int size)
 {
     int i;
     // Outputs only top 30.
-    for(i = size; i >= 0 && i >= (size - MAX_OUTPUT); i--)
-        printf("%s %.6f\n", array[i]->name, array[i]->tfIdf);
+    for(i = size; i >= 0 && i >= (size - MAX_OUTPUT); i--) {
+        if (array[i]->tfIdf != 0)
+            printf("%s %.6f\n", array[i]->name, array[i]->tfIdf);
+    }
 }
 
 /* Gets number of URLs containing the word. */
