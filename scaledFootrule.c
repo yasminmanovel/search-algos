@@ -10,11 +10,13 @@
 #include <string.h>
 #include "pagerank.h"
 
+#define URL_LENGTH 55
+
 int main(int argc, char **argv) 
 {
     int nFiles = argc - 1; // Number of files given.
     int i;
-    char **URLs = NULL;
+    Set URLs; 
     // Get URLs from each file.
     for (i = 0; i < nFiles; i++) {
         URLs = getURLs(argv[i+1]);
@@ -24,5 +26,9 @@ int main(int argc, char **argv)
 /* Gets the URLs written inside the file. */
 char **getURLs(char *fileName)
 {
+    FILE *fp = fopen(fileName, "r");
+    char URLName[URL_LENGTH] = {0};
+    while(fscanf(fp, "%s", URLName) != NULL) {
 
+    }
 }
