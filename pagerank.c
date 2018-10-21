@@ -45,6 +45,18 @@ struct pageRankNode {
     float currPR;
 };
 
+/* Calculate weight of inlinks */
+float calculateWin(PRNode v, PRNode u)
+{
+
+}
+
+/* Calculate weight of outlinks */
+float calculateWout(PRNode v, PRNode u)
+{
+
+}
+
 /* Calculates the current PR of a URL given its prev PR. */
 float calculateCurrPR(PRNode *urlPRs)
 {
