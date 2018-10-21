@@ -49,9 +49,26 @@ struct pageRankNode {
 };
 
 /* Calculate weight of inlinks */
-float calculateWin(PRNode v, PRNode u)
+float calculateWin(PRNode v, PRNode u, Graph web)
 {
-
+    float uIn = u->nInlinks;
+    //for i in v's outlinks: add inlink
+    int i;
+    for (i = 0; i < web->numURLs; i++) {
+        if (strcmp(v->name, web->listOfUrls[i]->URLName) == 0) break;
+    }
+    // actual sum loop
+    Link curr = web->listOfUrls[i]->outLink;
+    int sum = 0;
+    for (; curr != NULL; curr = curr->next) {
+        i = 0;
+        for (i = 0; i < web->numURLs; i++) {
+            if (strcmp(curr->URLName, web->listOfUrls[i]) == 0) {
+                sum = sum + web->listOfUrls[i]->numInLinks;
+            }
+        }
+    }
+    return sum;
 }
 
 /* Calculate weight of outlinks */
@@ -80,7 +97,7 @@ float calculateWout(Graph web, PRNode v, PRNode u)
 }
 
 /* Checks if current node has inlink to another node */
-int hasInlink(char *looking_for, char *currNode, Graph web)
+int hasInlink(char *lookingFor, char *currNode, Graph web)
 {
     int i;
     for (i = 0; i < web->numURLs; i++) {
@@ -88,7 +105,7 @@ int hasInlink(char *looking_for, char *currNode, Graph web)
     }
     Link curr = web->listOfUrls[i]->inLink;
     for (; curr != NULL; curr = curr->next) {
-        if (strcmp(looking_for, curr->URLName) == 0) return TRUE;
+        if (strcmp(lookingFor, curr->URLName) == 0) return TRUE;
     }
     return FALSE;
 }
@@ -102,7 +119,7 @@ float calculateCurrPR(PRNode currNode, PRNode *array, Graph web, float damp, int
     for (i = 0; i < nURLs; i++) {
         if (strcmp(array[i]->name, currNode->name) == 0 || array[i]->nOutLinks == 0) continue;
         if (hasInlink(array[i]->name, currNode->name, web)) {
-            float wIn =
+            float wIn = 
             float wOut =
             sum = sum + array[i]->currPR * wIn * wOut;
         }
