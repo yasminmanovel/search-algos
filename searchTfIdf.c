@@ -25,7 +25,7 @@
 #include "BSTree.h"
 #include "readData.h"
 
-#define MAX_LINE 1000
+#define MAX_LINE 1001
 #define URL_LENGTH      55
 #define SHIFT 1
 #define NULL_TERM 1
