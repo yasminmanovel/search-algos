@@ -90,12 +90,18 @@ float calculateCurrPR(PRNode currNode, PRNode *array, Graph web, float damp, int
     }
     Link curr = web->listOfUrls[i]->inLink;
     // For every inLink of currNode.
+    assert(curr != NULL);
     for (; curr != NULL; curr = curr->next) {
         float wIn = calculateWin(curr->URLPointer, currNode, web);
         float wOut = calculateWout(curr->URLPointer, currNode, web);
-        sum += (array[i]->prevPR * wIn * wOut);
+        int j;
+        for (j = 0; j < web->numURLs; j++) {
+            if (strcmp(array[j]->name, curr->URLName) == 0) break;
+        }
+        sum = sum + array[j]->prevPR * wIn * wOut;
     }
     float part2 = damp * sum;
+    assert(part2 != 0);
     float PR = part1 + part2;
     return PR;
 }
@@ -145,6 +151,7 @@ PRNode *PageRankW(Set URLList, float damp, float diffPR, int maxIterations, Grap
     i = 0;
     float diff = diffPR;
     // While less than max iterations or difference is not small enough.
+    
     while (i < maxIterations && diff >= diffPR) {
         // For each URL, calculate the new pagerank.
         for (j = 0; j < web->numURLs; j++) {
