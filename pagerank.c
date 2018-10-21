@@ -84,14 +84,16 @@ float calculateCurrPR(PRNode currNode, PRNode *array, Graph web, float damp, int
     float part1 = (1 - damp)/nURLs;
     float sum = 0;
     int i;
+    // Find currNode in the graph and set it to curr.
     for (i = 0; i < web->numURLs; i++) {
         if (strcmp(currNode->name, web->listOfUrls[i]->URLName) == 0) break;
     }
     Link curr = web->listOfUrls[i]->inLink;
+    // For every inLink of currNode.
     for (; curr != NULL; curr = curr->next) {
         float wIn = calculateWin(curr->URLPointer, currNode, web);
         float wOut = calculateWout(curr->URLPointer, currNode, web);
-        sum = sum + array[i]->prevPR * wIn * wOut;
+        sum += (array[i]->prevPR * wIn * wOut);
     }
     float part2 = damp * sum;
     float PR = part1 + part2;
@@ -103,9 +105,9 @@ float calculateCurrPR(PRNode currNode, PRNode *array, Graph web, float damp, int
 float calculateDiffPR(PRNode currNode, Graph web)
 {
     int i;
-    int diff = 0;
+    float diff = 0;
     for (i = 0; i < web->numURLs; i++) {
-        diff = diff + fabsf(currNode->currPR - currNode->prevPR);
+        diff += fabsf(currNode->currPR - currNode->prevPR);
     }
     return diff;
 }
@@ -141,11 +143,10 @@ PRNode *PageRankW(Set URLList, float damp, float diffPR, int maxIterations, Grap
     }
 
     i = 0;
-    int diff = diffPR;
+    float diff = diffPR;
     // While less than max iterations or difference is not small enough.
     while (i < maxIterations && diff >= diffPR) {
         // For each URL, calculate the new pagerank.
-        //printf("%d\n",i);
         for (j = 0; j < web->numURLs; j++) {
             urlPRs[j]->currPR = calculateCurrPR(urlPRs[j], urlPRs, web, damp, nURLs);
             diff = calculateDiffPR(urlPRs[j], web);
@@ -227,9 +228,9 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     } 
     // Get args.
-    float damp = atoi(argv[DAMPING]);
-    float diffPR = atoi(argv[DIFFPR]);
-    float maxIterations = atoi(argv[MAX_ITER]);
+    float damp = atof(argv[DAMPING]);
+    float diffPR = atof(argv[DIFFPR]);
+    int maxIterations = atoi(argv[MAX_ITER]);
     // Creates a set of URLs and creates an adjacency list graph.
     Set URLList = getCollection();
     Graph web = getGraph(URLList);
@@ -243,10 +244,10 @@ int main(int argc, char **argv)
     FILE *PRList = fopen("pagerankList.txt", "w");
     if (PRList == NULL) { perror("fopen failed"); exit(EXIT_FAILURE); }
     int i;
-    for(i = 0; i < nURLs; i++)
+    for(i = nURLs-1; i >= 0; i--)
         fprintf(PRList, "%s, %d, %.7f\n", urlPRs[i]->name, urlPRs[i]->nOutLinks, urlPRs[i]->currPR);
     fclose(PRList);
-    for(i = 0; i < nURLs; i++)
+    for(i = nURLs-1; i >= 0; i--)
         printf("%s, %d, %.7f\n", urlPRs[i]->name, urlPRs[i]->nOutLinks, urlPRs[i]->currPR);
     return 0;
 }
