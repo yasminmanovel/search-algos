@@ -52,57 +52,48 @@ int main(int argc, char **argv)
 {
     double tf, idf, tfIdf;
     char **URLs; // Array of URL names.
-    char *search;
-    int  nURLs;
+    // char *search;
+    // int  nURLs;
     TFNode *URLTfIdf;
-    int i, j;
-    int index;
+    int i;
+    // int index;
 
     int nSearchwords = argc - 1;
     Set URLList = getCollection();
     int totalURLs = nElems(URLList);
 
     // Inserts all search words into a set.
-    Set searchWords;
+    Set searchWords = newSet();
     for (i = 0; i < nSearchwords; i++)
         insertInto(searchWords, argv[i+1]);
 
     // Array of size nURLs to keep track of tf-idf of each URL.
-    URLTfIdf = malloc(nURLs * sizeof(TFNode));
+    URLTfIdf = malloc(totalURLs * sizeof(TFNode));
     
     // For each URL, calcualte tf-idf.
-    Link currURL = URLList->elems;
+    SetNode word, currURL = URLList->elems;
     for (i = 0; i < totalURLs; i++) {
-
-
-
-
-        // URLTfIdf[i] = newTFIDFNode(currURL->URLName);
+        tfIdf = 0;
+        // For each search word wanted, sum up tf-idf for each search word.
+        for (word = searchWords->elems; word != NULL; word = word->next) {
+            URLs = getURLs(word->val);
+            if (!URLs) continue;
+            tf = calcTf(currURL->val, word->val);
+            idf = calcIdf(numURLs(URLs), totalURLs);
+            tfIdf += tf * idf;
+        }
+        // Set a new tfidf struct for a URL.
+        URLTfIdf[i] = newTFIDFNode(currURL->val);
+        URLTfIdf[i]->tfIdf = tfIdf;
 
         currURL = currURL->next;
     }
 
+    TFmergeSort(URLTfIdf, 0, totalURLs-1);
+    printTfIdf(URLTfIdf, totalURLs-1);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    disposeSet(searchWords);
+    disposeSet(URLList);
 
     return 0;
 }
