@@ -3,6 +3,9 @@ CC=gcc
 CFLAGS=-Wall -Werror -g
 OBJS=set.o graph.o BSTree.o readData.o
 
+searchPagerank : pagerank.o $(OBJS)
+	gcc $(CFLAGS) pagerank.o $(OBJS) -o searchPagerank
+
 searchTfIdf : searchTfIdf.o $(OBJS)
 	gcc $(CFLAGS) searchTfIdf.o $(OBJS) -o searchTfIdf
 

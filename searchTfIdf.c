@@ -71,11 +71,15 @@ int main(int argc, char **argv)
     URLTfIdf = malloc(nURLs * sizeof(TFNode));
     
     // For each URL, calcualte tf-idf.
-    Link curr = URLList->elems;
+    Link currURL = URLList->elems;
     for (i = 0; i < totalURLs; i++) {
-        URLTfIdf = newTFIDFNode(curr->URLName);
+        
 
-        curr = curr->next;
+
+
+        // URLTfIdf[i] = newTFIDFNode(currURL->URLName);
+
+        currURL = currURL->next;
     }
 
 
