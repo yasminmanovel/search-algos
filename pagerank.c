@@ -152,7 +152,6 @@ PRNode *PageRankW(Set URLList, float damp, float diffPR, int maxIterations, Grap
     
     while (i < maxIterations && diff >= diffPR) {
         // For each URL, calculate the new pagerank.
-        //printf("%d\n",i);
         for (j = 0; j < web->numURLs; j++) {
             urlPRs[j]->currPR = calculateCurrPR(urlPRs[j], urlPRs, web, damp, nURLs);
             diff = calculateDiffPR(urlPRs[j], web);
