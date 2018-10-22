@@ -3,6 +3,9 @@ CC=gcc
 CFLAGS=-std=gnu99 -Wall -Werror -g
 OBJS=set.o graph.o BSTree.o readData.o
 
+scaledFootrule : scaledFootrule.o $(OBJS)
+	gcc $(CFLAGS) scaledFootrule.o $(OBJS) -o scaledFootrule
+
 searchPagerank : searchPagerank.o $(OBJS)
 	gcc $(CFLAGS) searchPagerank.o $(OBJS) -o searchPagerank
 
@@ -17,6 +20,9 @@ invertedIndex : invertedIndex.o $(OBJS)
 
 readData : $(OBJS)
 	gcc $(CFLAGS) readData.o graph.o set.o BSTree.o -o readData
+
+scaledFootrule.o : scaledFootrule.c
+	gcc $(CFLAGS) -c scaledFootrule.c
 
 searchPagerank.o : searchPagerank.c 
 	gcc $(CFLAGS) -c searchPagerank.c 
