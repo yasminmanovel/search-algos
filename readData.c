@@ -91,7 +91,6 @@ void freeLinks(Link head)
 		curr = curr->next;
 		free(temp);
 	}
-    free(head);
 }
 
 
