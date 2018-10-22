@@ -78,6 +78,7 @@ char **getURLs(char *word)
             break;
         }
     }
+	fclose(invIndex);
     return urls;
 }
 
@@ -206,6 +207,7 @@ int main(int argc, char **argv)
 	for (i = 1; i < argc; i++) {
 		char **URLs = getURLs(argv[i]);
 		countOccurences(URLs, searchPR, elems);
+		freeTokens(URLs);
 	}
 	PRmergeSort(PAGERANK, searchPR, 0, elems-SHIFT);
 	PRmergeSort(SEARCHTERMS, searchPR, 0, elems-SHIFT);
