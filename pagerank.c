@@ -75,7 +75,7 @@ float calculateWout(URL v, PRNode u, Graph web)
     // For every outlink of v, add its outlinks.
     for(; curr != NULL; curr = curr->next)
         sum = sum + curr->URLPointer->numOutLinks;
-    assert(sum != 0);
+    if (sum == 0) sum = 0.5;
     return top/sum;
 }
 
