@@ -121,7 +121,6 @@ float calculateDiffPR(PRNode currNode, Graph web)
 // creating a new PageRank node and returning the pointer to it
 PRNode newPageRankNode(char *URLName, int nURLs) {
     PRNode newPRNode = calloc(1, sizeof(struct pageRankNode));
-    newPRNode->name = malloc(strlen(URLName)+NULL_TERM);
     newPRNode->name = strdup(URLName);
     newPRNode->nOutLinks = 0;
     newPRNode->prevPR = DEFAULT_VAL/nURLs;
