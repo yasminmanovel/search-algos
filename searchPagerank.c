@@ -31,10 +31,10 @@ Output order urls on stdout
 #include "BSTree.h"
 #include "readData.h"
 
-#define MAX_LINE 1001
-#define URL_LENGTH 55
-#define SHIFT 1
-#define PAGERANK 0
+#define MAX_LINE    1001
+#define URL_LENGTH  55
+#define SHIFT       1
+#define PAGERANK    0
 #define SEARCHTERMS 1
 
 

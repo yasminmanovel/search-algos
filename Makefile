@@ -43,4 +43,4 @@ BSTree.o : BSTree.c
 	gcc $(CFLAGS) -c BSTree.c
 
 clean:
-	rm -f $(OBJS) searchTfIdf.o invertedIndex.o
+	rm -f $(OBJS) searchTfIdf.o invertedIndex.o searchPagerank.o
