@@ -47,6 +47,7 @@ struct pageRankNode {
     int   nInlinks;
     float prevPR;
     float currPR;
+    int search_words;
 };
 
 /* Calculate weight of inlinks */
@@ -125,6 +126,7 @@ PRNode newPageRankNode(char *URLName, int nURLs) {
     newPRNode->nOutLinks = 0;
     newPRNode->prevPR = DEFAULT_VAL/nURLs;
     newPRNode->currPR = INVALID_VAL;
+    newPRNode->search_words = 0;
     return newPRNode;
 }
 
