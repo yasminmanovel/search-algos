@@ -68,6 +68,7 @@ char **tokenise(char *str, char *sep)
       strings[i++] = strdup(next);
    strings[i] = NULL;
    free(tmp);
+   free(next);
    return strings;
 }
 
@@ -217,7 +218,7 @@ BSTree getInvertedList(Set URLList)
 				invList = BSTreeInsert(invList, word, curr->val);
 			free(word);
 		}
-		free(dump); free(urls);
+		free(dump); free(urls); free(text); free(found);
 		curr = curr->next;
 	}
 	return invList;
@@ -246,13 +247,15 @@ Graph getGraph(Set URLList)
 		g->listOfUrls[i] = newGraphNode(curr->val, text);
 		//insert outlinks
 		if (strlen(urls) != 0) {
-			char **urlsTokenised = urlsTokenised = tokenise(urls, " ");
+			char **urlsTokenised = tokenise(urls, " ");
 			for (j = 0; urlsTokenised[j] != NULL; j++) {
 				if (strcmp(g->listOfUrls[i]->URLName, urlsTokenised[j]) == 0) continue;
 				insertOutLinks(g->listOfUrls[i], urlsTokenised[j]);
 				g->listOfUrls[i]->numOutLinks++;
 			}
+			freeTokens(urlsTokenised);
 		}
+		free(urls); free(text);
 		i++;
 		g->numURLs++;
 	}

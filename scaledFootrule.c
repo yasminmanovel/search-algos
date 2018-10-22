@@ -10,6 +10,7 @@
 #include <string.h>
 #include "pagerank.h"
 
+
 int main(int argc, char **argv) 
 {
     int nFiles = argc - 1; // Number of files given.
