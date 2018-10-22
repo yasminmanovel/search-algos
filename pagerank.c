@@ -258,7 +258,7 @@ int main(int argc, char **argv)
     fclose(PRList);
     for(i = nURLs - 1; i >= 0; i--)
         printf("%s, %d, %.7f\n", urlPRs[i]->name, urlPRs[i]->nOutLinks, urlPRs[i]->currPR);
-    dumpPR(urlPRs, nURLs);
+    //dumpPR(urlPRs, nURLs);
     disposeSet(URLList);
     freeGraph(web);
     return 0;

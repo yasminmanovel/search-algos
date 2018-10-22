@@ -100,8 +100,8 @@ void freeGraph(Graph g)
 		free(g->listOfUrls[i]->URLName);
 		free(g->listOfUrls[i]);
 	}
-		free(g->listOfUrls);
-		free(g);
+	free(g->listOfUrls);
+	free(g);
 }
 
 /* Removes trailing spaces and punctuation at the end of word
