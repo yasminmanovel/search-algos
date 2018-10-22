@@ -20,3 +20,5 @@ void readPage(char *urls, char *text, char *fileName);
 void spaceRequired(char *fileName, int *url_size, int *text_size);
 BSTree getInvertedList(Set URLList);
 Graph getGraph(Set URLList);
+void freeLinks(Link head);
+void freeGraph(Graph g);

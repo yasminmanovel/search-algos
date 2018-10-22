@@ -46,6 +46,16 @@ struct url {
 	char *URL;
 };
 
+void dumpSearchPR(urlPR *array, int nElems)
+{
+    int i;
+    for (i = 0; i < nElems; i++) {
+        free(array[i]->URL);
+        free(array[i]);
+    }
+    free(array);
+}
+
 
 /* Gets the URLs that contain word. */
 char **getURLs(char *word) 
@@ -206,6 +216,8 @@ int main(int argc, char **argv)
 		if (searchPR[i]->searchTerms == 0) continue;
 		printf("%s\n", searchPR[i]->URL);
 	}
+	dumpSearchPR(searchPR, elems);
+	return 0;
 }
 
 

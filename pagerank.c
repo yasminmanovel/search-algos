@@ -220,13 +220,15 @@ void PRmergeSort(PRNode *array, int start, int end)
     }
 }
 
-
-/* Sorts URLs by decreasing page rank order. */
-void order(PRNode *urlPRs, int length)
+void dumpPR(PRNode *array, int nElems)
 {
-    PRmergeSort(urlPRs, 0, length-SHIFT);
+    int i;
+    for (i = 0; i < nElems; i++) {
+        free(array[i]->name);
+        free(array[i]);
+    }
+    free(array);
 }
-
 
 int main(int argc, char **argv)
 {
@@ -245,7 +247,7 @@ int main(int argc, char **argv)
 
     // Calculates pageranks and sorts them in order.
     PRNode *urlPRs = PageRankW(URLList, damp, diffPR, maxIterations, web);
-    order(urlPRs, web->numURLs);
+    PRmergeSort(urlPRs, 0, web->numURLs-SHIFT);
 
     // Opens file and prints to it.
     FILE *PRList = fopen("pagerankList.txt", "w");
@@ -256,5 +258,8 @@ int main(int argc, char **argv)
     fclose(PRList);
     for(i = nURLs - 1; i >= 0; i--)
         printf("%s, %d, %.7f\n", urlPRs[i]->name, urlPRs[i]->nOutLinks, urlPRs[i]->currPR);
+    dumpPR(urlPRs, nURLs);
+    disposeSet(URLList);
+    freeGraph(web);
     return 0;
 }

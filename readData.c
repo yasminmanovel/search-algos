@@ -79,6 +79,30 @@ void freeTokens(char **toks)
 	free(toks);
 }
 
+void freeLinks(Link head)
+{
+    if ( head == NULL) return;
+    freeLinks(head->next);
+	free(head->URLName);
+    free(head);
+}
+
+void freeGraph(Graph g)
+{
+	int i;
+	for (i = 0; i < g->numURLs; i++) {
+		Link curr = g->listOfUrls[i]->inLink;
+		freeLinks(curr);
+		curr = g->listOfUrls[i]->outLink;
+		freeLinks(curr);
+		free(g->listOfUrls[i]->text);
+		free(g->listOfUrls[i]->URLName);
+		free(g->listOfUrls[i]);
+	}
+		free(g->listOfUrls);
+		free(g);
+}
+
 /* Removes trailing spaces and punctuation at the end of word
  * Also converts all letters to lowercase.
  */
