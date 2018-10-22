@@ -83,19 +83,25 @@ void freeTokens(char **toks)
 void freeLinks(Link head)
 {
     if ( head == NULL) return;
-    freeLinks(head->next);
-	free(head->URLName);
+	Link temp = head;
+	Link curr = head;
+	while (curr != NULL) {
+		temp = curr;
+		free(temp->URLPointer);
+		free(temp->URLName);
+		curr = curr->next;
+		free(temp);
+	}
     free(head);
 }
+
 
 void freeGraph(Graph g)
 {
 	int i;
 	for (i = 0; i < g->numURLs; i++) {
-		Link curr = g->listOfUrls[i]->inLink;
-		freeLinks(curr);
-		curr = g->listOfUrls[i]->outLink;
-		freeLinks(curr);
+		freeLinks(g->listOfUrls[i]->inLink);
+		freeLinks(g->listOfUrls[i]->outLink);
 		free(g->listOfUrls[i]->text);
 		free(g->listOfUrls[i]->URLName);
 		free(g->listOfUrls[i]);
