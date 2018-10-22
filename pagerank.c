@@ -61,7 +61,7 @@ float calculateWin(URL v, PRNode u, Graph web)
     for (; curr != NULL; curr = curr->next) {
         sum = sum + curr->URLPointer->numInLinks;
     }
-    assert(sum != 0);
+    if (sum == 0) sum = 0.5;
     return uIn/sum;
 }
 
