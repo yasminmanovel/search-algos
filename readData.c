@@ -87,7 +87,6 @@ void freeLinks(Link head)
 	Link curr = head;
 	while (curr != NULL) {
 		temp = curr;
-		free(temp->URLPointer);
 		free(temp->URLName);
 		curr = curr->next;
 		free(temp);
