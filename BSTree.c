@@ -129,7 +129,7 @@ static void urlListInsert(BSTree t, char *url)
 	listNode *new = newListNode(url);
 	// Get to the end of current urlList.
 	listNode *curr;
-	// Checks if the word already exists.
+	// Checks if the url already exists.
 	curr = t->urlList;
 	while (curr != NULL) {
 		if (strcmp(curr->url, url) == 0) exists = TRUE;
