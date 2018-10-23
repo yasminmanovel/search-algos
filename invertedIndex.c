@@ -23,6 +23,7 @@
 #include "set.h"
 #include "BSTree.h"
 #include "invertedIndex.h"
+#include "mystrdup.h"
 
 
 int main(int argc, char **argv) 

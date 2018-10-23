@@ -24,6 +24,7 @@
 #include "graph.h"
 #include "BSTree.h"
 #include "readData.h"
+#include "mystrdup.h"
 
 #define MAX_LINE 1001
 #define URL_LENGTH      55
@@ -234,7 +235,7 @@ double calcIdf(int nURLs, int totalURLs)
 TFNode newTFIDFNode(char *URLName) 
 {
     TFNode newTFNode = calloc(1, sizeof(struct TFIDFNode));
-    newTFNode->name  = strdup(URLName);
+    newTFNode->name  = mystrdup(URLName);
     newTFNode->tfIdf = 0;
     return newTFNode;
 }

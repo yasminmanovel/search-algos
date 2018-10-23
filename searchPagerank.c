@@ -30,6 +30,7 @@ Output order urls on stdout
 #include "graph.h"
 #include "BSTree.h"
 #include "readData.h"
+#include "mystrdup.h"
 
 #define MAX_LINE    1001
 #define URL_LENGTH  55
@@ -206,6 +207,7 @@ int main(int argc, char **argv)
 	urlPR *searchPR = getPageRanks(&elems);
 	for (i = 1; i < argc; i++) {
 		char **URLs = getURLs(argv[i]);
+		if (URLs == NULL) continue;
 		countOccurences(URLs, searchPR, elems);
 		freeTokens(URLs);
 	}
