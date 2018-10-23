@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <string.h>
 #include "BSTree.h"
+#include "mystrdup.h"
 
 #define TRUE  1
 #define FALSE 0
@@ -32,7 +33,7 @@ static listNode *newListNode(char *url)
 {
 	listNode *new = malloc(sizeof(struct listNode));
 	assert(new != NULL);
-	new->url = strdup(url);
+	new->url = mystrdup(url);
 	new->next = NULL;
 	return new;
 }
@@ -42,7 +43,7 @@ static BSTLink newBSTNode(char *str, char *url)
 {
 	BSTLink new = malloc(sizeof(BSTNode));
 	assert(new != NULL);
-	new->value = strdup(str);
+	new->value = mystrdup(str);
 	new->urlList = newListNode(url);
 	new->left = new->right = NULL;
 	return new;

@@ -14,7 +14,7 @@
 #include "graph.h"
 #include "BSTree.h"
 #include "readData.h"
-
+#include "mystrdup.h"
 
 #define SEEN_ONCE       1
 #define SEEN_TWICE      2
@@ -51,7 +51,7 @@ char **tokenise(char *str, char *sep)
    // temp copy of string, because strtok() mangles it
    char *tmp;
    // count tokens
-   tmp = strdup(str);
+   tmp = mystrdup(str);
    int n = 0;
    strtok(tmp, sep); n++;
    while (strtok(NULL, sep) != NULL) n++;
@@ -60,12 +60,12 @@ char **tokenise(char *str, char *sep)
    char **strings = malloc((n+1)*sizeof(char *));
    assert(strings != NULL);
    // now tokenise and fill array
-   tmp = strdup(str);
+   tmp = mystrdup(str);
    char *next; int i = 0;
    next = strtok(tmp, sep);
-   strings[i++] = strdup(next);
+   strings[i++] = mystrdup(next);
    while ((next = strtok(NULL,sep)) != NULL)
-      strings[i++] = strdup(next);
+      strings[i++] = mystrdup(next);
    strings[i] = NULL;
    free(tmp);
    free(next);
@@ -113,7 +113,7 @@ void freeGraph(Graph g)
  */
 char *normalise(char *str) 
 {
-	char *word = strdup(str);
+	char *word = mystrdup(str);
 	trim(word);
 	// Converts to all lowercase.
 	int i;
@@ -294,3 +294,14 @@ Graph getGraph(Set URLList)
 	}
 	return g;
 }
+
+// int main(void) 
+// {
+// 	Set URLList = getCollection();
+// 	Graph web = getGraph(URLList);
+// 	printf("%d\n", web->numURLs);
+// 	BSTree invList = getInvertedList(URLList);
+// 	BSTreeInfix(stdout, invList);
+// 	showSet(URLList);
+// 	return 0;
+// }
