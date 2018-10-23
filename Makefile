@@ -6,6 +6,9 @@ OBJS=set.o graph.o BSTree.o readData.o mystrdup.o
 scaledFootrule : scaledFootrule.o $(OBJS)
 	gcc $(CFLAGS) scaledFootrule.o $(OBJS) -o scaledFootrule
 
+scaledFootrule.o : scaledFootrule.c
+	gcc $(CFLAGS) -c scaledFootrule.c
+
 searchPagerank : searchPagerank.o $(OBJS)
 	gcc $(CFLAGS) searchPagerank.o $(OBJS) -o searchPagerank
 
@@ -20,9 +23,6 @@ invertedIndex : invertedIndex.o $(OBJS)
 
 readData : $(OBJS)
 	gcc $(CFLAGS) $(OBJS) -o readData
-
-scaledFootrule.o : scaledFootrule.c
-	gcc $(CFLAGS) -c scaledFootrule.c
 
 searchPagerank.o : searchPagerank.c 
 	gcc $(CFLAGS) -c searchPagerank.c 
