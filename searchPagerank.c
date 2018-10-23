@@ -211,9 +211,6 @@ int main(int argc, char **argv)
 	}
 	PRmergeSort(PAGERANK, searchPR, 0, elems-SHIFT);
 	PRmergeSort(SEARCHTERMS, searchPR, 0, elems-SHIFT);
-	// for (i = 0; i < elems; i++) {
-	// 	printf("URL: %s\t%f\t%d\n", searchPR[i]->URL, searchPR[i]->pageRank, searchPR[i]->searchTerms);
-	// }
 	for (i = 0; i < elems && i < 30; i++) {
 		if (searchPR[i]->searchTerms == 0) continue;
 		printf("%s\n", searchPR[i]->URL);
