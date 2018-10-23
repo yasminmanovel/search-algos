@@ -32,6 +32,26 @@ rankFP newRankFile();
 void insertURLs(Set unionURL, char *fileName);
 void showRankFile(rankFP file);
 
+/* THE HUNGARIAN ALGORITHM:
+ * 1. Represent a bipartite graph in an n x n matrix
+ *    - Rows: urls in set
+ *    - Cols: possible positions
+ * 2. Calculate the footrule distance for each [row][col]
+ * 3. Subtract row minima
+ *    - Subtract minima from all elements in row.
+ *    - This gives at least 1 0 on each row.
+ * 4. Subtract col minima
+ *    - Subtract minima from all elements in col.
+ *    - Gives at least 1 0 on each col.
+ * 5. Count number of lines L required to cover all the 0s.
+ *    - If L == n, optimal sol found.
+ *    - else, move to next step.
+ * 6. Find smallest number from uncovered area.
+ * 7. Subtract this number from all UNCOVERED ROWS.
+ * 8. Add new smallest number to COVERED COLS.
+ * 9. Go back to step 5 and repeat.
+ */
+
 int main(int argc, char **argv) 
 {
     int nFiles = argc - 1; // Number of files given.
