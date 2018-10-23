@@ -1,6 +1,6 @@
 # -*- Makefile -*-
 CC=gcc
-CFLAGS=-std=gnu99 -Wall -Werror -g
+CFLAGS=-std=c11 -Wall -Werror -g
 OBJS=set.o graph.o BSTree.o readData.o
 
 scaledFootrule : scaledFootrule.o $(OBJS)

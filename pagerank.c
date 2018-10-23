@@ -85,19 +85,21 @@ float calculateCurrPR(PRNode currNode, PRNode *array, Graph web, float damp, int
     float part1 = (1 - damp)/nURLs;
     float sum = 0;
     int i;
+    // Finding currNode in graph to get inLinks and outLinks.
     for (i = 0; i < web->numURLs; i++) {
         if (strcmp(currNode->name, web->listOfUrls[i]->URLName) == 0) break;
     }
+    // Calculates sum for currNode.
     Link curr = web->listOfUrls[i]->inLink;
-    assert(curr != NULL);
     for (; curr != NULL; curr = curr->next) {
         float wIn = calculateWin(curr->URLPointer, currNode, web);
         float wOut = calculateWout(curr->URLPointer, currNode, web);
         int j;
+        // To find the prevPR of current.
         for (j = 0; j < web->numURLs; j++) {
             if (strcmp(array[j]->name, curr->URLName) == 0) break;
         }
-        sum = sum + array[j]->prevPR * wIn * wOut;
+        sum += array[j]->prevPR * wIn * wOut;
     }
     float part2 = damp * sum;
     assert(part2 != 0);

@@ -44,6 +44,7 @@ int main(int argc, char **argv)
     for (i = 0; i < nFiles; i++) {
         files[i] = newRankFile(argv[i+1]);
         insertURLs(unionURL, argv[i+1]);
+        showRankFile(files[i]);
     }
     return 0;
 }
@@ -87,9 +88,9 @@ rankFP newRankFile(char *file)
 
 void showRankFile(rankFP file) 
 {
-    printf("NAME %s\n", file->fileName);
-    printf("\tnURLS %d\n", file->nURLs);
-    printf("\tURLS:");
+    printf("%s\n", file->fileName);
+    printf("    nURLS %d\n", file->nURLs);
+    printf("    URLS:");
     int i;
     for (i = 0; file->URLs[i] != NULL; i++)
         printf(" %s", file->URLs[i]);
