@@ -8,18 +8,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include "set.h"
 #include "readData.h"
 #include "mystrdup.h"
 
-#define SEEN_ONCE       1
-#define SEEN_TWICE      2
-#define URL_LENGTH      55
-#define MAX_LINE        1001
-#define NULL_TERM_SPACE 1
-#define START_TAG_LEN   16
-#define END_TAG_LEN     14
-#define CHAR_LEN        1
+#define URL_LENGTH 55
+#define MIN(X, Y)  ( (X < Y) ? X : Y)  
+#define MAX(X, Y)  ( (X > Y) ? X : Y)  
 
 typedef struct _rankFile {
     char  *fileName;
@@ -34,6 +30,8 @@ void insertURLs(Set unionURL, char *fileName);
 double calcSFRDist(char *url, int newPos);
 void showRankFile(rankFP file);
 void showMatrix(double **matrix, int n);
+void rowReduce(double **matrix, int size);
+void colReduce(double **matrix, int size);
 
 /* THE HUNGARIAN ALGORITHM:
  * 1. Represent cost matrix in an n x n 2d array
@@ -88,6 +86,37 @@ int main(int argc, char **argv)
     showMatrix(cost, nURLs);
 
     return 0;
+}
+
+/* Finds minimum from each row and subtracts from all elements. */
+void rowReduce(double **matrix, int size)
+{
+    int row, col;
+    for (row = 0; row < size; row++) {
+        double min = INT_MAX;
+        // Find min element in row.
+        for (col = 0; col < size; col++)
+            min = MIN(min, matrix[row][col]);
+        // Subtracts min from all elements.
+        for (col = 0; col < size; col++)
+            matrix[row][col] -= min;
+    }
+    showMatrix(matrix, size);
+}
+
+/* Finds minimum from each col and subtracts from all elements. */
+void colReduce(double **matrix, int size)
+{
+    int row, col;
+    for (col = 0; col < size; col++) {
+        int min = 0;
+        // Find min element in row.
+        for (row = 0; row < size; row++)
+            min = MIN(min, matrix[row][col]);
+        // Subtracts min from all elements.
+        for (row = 0; row < size; row++)
+            matrix[row][col] -= min;
+    }
 }
 
 void showMatrix(double **matrix, int n)
