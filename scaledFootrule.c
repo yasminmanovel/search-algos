@@ -214,7 +214,7 @@ int main(int argc, char **argv)
     for (i = 0; i < numURLs; i++)
         cost[i] = malloc(numURLs * sizeof(double));
     
-    // Calculate cost for each url in each position.
+    /* 2. Calculate the footrule distance for each [row][col] */
     int row, col;
     for (row = 0; row < numURLs; row++) {
         i = 0; // To get URL name.
@@ -223,6 +223,12 @@ int main(int argc, char **argv)
         i++;
     }
     showMatrix(cost, numURLs);
+
+    /* 3. Subtract row minima */
+    /* 4. Subtract col minima */
+    rowReduce(cost, numURLs);
+    colReduce(cost, numURLs);
+    
 
     return 0;
 }
