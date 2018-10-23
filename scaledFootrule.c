@@ -18,22 +18,16 @@
 #define URL_LENGTH 55
 #define MIN(X, Y)  ( (X < Y) ? X : Y)  
 #define MAX(X, Y)  ( (X > Y) ? X : Y)  
+#define TRUE 1
+#define FALSE 0
 
-typedef struct _rankFile {
+struct URLRank {
     char  *fileName;
-    char **URLs;
-    int    nURLs;
-} rankFile;
+    double posData[2][10];
+};
 
-typedef rankFile *rankFP;
+typedef struct URLRank *rankFP;
 
-rankFP newRankFile();
-void insertURLs(Set unionURL, char *fileName);
-double calcSFRDist(char *url, int newPos);
-void showRankFile(rankFP file);
-void showMatrix(double **matrix, int n);
-void rowReduce(double **matrix, int size);
-void colReduce(double **matrix, int size);
 
 /* THE HUNGARIAN ALGORITHM:
  * 1. Represent cost matrix in an n x n 2d array
@@ -54,42 +48,6 @@ void colReduce(double **matrix, int size);
  * 8. Add new smallest number to COVERED COLS.
  * 9. Go back to step 5 and repeat.
  */
-
-int main(int argc, char **argv) 
-{
-    int i;
-    int nFiles = argc - 1; // Number of files given.
-    if (nFiles == 0) 
-        printf("Usage: ./scaledFootrule fileName ...\n");
-
-    // Creates a 2D array of [file][url] and gets union of all URLs.
-    Set unionURL = newSet();
-    rankFP *files = calloc(nFiles, sizeof(rankFP));
-    for (i = 0; i < nFiles; i++) {
-        files[i] = newRankFile(argv[i+1]);
-        insertURLs(unionURL, argv[i+1]);
-    }
-
-    /* 1. Represent a cost matrix with an n x n 2d array.
-          cost[url][pos] */
-    int nURLs = nElems(unionURL);
-    double **cost = malloc(nURLs * sizeof(double));
-    for (i = 0; i < nURLs; i++)
-        cost[i] = malloc(nURLs * sizeof(double));
-    
-    // Calculate cost for each url in each position.
-    int row, col;
-    for (row = 0; row < nURLs; row++) {
-        SetNode curr = unionURL->elems; // To get URL name.
-        for (col = 0; col < nURLs; col++)
-            cost[row][col] = calcSFRDist(curr->val, col+1);
-        curr = curr->next;
-    }
-    showMatrix(cost, nURLs);
-
-    return 0;
-}
-
 /* Finds minimum from each row and subtracts from all elements. */
 void rowReduce(double **matrix, int size)
 {
@@ -133,12 +91,127 @@ void showMatrix(double **matrix, int n)
 }
 
 /* Calculates the scaled foot rule distance. */
-double calcSFRDist(char *url, int newPos)
+double calcSFRDist(int **pos, int newPos, int unionSize)
 {
-    return 1.0;
+    double sum = 0;
+    int i = 0;
+    for (i = 0; pos[1][i] != -1 && pos[2][i] != -1; i++) {
+        sum = sum + (pos[1][i]/pos[2][i] - newPos/unionSize);
+    }
+    return sum;
 }
 
-/* Creates a new rankFile struct. */
+
+Set GetAllUrls(int nFiles, char **fileNames)
+{
+    Set URLs = newSet();
+    int i = 0;
+    for (i = 0; i < nFiles; i++) {
+        FILE *file = fopen(fileNames[i], "r");
+        char line[URL_LENGTH] = {0};
+        while (fgets(line, URL_LENGTH, file) != NULL) {
+            trim(line);
+            insertInto(URLs, line);
+            free(line);
+        }
+        fclose(file);
+    }
+    return URLs;
+}
+
+rankFP found(rankFP *array, int nURLs, char *URLName)
+{
+    int i = 0;
+    for (i = 0; i < nURLs; i++) {
+        if (strcmp(array[i]->fileName, URLName) == 0) return array[i];
+    }
+    return NULL;
+}
+
+double linesInFile(char *fileName)
+{
+    FILE *file = fopen(fileName, "r");
+    char line[URL_LENGTH] = {0};
+    double i = 0.0;
+    while (fgets(line, URL_LENGTH, file) != NULL) i++;
+    fclose(file);
+    return i;
+}
+
+void insertRankData(rankFP URL, int pos, double nURLs)
+{
+    int i = 0;
+    for (i = 0; URL->posData[1][i] != -1 && URL->posData[2][i] != -1; i++);
+    URL->posData[1][i] = pos;
+    URL->posData[2][i] = nURLs;
+}
+
+void buildRankADT(rankFP *array, char **fileNames, int nFiles)
+{
+    int i;
+    for (i = 0; i < nFiles; i++) {
+        double nURLs = linesInFile(fileNames[i]);
+        FILE *file = fopen(fileNames[i], "r");
+        char line[URL_LENGTH] = {0};
+        int pos = 1;
+        rankFP curr = NULL;
+        while (fgets(line, URL_LENGTH, file) != NULL) {
+            trim(line);
+            if ((curr = found(array, nURLs, line)) != NULL) {
+                insertRankData(curr, pos, nURLs);
+            } else {
+                newUrlRank();
+            }
+            free(line);
+            pos++;
+        }
+        fclose(file);
+    }
+}
+
+// get set of URLS
+// for each rank file, read into info into URL array
+// set the matrix values based on the info in the URL array
+
+int main(int argc, char **argv) 
+{
+    int i;
+    int nFiles = argc - 1; // Number of files given.
+    if (nFiles == 0) 
+        printf("Usage: ./scaledFootrule fileName ...\n");
+
+    Set unionURL = GetAllUrls(nFiles, argv);
+    int nURLS = nElems(unionURL);
+    double numURLs = 0.0 + nURLS;
+    rankFP *files = calloc(numURLs, sizeof(rankFP));
+    buildRankADT(files, argv, numURLs);
+
+    for (i = 0; i < nFiles; i++) {
+        files[i] = newRankFile(argv[i+1]);
+        insertURLs(unionURL, argv[i+1]);
+    }
+
+    /* 1. Represent a cost matrix with an n x n 2d array.
+          cost[url][pos] */
+    double **cost = malloc(numURLs * sizeof(double));
+    for (i = 0; i < numURLs; i++)
+        cost[i] = malloc(numURLs * sizeof(double));
+    
+    // Calculate cost for each url in each position.
+    int row, col;
+    for (row = 0; row < numURLs; row++) {
+        SetNode curr = unionURL->elems; // To get URL name.
+        for (col = 0; col < numURLs; col++)
+            cost[row][col] = calcSFRDist(curr->val, col+1, numURLs);
+        curr = curr->next;
+    }
+    showMatrix(cost, numURLs);
+
+    return 0;
+}
+
+
+/* Creates a new rankFile struct. 
 rankFP newRankFile(char *file)
 {
     char line[URL_LENGTH] = {0};
@@ -179,8 +252,8 @@ void showRankFile(rankFP file)
         printf(" %s", file->URLs[i]);
     printf("\n");
 }
-
-/* Gets URLs in file and place it into set. */
+*/
+/* Gets URLs in file and place it into set. 
 void insertURLs(Set unionURL, char *fileName)
 {
     // Opens the file.
@@ -196,3 +269,5 @@ void insertURLs(Set unionURL, char *fileName)
     }
     fclose(fp);
 }
+*/
+
