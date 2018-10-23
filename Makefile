@@ -12,8 +12,8 @@ searchPagerank : searchPagerank.o $(OBJS)
 searchTfIdf : searchTfIdf.o $(OBJS)
 	gcc $(CFLAGS) searchTfIdf.o $(OBJS) -lm -o searchTfIdf
 
-pagerank: pagerank.o readData.o graph.o set.o BSTree.o
-	gcc $(CFLAGS) pagerank.o readData.o graph.o set.o BSTree.o -o pagerank
+pagerank: pagerank.o $(OBJS)
+	gcc $(CFLAGS) $(OBJS) pagerank.o -o pagerank
 
 invertedIndex : invertedIndex.o $(OBJS)
 	gcc $(CFLAGS) invertedIndex.o $(OBJS) -o invertedIndex

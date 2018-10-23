@@ -36,7 +36,7 @@ char *strsep (char **stringp, const char *delim)
   if (begin == NULL)
     return NULL;
   /* Find the end of the token.  */
-  end = begin + strcspn (begin, delim);
+  end = begin + strcspn(begin, delim);
   if (*end)
     {
       /* Terminate the token and set *STRINGP past NUL character.  */

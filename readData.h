@@ -7,10 +7,12 @@
  * Header file for readData.c.
  */
 
-#include "graph.h"
 #include "set.h"
+#include "graph.h"
 #include "BSTree.h"
-#include "mystrdup.h"
+
+#ifndef READDATA_H
+#define READDATA_H
 
 void trim(char *str);
 char **tokenise(char *str, char *sep);
@@ -23,3 +25,5 @@ BSTree getInvertedList(Set URLList);
 Graph getGraph(Set URLList);
 void freeLinks(Link head);
 void freeGraph(Graph g);
+
+#endif

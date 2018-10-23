@@ -295,13 +295,13 @@ Graph getGraph(Set URLList)
 	return g;
 }
 
-int main(void) 
-{
-	Set URLList = getCollection();
-	Graph web = getGraph(URLList);
-	printf("%d\n", web->numURLs);
-	BSTree invList = getInvertedList(URLList);
-	BSTreeInfix(stdout, invList);
-	showSet(URLList);
-	return 0;
-}
+// int main(void) 
+// {
+// 	Set URLList = getCollection();
+// 	Graph web = getGraph(URLList);
+// 	printf("%d\n", web->numURLs);
+// 	BSTree invList = getInvertedList(URLList);
+// 	BSTreeInfix(stdout, invList);
+// 	showSet(URLList);
+// 	return 0;
+// }
