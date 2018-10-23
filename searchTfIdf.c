@@ -24,11 +24,13 @@
 #include "graph.h"
 #include "BSTree.h"
 #include "readData.h"
+#include "mystrdup.h"
 
-#define MAX_LINE 1000
+#define MAX_LINE 1001
 #define URL_LENGTH      55
 #define SHIFT 1
 #define NULL_TERM 1
+#define MAX_OUTPUT 30
 
 typedef struct TFIDFNode *TFNode;
 
@@ -45,18 +47,72 @@ void TFmergeSort(TFNode *array, int start, int end);
 TFNode newTFIDFNode(char *URLName);
 void printTfIdf(TFNode *array, int size);
 int numURLs(char **URLs);
+void disposeTfIdf(TFNode *URLTfIdf, int totalURLs);
 
 
 int main(int argc, char **argv) 
 {
     double tf, idf, tfIdf;
     char **URLs; // Array of URL names.
-    char *search;
-    int  nURLs;
+    // char *search;
+    // int  nURLs;
     TFNode *URLTfIdf;
-    int i, j;
-    int index;
+    int i;
+    // int index;
 
+    int nSearchwords = argc - 1;
+    Set URLList = getCollection();
+    int totalURLs = nElems(URLList);
+
+    // Inserts all search words into a set.
+    Set searchWords = newSet();
+    for (i = 0; i < nSearchwords; i++)
+        insertInto(searchWords, argv[i+1]);
+
+    // Array of size nURLs to keep track of tf-idf of each URL.
+    URLTfIdf = malloc(totalURLs * sizeof(TFNode));
+    
+    // For each URL, calcualte tf-idf.
+    SetNode word, currURL = URLList->elems;
+    for (i = 0; i < totalURLs; i++) {
+        tfIdf = 0;
+        // For each search word wanted, sum up tf-idf for each search word.
+        for (word = searchWords->elems; word != NULL; word = word->next) {
+            URLs = getURLs(word->val);
+            if (!URLs) continue;
+            tf = calcTf(currURL->val, word->val);
+            idf = calcIdf(numURLs(URLs), totalURLs);
+            tfIdf += tf * idf;
+            freeTokens(URLs);
+        }
+        // Set a new tfidf struct for a URL.
+        URLTfIdf[i] = newTFIDFNode(currURL->val);
+        URLTfIdf[i]->tfIdf = tfIdf;
+
+        currURL = currURL->next;
+    }
+
+    TFmergeSort(URLTfIdf, 0, totalURLs-1);
+    printTfIdf(URLTfIdf, totalURLs-1);
+
+    disposeSet(searchWords);
+    disposeSet(URLList);
+    disposeTfIdf(URLTfIdf, totalURLs);
+
+    return 0;
+}
+
+void disposeTfIdf(TFNode *URLTfIdf, int totalURLs)
+{
+    int i;
+    for (i = 0; i < totalURLs; i++) {
+        free(URLTfIdf[i]->name);
+        free(URLTfIdf[i]);
+    }
+    free(URLTfIdf);
+}
+
+/*
     int nSearchwords = argc - 1;
     Set URLList = getCollection();
     int totalURLs = nElems(URLList);
@@ -65,15 +121,15 @@ int main(int argc, char **argv)
         search = argv[i+1];
         // Gets URLs containing search word.
         URLs = getURLs(search);
-        if (!URLs) { printf("\"%s\" not found anywhere.\n", search); continue; }
+        if (!URLs) continue; // If not found, look at next searchword.
         nURLs = numURLs(URLs);
+        idf = calcIdf(nURLs, totalURLs);
         URLTfIdf = malloc(nURLs * sizeof(TFNode));
         if (!URLTfIdf) { perror("malloc failed"); exit(EXIT_FAILURE); }
         // For each URL containing word, calc tf-idf and insert into array.
         index = 0;
         for(j = 0; URLs[j] != NULL; j++) {
             tf = calcTf(URLs[j], search);
-            idf = calcIdf(nURLs, totalURLs);
             tfIdf = tf * idf;
             // Inserts into array.
             URLTfIdf[index] = newTFIDFNode(URLs[j]);
@@ -87,13 +143,17 @@ int main(int argc, char **argv)
 
     return 0;
 }
+*/
 
 /* Prints the tfidf to stdout */
 void printTfIdf(TFNode *array, int size)
 {
     int i;
-    for(i = size; i >= 0; i--)
-        printf("%s %.6f\n", array[i]->name, array[i]->tfIdf);
+    // Outputs only top 30.
+    for(i = size; i >= 0 && i >= (size - MAX_OUTPUT); i--) {
+        if (array[i]->tfIdf != 0)
+            printf("%s %.6f\n", array[i]->name, array[i]->tfIdf);
+    }
 }
 
 /* Gets number of URLs containing the word. */
@@ -112,11 +172,13 @@ char **getURLs(char *word)
     if (!invIndex) { perror("fopen failed"); exit(EXIT_FAILURE); }
 
     char line[MAX_LINE] = {0};
+    char lineWord[MAX_LINE] = {0};
     char *urlString = NULL;
     char **urls = NULL;
     while (fgets(line, MAX_LINE, invIndex) != NULL) {
+        sscanf(line, "%s", lineWord);
         // Finds the wanted word.
-        if (strstr(line, word) != NULL) {
+        if (strcmp(lineWord, word) == 0) {
             urlString = line + strlen(word); // Moves pointer to urls part.
             trim(urlString);
             // Get an array of url names.
@@ -124,6 +186,7 @@ char **getURLs(char *word)
             break;
         }
     }
+    fclose(invIndex);
     return urls;
 }
 
@@ -148,17 +211,16 @@ double calcTf(char *URLName, char *word)
     char *wanted = normalise(word);
     // Counts total words & num of wanted word in file.
     while ((found = strsep(&text, " ")) != NULL) {
-        char *str = normalise(found);
-        if (strcmp(str, "") != 0) {
+        // printf("found %s\n", found);
+        if (strcmp(found, "") != 0) {
+            char *str = normalise(found);
             if (strcmp(str, wanted) == 0) searchCount++;
             wordCount++;
+            free(str);
         }
-        free(str);
+        // free(str);
     }
-    free(wanted);
-    free(dump);
-    // printf("%s\t search %f\t word %f\n", fileName, searchCount, wordCount);
-    // printf("Tf = %f\n", searchCount/wordCount);
+    free(wanted); free(dump); free(urls);
 
     return searchCount/wordCount;
 }
@@ -173,8 +235,7 @@ double calcIdf(int nURLs, int totalURLs)
 TFNode newTFIDFNode(char *URLName) 
 {
     TFNode newTFNode = calloc(1, sizeof(struct TFIDFNode));
-    newTFNode->name = malloc(strlen(URLName)+NULL_TERM);
-    newTFNode->name = strdup(URLName);
+    newTFNode->name  = mystrdup(URLName);
     newTFNode->tfIdf = 0;
     return newTFNode;
 }

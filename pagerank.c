@@ -24,8 +24,10 @@
 #include "graph.h"
 #include "stack.h"
 #include "readData.h"
+#include "mystrdup.h"
 #include <string.h>
 #include <math.h>
+#include <assert.h>
 
 #define DEFAULT_VAL 1.0
 #define SHIFT 1
@@ -46,64 +48,36 @@ struct pageRankNode {
     int   nInlinks;
     float prevPR;
     float currPR;
+    int search_words;
 };
 
 /* Calculate weight of inlinks */
-float calculateWin(PRNode v, PRNode u, Graph web)
+float calculateWin(URL v, PRNode u, Graph web)
 {
     float uIn = u->nInlinks;
     //for i in v's outlinks: add inlink
-    int i;
-    for (i = 0; i < web->numURLs; i++) {
-        if (strcmp(v->name, web->listOfUrls[i]->URLName) == 0) break;
-    }
     // actual sum loop
-    Link curr = web->listOfUrls[i]->outLink;
-    int sum = 0;
+    Link curr = v->outLink;
+    float sum = 0;
     for (; curr != NULL; curr = curr->next) {
-        i = 0;
-
+        sum = sum + curr->URLPointer->numInLinks;
     }
-    return sum;
+    if (sum == 0) sum = 0.5;
+    return uIn/sum;
 }
 
 /* Calculate weight of outlinks */
-float calculateWout(Graph web, PRNode v, PRNode u)
+float calculateWout(URL v, PRNode u, Graph web)
 {
     float top = u->nOutLinks;
-
     // Find v in graph.
-    int i;
-    URL found;
-    for(i = 0; i < web->numURLs; i++) {
-        // Found v in graph.
-        if (strcmp(web->listOfUrls[i]->URLName, v->name) == 0) {
-            found = web->listOfUrls[i];
-            break; 
-        }
-    }
-
-    Link curr;
-    int bottom = 0;
+    Link curr = v->outLink;
+    float sum = 0;
     // For every outlink of v, add its outlinks.
-    for(curr = found->outLink; curr != NULL; curr = curr->next)
-        bottom += curr->numOutLinks;
-    
-    return top/bottom;
-}
-
-/* Checks if current node has inlink to another node */
-int hasInlink(char *lookingFor, char *currNode, Graph web)
-{
-    int i;
-    for (i = 0; i < web->numURLs; i++) {
-        if (strcmp(currNode, web->listOfUrls[i]->URLName) == 0) break;
-    }
-    Link curr = web->listOfUrls[i]->inLink;
-    for (; curr != NULL; curr = curr->next) {
-        if (strcmp(lookingFor, curr->URLName) == 0) return TRUE;
-    }
-    return FALSE;
+    for(; curr != NULL; curr = curr->next)
+        sum = sum + curr->URLPointer->numOutLinks;
+    if (sum == 0) sum = 0.5;
+    return top/sum;
 }
 
 /* Calculates the current PR of a URL given its prev PR. */
@@ -112,37 +86,49 @@ float calculateCurrPR(PRNode currNode, PRNode *array, Graph web, float damp, int
     float part1 = (1 - damp)/nURLs;
     float sum = 0;
     int i;
-    for (i = 0; i < nURLs; i++) {
-        if (strcmp(array[i]->name, currNode->name) == 0 || array[i]->nOutLinks == 0) continue;
-        if (hasInlink(array[i]->name, currNode->name, web)) {
-            float wIn = calculateWin(currNode, array[i], web);
-            float wOut = calculateWout(web, currNode, array[i]);
-            sum = sum + array[i]->currPR * wIn * wOut;
+    // Finding currNode in graph to get inLinks and outLinks.
+    for (i = 0; i < web->numURLs; i++) {
+        if (strcmp(currNode->name, web->listOfUrls[i]->URLName) == 0) break;
+    }
+    // Calculates sum for currNode.
+    Link curr = web->listOfUrls[i]->inLink;
+    for (; curr != NULL; curr = curr->next) {
+        float wIn = calculateWin(curr->URLPointer, currNode, web);
+        float wOut = calculateWout(curr->URLPointer, currNode, web);
+        int j;
+        // To find the prevPR of current.
+        for (j = 0; j < web->numURLs; j++) {
+            if (strcmp(array[j]->name, curr->URLName) == 0) break;
         }
+        sum += array[j]->prevPR * wIn * wOut;
     }
     float part2 = damp * sum;
-    float part3 = currNode->prevPR/currNode->nInlinks;
-    float PR = part1 + part2 * part3;
+    assert(part2 != 0);
+    float PR = part1 + part2;
     return PR;
 }
 
 
 /* Calculates the new diff. */
-float calculateDiffPR(PRNode currNode, PRNode *array)
+float calculateDiffPR(PRNode currNode, Graph web)
 {
-
-    return fabsf(currNode->currPR - currNode->prevPR);
+    int i;
+    float diff = 0;
+    for (i = 0; i < web->numURLs; i++) {
+        diff = diff + fabsf(currNode->currPR - currNode->prevPR);
+    }
+    return diff;
 }
 
 
 // creating a new PageRank node and returning the pointer to it
 PRNode newPageRankNode(char *URLName, int nURLs) {
     PRNode newPRNode = calloc(1, sizeof(struct pageRankNode));
-    newPRNode->name = malloc(strlen(URLName)+NULL_TERM);
-    newPRNode->name = strdup(URLName);
+    newPRNode->name = mystrdup(URLName);
     newPRNode->nOutLinks = 0;
     newPRNode->prevPR = DEFAULT_VAL/nURLs;
     newPRNode->currPR = INVALID_VAL;
+    newPRNode->search_words = 0;
     return newPRNode;
 }
 
@@ -165,14 +151,14 @@ PRNode *PageRankW(Set URLList, float damp, float diffPR, int maxIterations, Grap
     }
 
     i = 0;
-    int diff = diffPR;
+    float diff = diffPR;
     // While less than max iterations or difference is not small enough.
+    
     while (i < maxIterations && diff >= diffPR) {
         // For each URL, calculate the new pagerank.
-        //printf("%d\n",i);
         for (j = 0; j < web->numURLs; j++) {
             urlPRs[j]->currPR = calculateCurrPR(urlPRs[j], urlPRs, web, damp, nURLs);
-            diff = calculateDiffPR(urlPRs[j], urlPRs);
+            diff = calculateDiffPR(urlPRs[j], web);
             urlPRs[j]->prevPR = urlPRs[j]->currPR;
         }
         i++;
@@ -236,13 +222,15 @@ void PRmergeSort(PRNode *array, int start, int end)
     }
 }
 
-
-/* Sorts URLs by decreasing page rank order. */
-void order(PRNode *urlPRs, int length)
+void dumpPR(PRNode *array, int nElems)
 {
-    PRmergeSort(urlPRs, 0, length-SHIFT);
+    int i;
+    for (i = 0; i < nElems; i++) {
+        free(array[i]->name);
+        free(array[i]);
+    }
+    free(array);
 }
-
 
 int main(int argc, char **argv)
 {
@@ -251,9 +239,9 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     } 
     // Get args.
-    float damp = atoi(argv[DAMPING]);
-    float diffPR = atoi(argv[DIFFPR]);
-    float maxIterations = atoi(argv[MAX_ITER]);
+    float damp = atof(argv[DAMPING]);
+    float diffPR = atof(argv[DIFFPR]);
+    int maxIterations = atoi(argv[MAX_ITER]);
     // Creates a set of URLs and creates an adjacency list graph.
     Set URLList = getCollection();
     Graph web = getGraph(URLList);
@@ -261,16 +249,19 @@ int main(int argc, char **argv)
 
     // Calculates pageranks and sorts them in order.
     PRNode *urlPRs = PageRankW(URLList, damp, diffPR, maxIterations, web);
-    order(urlPRs, web->numURLs);
+    PRmergeSort(urlPRs, 0, web->numURLs-SHIFT);
 
     // Opens file and prints to it.
     FILE *PRList = fopen("pagerankList.txt", "w");
     if (PRList == NULL) { perror("fopen failed"); exit(EXIT_FAILURE); }
     int i;
-    for(i = 0; i < nURLs; i++)
+    for(i = nURLs - 1; i >= 0; i--)
         fprintf(PRList, "%s, %d, %.7f\n", urlPRs[i]->name, urlPRs[i]->nOutLinks, urlPRs[i]->currPR);
     fclose(PRList);
-    for(i = 0; i < nURLs; i++)
+    for(i = nURLs - 1; i >= 0; i--)
         printf("%s, %d, %.7f\n", urlPRs[i]->name, urlPRs[i]->nOutLinks, urlPRs[i]->currPR);
+    dumpPR(urlPRs, nURLs);
+    disposeSet(URLList);
+    freeGraph(web);
     return 0;
 }

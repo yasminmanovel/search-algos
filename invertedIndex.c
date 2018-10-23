@@ -23,6 +23,7 @@
 #include "set.h"
 #include "BSTree.h"
 #include "invertedIndex.h"
+#include "mystrdup.h"
 
 
 int main(int argc, char **argv) 
@@ -33,7 +34,10 @@ int main(int argc, char **argv)
     FILE *invtxt = fopen("invertedIndex.txt", "w");
     BSTreeInfix(invtxt, invList);
     fclose(invtxt);
-    BSTreeInfix(stdout, invList);
+
+    disposeSet(URLSet);
+    dropBSTree(invList);
+
     return 0;
 }
 

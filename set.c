@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <string.h>
 #include "set.h"
+#include "mystrdup.h"
 
 #define strEQ(s,t) (strcmp((s),(t)) == 0)
 #define strLT(s,t) (strcmp((s),(t)) < 0)
@@ -45,6 +46,7 @@ void disposeSet(Set s)
 		disposeNode(curr);	
 		curr = next;
 	}
+	free(s);
 }
 
 // insertInto(Set,Str)
@@ -127,7 +129,7 @@ static SetNode newNode(char *str)
 {
 	SetNode new = malloc(sizeof(Node));
 	assert(new != NULL);
-	new->val = strdup(str);
+	new->val = mystrdup(str);
 	new->next = NULL;
 	return new;
 }

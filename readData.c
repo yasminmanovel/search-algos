@@ -14,7 +14,7 @@
 #include "graph.h"
 #include "BSTree.h"
 #include "readData.h"
-
+#include "mystrdup.h"
 
 #define SEEN_ONCE       1
 #define SEEN_TWICE      2
@@ -51,7 +51,7 @@ char **tokenise(char *str, char *sep)
    // temp copy of string, because strtok() mangles it
    char *tmp;
    // count tokens
-   tmp = strdup(str);
+   tmp = mystrdup(str);
    int n = 0;
    strtok(tmp, sep); n++;
    while (strtok(NULL, sep) != NULL) n++;
@@ -60,24 +60,60 @@ char **tokenise(char *str, char *sep)
    char **strings = malloc((n+1)*sizeof(char *));
    assert(strings != NULL);
    // now tokenise and fill array
-   tmp = strdup(str);
+   tmp = mystrdup(str);
    char *next; int i = 0;
    next = strtok(tmp, sep);
-   strings[i++] = strdup(next);
+   strings[i++] = mystrdup(next);
    while ((next = strtok(NULL,sep)) != NULL)
-      strings[i++] = strdup(next);
+      strings[i++] = mystrdup(next);
    strings[i] = NULL;
    free(tmp);
+   free(next);
    return strings;
 }
 
+/* freeTokens: free memory associated with array of tokens */
+void freeTokens(char **toks)
+{
+	for (int i = 0; toks[i] != NULL; i++)
+		free(toks[i]);
+	free(toks);
+}
+
+void freeLinks(Link head)
+{
+    if ( head == NULL) return;
+	Link temp = head;
+	Link curr = head;
+	while (curr != NULL) {
+		temp = curr;
+		free(temp->URLName);
+		curr = curr->next;
+		free(temp);
+	}
+}
+
+
+void freeGraph(Graph g)
+{
+	int i;
+	for (i = 0; i < g->numURLs; i++) {
+		freeLinks(g->listOfUrls[i]->inLink);
+		freeLinks(g->listOfUrls[i]->outLink);
+		free(g->listOfUrls[i]->text);
+		free(g->listOfUrls[i]->URLName);
+		free(g->listOfUrls[i]);
+	}
+	free(g->listOfUrls);
+	free(g);
+}
 
 /* Removes trailing spaces and punctuation at the end of word
  * Also converts all letters to lowercase.
  */
 char *normalise(char *str) 
 {
-	char *word = strdup(str);
+	char *word = mystrdup(str);
 	trim(word);
 	// Converts to all lowercase.
 	int i;
@@ -107,6 +143,7 @@ Set getCollection()
 		trim(URL);
 		insertInto(URLList, URL);
 	}
+	fclose(file);
 	return URLList;
 }
 
@@ -168,7 +205,7 @@ BSTree getInvertedList(Set URLList)
 	// Iterate through set to get urls.
 	SetNode curr = URLList->elems;
 	while (curr != NULL) {
-		sprintf(fileName, "1ASampleFiles/ex2/%s.txt", curr->val);
+		sprintf(fileName, "%s.txt", curr->val);
 		// Gets information from txt file.
 		int url_size; int text_size;
 		spaceRequired(fileName, &url_size, &text_size);
@@ -183,8 +220,9 @@ BSTree getInvertedList(Set URLList)
 			char *word = normalise(found);
 			if (strcmp(word, "") != 0)
 				invList = BSTreeInsert(invList, word, curr->val);
+			free(word);
 		}
-		free(dump);
+		free(dump); free(urls); free(text); free(found);
 		curr = curr->next;
 	}
 	return invList;
@@ -213,13 +251,15 @@ Graph getGraph(Set URLList)
 		g->listOfUrls[i] = newGraphNode(curr->val, text);
 		//insert outlinks
 		if (strlen(urls) != 0) {
-			char **urlsTokenised = urlsTokenised = tokenise(urls, " ");
+			char **urlsTokenised = tokenise(urls, " ");
 			for (j = 0; urlsTokenised[j] != NULL; j++) {
 				if (strcmp(g->listOfUrls[i]->URLName, urlsTokenised[j]) == 0) continue;
 				insertOutLinks(g->listOfUrls[i], urlsTokenised[j]);
 				g->listOfUrls[i]->numOutLinks++;
 			}
+			freeTokens(urlsTokenised);
 		}
+		free(urls); free(text);
 		i++;
 		g->numURLs++;
 	}
@@ -252,6 +292,16 @@ Graph getGraph(Set URLList)
 			}
 		}
 	}
-	calculateNumLinks(g);
 	return g;
+}
+
+int main(void) 
+{
+	Set URLList = getCollection();
+	Graph web = getGraph(URLList);
+	printf("%d\n", web->numURLs);
+	BSTree invList = getInvertedList(URLList);
+	BSTreeInfix(stdout, invList);
+	showSet(URLList);
+	return 0;
 }

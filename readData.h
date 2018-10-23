@@ -7,15 +7,23 @@
  * Header file for readData.c.
  */
 
-#include "graph.h"
 #include "set.h"
+#include "graph.h"
 #include "BSTree.h"
+
+#ifndef READDATA_H
+#define READDATA_H
 
 void trim(char *str);
 char **tokenise(char *str, char *sep);
+void freeTokens(char **toks);
 char *normalise(char *str);
 Set getCollection();
 void readPage(char *urls, char *text, char *fileName);
 void spaceRequired(char *fileName, int *url_size, int *text_size);
 BSTree getInvertedList(Set URLList);
 Graph getGraph(Set URLList);
+void freeLinks(Link head);
+void freeGraph(Graph g);
+
+#endif
