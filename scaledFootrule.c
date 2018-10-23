@@ -10,6 +10,7 @@
 #include <string.h>
 #include "set.h"
 #include "readData.h"
+#include "mystrdup.h"
 
 #define SEEN_ONCE       1
 #define SEEN_TWICE      2
@@ -30,10 +31,12 @@ typedef rankFile *rankFP;
 
 rankFP newRankFile();
 void insertURLs(Set unionURL, char *fileName);
+double calcSFRDist(char *url, int newPos);
 void showRankFile(rankFP file);
+void showMatrix(double **matrix, int n);
 
 /* THE HUNGARIAN ALGORITHM:
- * 1. Represent a bipartite graph in an n x n matrix
+ * 1. Represent cost matrix in an n x n 2d array
  *    - Rows: urls in set
  *    - Cols: possible positions
  * 2. Calculate the footrule distance for each [row][col]
@@ -57,23 +60,55 @@ int main(int argc, char **argv)
     int nFiles = argc - 1; // Number of files given.
     int i;
 
-    // Get union of all URLs.
+    // Creates a 2D array of [file][url] and gets union of all URLs.
     Set unionURL = newSet();
-    // Creates a 2D array of [file][url].
     rankFP *files = calloc(nFiles, sizeof(rankFP));
     for (i = 0; i < nFiles; i++) {
         files[i] = newRankFile(argv[i+1]);
         insertURLs(unionURL, argv[i+1]);
-        showRankFile(files[i]);
     }
+
+    /* 1. Represent a cost matrix with an n x n 2d array.
+          cost[url][pos] */
+    int nURLs = nElems(unionURL);
+    double **cost = malloc(nURLs * sizeof(double));
+    for (i = 0; i < nURLs; i++)
+        cost[i] = malloc(nURLs * sizeof(double));
+    
+    // Calculate cost for each url in each position.
+    int row, col;
+    for (row = 0; row < nURLs; row++) {
+        SetNode curr = unionURL->elems; // To get URL name.
+        for (col = 0; col < nURLs; col++) {
+            cost[row][col] = calcSFRDist(curr->val, col+1);
+            printf("%f\n", cost[row][col]);
+        }
+        curr = curr->next;
+    }
+    showMatrix(cost, nURLs);
+
+    
+
+
     return 0;
 }
 
-/* Calculates the scaled foot rule distance. */
-// double calcSFRDist()
-// {
+void showMatrix(double **matrix, int n)
+{
+    int i, j;
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < n; j++)
+            printf("%f ", matrix[i][j]);
+        printf("\n");
+    }
+    printf("\n");
+}
 
-// }
+/* Calculates the scaled foot rule distance. */
+double calcSFRDist(char *url, int newPos)
+{
+    return 1.0;
+}
 
 /* Creates a new rankFile struct. */
 rankFP newRankFile(char *file)
@@ -81,7 +116,7 @@ rankFP newRankFile(char *file)
     char line[URL_LENGTH] = {0};
 
     rankFile *new = calloc(1, sizeof(rankFile));
-    new->fileName = strdup(file);
+    new->fileName = mystrdup(file);
     new->nURLs = 0;
     
     FILE *fp = fopen(file, "r");

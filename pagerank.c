@@ -24,6 +24,7 @@
 #include "graph.h"
 #include "stack.h"
 #include "readData.h"
+#include "mystrdup.h"
 #include <string.h>
 #include <math.h>
 #include <assert.h>
@@ -57,11 +58,11 @@ float calculateWin(URL v, PRNode u, Graph web)
     //for i in v's outlinks: add inlink
     // actual sum loop
     Link curr = v->outLink;
-    int sum = 0;
+    float sum = 0;
     for (; curr != NULL; curr = curr->next) {
         sum = sum + curr->URLPointer->numInLinks;
     }
-    assert(sum != 0);
+    if (sum == 0) sum = 0.5;
     return uIn/sum;
 }
 
@@ -71,11 +72,11 @@ float calculateWout(URL v, PRNode u, Graph web)
     float top = u->nOutLinks;
     // Find v in graph.
     Link curr = v->outLink;
-    int sum = 0;
+    float sum = 0;
     // For every outlink of v, add its outlinks.
     for(; curr != NULL; curr = curr->next)
         sum = sum + curr->URLPointer->numOutLinks;
-    assert(sum != 0);
+    if (sum == 0) sum = 0.5;
     return top/sum;
 }
 
@@ -123,8 +124,7 @@ float calculateDiffPR(PRNode currNode, Graph web)
 // creating a new PageRank node and returning the pointer to it
 PRNode newPageRankNode(char *URLName, int nURLs) {
     PRNode newPRNode = calloc(1, sizeof(struct pageRankNode));
-    newPRNode->name = malloc(strlen(URLName)+NULL_TERM);
-    newPRNode->name = strdup(URLName);
+    newPRNode->name = mystrdup(URLName);
     newPRNode->nOutLinks = 0;
     newPRNode->prevPR = DEFAULT_VAL/nURLs;
     newPRNode->currPR = INVALID_VAL;
