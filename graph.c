@@ -16,7 +16,7 @@
 struct urlLink *newInLink(URL PointTo)
 {
     struct urlLink *newLink = calloc(1, sizeof(struct urlLink));
-    newLink->URLName = strdup(PointTo->URLName);
+    newLink->URLName = mystrdup(PointTo->URLName);
     newLink->URLPointer = PointTo;
     newLink->next = NULL;
     return newLink;
@@ -26,7 +26,7 @@ struct urlLink *newInLink(URL PointTo)
 struct urlLink *newOutLink(char *URLName)
 {
     struct urlLink *newLink = calloc(1, sizeof(struct urlLink));
-    newLink->URLName = strdup(URLName);
+    newLink->URLName = mystrdup(URLName);
     newLink->URLPointer = NULL;
     newLink->next = NULL;
     return newLink;
@@ -36,9 +36,9 @@ struct urlLink *newOutLink(char *URLName)
 struct urlNode *newGraphNode(char *urlNum, char *text)
 {
     struct urlNode *newURL = calloc(1, sizeof(struct urlNode));
-    newURL->URLName = strdup(urlNum);
+    newURL->URLName = mystrdup(urlNum);
     newURL->numOutLinks = 0; newURL->numInLinks = 0;
-    newURL->text = strdup(text);
+    newURL->text = mystrdup(text);
     newURL->inLink = NULL; newURL->outLink = NULL;
     return newURL;
 }

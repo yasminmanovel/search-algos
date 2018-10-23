@@ -19,7 +19,7 @@ invertedIndex : invertedIndex.o $(OBJS)
 	gcc $(CFLAGS) invertedIndex.o $(OBJS) -o invertedIndex
 
 readData : $(OBJS)
-	gcc $(CFLAGS) readData.o graph.o set.o BSTree.o -o readData
+	gcc $(CFLAGS) $(OBJS) -o readData
 
 scaledFootrule.o : scaledFootrule.c
 	gcc $(CFLAGS) -c scaledFootrule.c
