@@ -33,6 +33,7 @@ rankFP newRankFile();
 void insertURLs(Set unionURL, char *fileName);
 void showRankFile(rankFP file);
 
+
 int main(int argc, char **argv) 
 {
     int nFiles = argc - 1; // Number of files given.

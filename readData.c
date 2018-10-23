@@ -68,6 +68,7 @@ char **tokenise(char *str, char *sep)
       strings[i++] = mystrdup(next);
    strings[i] = NULL;
    free(tmp);
+   free(next);
    return strings;
 }
 
@@ -82,25 +83,29 @@ void freeTokens(char **toks)
 void freeLinks(Link head)
 {
     if ( head == NULL) return;
-    freeLinks(head->next);
-	free(head->URLName);
-    free(head);
+	Link temp = head;
+	Link curr = head;
+	while (curr != NULL) {
+		temp = curr;
+		free(temp->URLName);
+		curr = curr->next;
+		free(temp);
+	}
 }
+
 
 void freeGraph(Graph g)
 {
 	int i;
 	for (i = 0; i < g->numURLs; i++) {
-		Link curr = g->listOfUrls[i]->inLink;
-		freeLinks(curr);
-		curr = g->listOfUrls[i]->outLink;
-		freeLinks(curr);
+		freeLinks(g->listOfUrls[i]->inLink);
+		freeLinks(g->listOfUrls[i]->outLink);
 		free(g->listOfUrls[i]->text);
 		free(g->listOfUrls[i]->URLName);
 		free(g->listOfUrls[i]);
 	}
-		free(g->listOfUrls);
-		free(g);
+	free(g->listOfUrls);
+	free(g);
 }
 
 /* Removes trailing spaces and punctuation at the end of word
@@ -217,7 +222,7 @@ BSTree getInvertedList(Set URLList)
 				invList = BSTreeInsert(invList, word, curr->val);
 			free(word);
 		}
-		free(dump); free(urls);
+		free(dump); free(urls); free(text); free(found);
 		curr = curr->next;
 	}
 	return invList;
@@ -246,13 +251,15 @@ Graph getGraph(Set URLList)
 		g->listOfUrls[i] = newGraphNode(curr->val, text);
 		//insert outlinks
 		if (strlen(urls) != 0) {
-			char **urlsTokenised = urlsTokenised = tokenise(urls, " ");
+			char **urlsTokenised = tokenise(urls, " ");
 			for (j = 0; urlsTokenised[j] != NULL; j++) {
 				if (strcmp(g->listOfUrls[i]->URLName, urlsTokenised[j]) == 0) continue;
 				insertOutLinks(g->listOfUrls[i], urlsTokenised[j]);
 				g->listOfUrls[i]->numOutLinks++;
 			}
+			freeTokens(urlsTokenised);
 		}
+		free(urls); free(text);
 		i++;
 		g->numURLs++;
 	}

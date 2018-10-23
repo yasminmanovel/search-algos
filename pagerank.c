@@ -62,7 +62,7 @@ float calculateWin(URL v, PRNode u, Graph web)
     for (; curr != NULL; curr = curr->next) {
         sum = sum + curr->URLPointer->numInLinks;
     }
-    assert(sum != 0);
+    if (sum == 0) sum = 0.5;
     return uIn/sum;
 }
 
@@ -76,7 +76,7 @@ float calculateWout(URL v, PRNode u, Graph web)
     // For every outlink of v, add its outlinks.
     for(; curr != NULL; curr = curr->next)
         sum = sum + curr->URLPointer->numOutLinks;
-    assert(sum != 0);
+    if (sum == 0) sum = 0.5;
     return top/sum;
 }
 
@@ -124,8 +124,12 @@ float calculateDiffPR(PRNode currNode, Graph web)
 // creating a new PageRank node and returning the pointer to it
 PRNode newPageRankNode(char *URLName, int nURLs) {
     PRNode newPRNode = calloc(1, sizeof(struct pageRankNode));
+<<<<<<< HEAD
     newPRNode->name = malloc(strlen(URLName)+NULL_TERM);
     newPRNode->name = mystrdup(URLName);
+=======
+    newPRNode->name = strdup(URLName);
+>>>>>>> master
     newPRNode->nOutLinks = 0;
     newPRNode->prevPR = DEFAULT_VAL/nURLs;
     newPRNode->currPR = INVALID_VAL;
