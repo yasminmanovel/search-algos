@@ -75,3 +75,14 @@ void insertInLinks(URL URLNode, URL URLPointer)
         curr->next = newInLink(URLPointer);
     }
 }
+
+// Returns the head of listOfUrls in a Graph.
+URL *listOfUrls(Graph g)
+{
+    return (g->listOfUrls);
+}
+
+int numURLs(Graph g)
+{
+    return (g->numURLs);
+}

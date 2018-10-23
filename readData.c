@@ -97,14 +97,15 @@ void freeLinks(Link head)
 void freeGraph(Graph g)
 {
 	int i;
-	for (i = 0; i < g->numURLs; i++) {
-		freeLinks(g->listOfUrls[i]->inLink);
-		freeLinks(g->listOfUrls[i]->outLink);
-		free(g->listOfUrls[i]->text);
-		free(g->listOfUrls[i]->URLName);
-		free(g->listOfUrls[i]);
+	URL *adjList = listOfUrls(g);
+	for (i = 0; i < numURLs(g); i++) {
+		freeLinks(adjList[i]->inLink);
+		freeLinks(adjList[i]->outLink);
+		free(adjList[i]->text);
+		free(adjList[i]->URLName);
+		free(adjList[i]);
 	}
-	free(g->listOfUrls);
+	free(listOfUrls(g));
 	free(g);
 }
 
