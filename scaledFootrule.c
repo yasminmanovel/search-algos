@@ -57,8 +57,10 @@ void showMatrix(double **matrix, int n);
 
 int main(int argc, char **argv) 
 {
-    int nFiles = argc - 1; // Number of files given.
     int i;
+    int nFiles = argc - 1; // Number of files given.
+    if (nFiles == 0) 
+        printf("Usage: ./scaledFootrule fileName ...\n");
 
     // Creates a 2D array of [file][url] and gets union of all URLs.
     Set unionURL = newSet();
@@ -79,16 +81,11 @@ int main(int argc, char **argv)
     int row, col;
     for (row = 0; row < nURLs; row++) {
         SetNode curr = unionURL->elems; // To get URL name.
-        for (col = 0; col < nURLs; col++) {
+        for (col = 0; col < nURLs; col++)
             cost[row][col] = calcSFRDist(curr->val, col+1);
-            printf("%f\n", cost[row][col]);
-        }
         curr = curr->next;
     }
     showMatrix(cost, nURLs);
-
-    
-
 
     return 0;
 }
