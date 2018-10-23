@@ -10,6 +10,7 @@
 #include <string.h>
 #include "set.h"
 #include "readData.h"
+#include "mystrdup.h"
 
 #define SEEN_ONCE       1
 #define SEEN_TWICE      2
@@ -61,7 +62,7 @@ rankFP newRankFile(char *file)
     char line[URL_LENGTH] = {0};
 
     rankFile *new = calloc(1, sizeof(rankFile));
-    new->fileName = strdup(file);
+    new->fileName = mystrdup(file);
     new->nURLs = 0;
     
     FILE *fp = fopen(file, "r");

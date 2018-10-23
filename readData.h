@@ -10,6 +10,7 @@
 #include "graph.h"
 #include "set.h"
 #include "BSTree.h"
+#include "mystrdup.h"
 
 void trim(char *str);
 char **tokenise(char *str, char *sep);

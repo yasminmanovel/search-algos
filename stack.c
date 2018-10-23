@@ -107,7 +107,7 @@ static Link newNode(char *str)
 {
 	Link new = malloc(sizeof(Node));
 	assert(new != NULL);
-	new->val = strdup(str);
+	new->val = mystrdup(str);
 	new->next = NULL;
 	return new;
 }

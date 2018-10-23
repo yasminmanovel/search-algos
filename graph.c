@@ -8,6 +8,7 @@
 #include <string.h>
 #include "set.h"
 #include "graph.h"
+#include "mystrdup.h"
 
 #define NULL_TERM 1
 
@@ -16,7 +17,7 @@ struct urlLink *newInLink(URL PointTo)
 {
     struct urlLink *newLink = calloc(1, sizeof(struct urlLink));
     newLink->URLName = malloc(strlen(PointTo->URLName)+NULL_TERM);
-    newLink->URLName = strdup(PointTo->URLName);
+    newLink->URLName = mystrdup(PointTo->URLName);
     newLink->URLPointer = PointTo;
     newLink->next = NULL;
     return newLink;
@@ -27,7 +28,7 @@ struct urlLink *newOutLink(char *URLName)
 {
     struct urlLink *newLink = calloc(1, sizeof(struct urlLink));
     newLink->URLName = malloc(strlen(URLName)+NULL_TERM);
-    newLink->URLName = strdup(URLName);
+    newLink->URLName = mystrdup(URLName);
     newLink->URLPointer = NULL;
     newLink->next = NULL;
     return newLink;
@@ -38,10 +39,10 @@ struct urlNode *newGraphNode(char *urlNum, char *text)
 {
     struct urlNode *newURL = calloc(1, sizeof(struct urlNode));
     newURL->URLName = malloc(strlen(urlNum)+NULL_TERM);
-    newURL->URLName = strdup(urlNum);
+    newURL->URLName = mystrdup(urlNum);
     newURL->numOutLinks = 0; newURL->numInLinks = 0;
     newURL->text = malloc(strlen(text)+NULL_TERM);
-    newURL->text = strdup(text);
+    newURL->text = mystrdup(text);
     newURL->inLink = NULL; newURL->outLink = NULL;
     return newURL;
 }

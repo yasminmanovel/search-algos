@@ -30,6 +30,7 @@ Output order urls on stdout
 #include "graph.h"
 #include "BSTree.h"
 #include "readData.h"
+#include "mystrdup.h"
 
 #define MAX_LINE    1001
 #define URL_LENGTH  55

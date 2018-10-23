@@ -24,6 +24,7 @@
 #include "graph.h"
 #include "stack.h"
 #include "readData.h"
+#include "mystrdup.h"
 #include <string.h>
 #include <math.h>
 #include <assert.h>
@@ -124,7 +125,7 @@ float calculateDiffPR(PRNode currNode, Graph web)
 PRNode newPageRankNode(char *URLName, int nURLs) {
     PRNode newPRNode = calloc(1, sizeof(struct pageRankNode));
     newPRNode->name = malloc(strlen(URLName)+NULL_TERM);
-    newPRNode->name = strdup(URLName);
+    newPRNode->name = mystrdup(URLName);
     newPRNode->nOutLinks = 0;
     newPRNode->prevPR = DEFAULT_VAL/nURLs;
     newPRNode->currPR = INVALID_VAL;
