@@ -48,6 +48,19 @@ typedef struct URLRank *rankFP;
  * 8. Add new smallest number to COVERED COLS.
  * 9. Go back to step 5 and repeat.
  */
+
+// print matrix out
+void showMatrix(double **matrix, int n)
+{
+    int i, j;
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < n; j++)
+            printf("%f ", matrix[i][j]);
+        printf("\n");
+    }
+    printf("\n");
+}
+
 /* Finds minimum from each row and subtracts from all elements. */
 void rowReduce(double **matrix, int size)
 {
@@ -79,29 +92,19 @@ void colReduce(double **matrix, int size)
     }
 }
 
-void showMatrix(double **matrix, int n)
-{
-    int i, j;
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < n; j++)
-            printf("%f ", matrix[i][j]);
-        printf("\n");
-    }
-    printf("\n");
-}
 
 /* Calculates the scaled foot rule distance. */
-double calcSFRDist(int **pos, int newPos, int unionSize)
+double calcSFRDist(double pos[2][10], int newPos, int unionSize)
 {
     double sum = 0;
     int i = 0;
-    for (i = 0; pos[1][i] != -1 && pos[2][i] != -1; i++) {
+    for (i = 0; pos[1][i] != -1.0 && pos[2][i] != -1.0; i++) {
         sum = sum + (pos[1][i]/pos[2][i] - newPos/unionSize);
     }
     return sum;
 }
 
-
+// read all URLS into a set
 Set GetAllUrls(int nFiles, char **fileNames)
 {
     Set URLs = newSet();
@@ -112,13 +115,13 @@ Set GetAllUrls(int nFiles, char **fileNames)
         while (fgets(line, URL_LENGTH, file) != NULL) {
             trim(line);
             insertInto(URLs, line);
-            free(line);
         }
         fclose(file);
     }
     return URLs;
 }
 
+// Check if the URL already exists in the array
 rankFP found(rankFP *array, int nURLs, char *URLName)
 {
     int i = 0;
@@ -128,6 +131,7 @@ rankFP found(rankFP *array, int nURLs, char *URLName)
     return NULL;
 }
 
+// gets the number of lines in a file - the number of URLs in each ordered list
 double linesInFile(char *fileName)
 {
     FILE *file = fopen(fileName, "r");
@@ -138,31 +142,48 @@ double linesInFile(char *fileName)
     return i;
 }
 
+// insert new positional data into URL
 void insertRankData(rankFP URL, int pos, double nURLs)
 {
     int i = 0;
-    for (i = 0; URL->posData[1][i] != -1 && URL->posData[2][i] != -1; i++);
+    for (i = 0; URL->posData[1][i] != -1.0 && URL->posData[2][i] != -1.0; i++);
     URL->posData[1][i] = pos;
     URL->posData[2][i] = nURLs;
 }
 
+// create new URL node
+rankFP newUrlRank(char *name, int pos, double fileSize)
+{
+    rankFP newFP = calloc(1, sizeof(struct URLRank));
+    int i = 0;
+    for (i = 0; i < 10; i++) {
+        newFP->posData[1][i] = -1.0;
+        newFP->posData[2][i] = -1.0;
+    }
+    insertRankData(newFP, pos, fileSize);
+    newFP->fileName = strdup(name);
+    return newFP;
+}
+
+
 void buildRankADT(rankFP *array, char **fileNames, int nFiles)
 {
     int i;
-    for (i = 0; i < nFiles; i++) {
-        double nURLs = linesInFile(fileNames[i]);
+    for (i = 1; i < nFiles; i++) {
+        double nLines = linesInFile(fileNames[i]);
         FILE *file = fopen(fileNames[i], "r");
         char line[URL_LENGTH] = {0};
         int pos = 1;
+        int nURLs = 0;
         rankFP curr = NULL;
         while (fgets(line, URL_LENGTH, file) != NULL) {
             trim(line);
-            if ((curr = found(array, nURLs, line)) != NULL) {
-                insertRankData(curr, pos, nURLs);
+            if ((curr = found(array, nLines, line)) != NULL) {
+                insertRankData(curr, pos, nLines);
             } else {
-                newUrlRank();
+                array[nURLs] = newUrlRank(line, pos, nLines);
+                i++;
             }
-            free(line);
             pos++;
         }
         fclose(file);
@@ -181,15 +202,11 @@ int main(int argc, char **argv)
         printf("Usage: ./scaledFootrule fileName ...\n");
 
     Set unionURL = GetAllUrls(nFiles, argv);
-    int nURLS = nElems(unionURL);
-    double numURLs = 0.0 + nURLS;
-    rankFP *files = calloc(numURLs, sizeof(rankFP));
-    buildRankADT(files, argv, numURLs);
+    double numURLs = nElems(unionURL) + 0.0;
+    disposeSet(unionURL);
 
-    for (i = 0; i < nFiles; i++) {
-        files[i] = newRankFile(argv[i+1]);
-        insertURLs(unionURL, argv[i+1]);
-    }
+    rankFP *files = calloc(numURLs, sizeof(rankFP));
+    buildRankADT(files, argv, nFiles); // Segfaulting here
 
     /* 1. Represent a cost matrix with an n x n 2d array.
           cost[url][pos] */
@@ -200,10 +217,10 @@ int main(int argc, char **argv)
     // Calculate cost for each url in each position.
     int row, col;
     for (row = 0; row < numURLs; row++) {
-        SetNode curr = unionURL->elems; // To get URL name.
+        i = 0; // To get URL name.
         for (col = 0; col < numURLs; col++)
-            cost[row][col] = calcSFRDist(curr->val, col+1, numURLs);
-        curr = curr->next;
+            cost[row][col] = calcSFRDist(files[i]->posData, col+1, numURLs);
+        i++;
     }
     showMatrix(cost, numURLs);
 
