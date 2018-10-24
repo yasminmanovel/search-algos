@@ -56,14 +56,14 @@ void showMatrix(double **matrix, int n)
     int i, j;
     for (i = 0; i < n; i++) {
         for (j = 0; j < n; j++)
-            printf("%.2f ", matrix[i][j]);
+            printf("%f ", matrix[i][j]);
         printf("\n");
     }
     printf("\n");
 }
 
 /* Finds minimum from each row and subtracts from all elements. */
-void rowReduce(double **matrix, int size, int **zeroCount)
+void rowReduce(double **matrix, int size)
 {
     int row, col;
     for (row = 0; row < size; row++) {
@@ -78,7 +78,7 @@ void rowReduce(double **matrix, int size, int **zeroCount)
 }
 
 /* Finds minimum from each col and subtracts from all elements. */
-void colReduce(double **matrix, int size, int **zeroCount)
+void colReduce(double **matrix, int size)
 {
     int row, col;
     for (col = 0; col < size; col++) {
@@ -91,21 +91,6 @@ void colReduce(double **matrix, int size, int **zeroCount)
             matrix[row][col] -= min;
     }
 }
-
-/* Creates a 2d array that count zeroes in each row and col. */
-void countZeroes(int **zeroCount, double **matrix, int numURLs)
-{
-    int i, j;
-    for (i = 0; i < numURLs; i++) {
-        for (j = 0; j < numURLs; j++) {
-            if (matrix[i][j] == 0.0) {
-                zeroCount[0][i]++;
-                zeroCount[1][j]++;
-            }
-        }
-    }
-}
-
 
 /* Calculates the scaled foot rule distance. */
 double calcSFRDist(double pos[2][10], int newPos, double unionSize)
@@ -250,6 +235,26 @@ int getMax(int **matrix, int nRows, int nCols, int *index)
     return max;
 }
 
+/* Creates a 2d array that count zeroes in each row and col. */
+int **countZeroes(double **matrix, int numURLs)
+{
+    int row, col;
+    // double zero = 0.0;
+    int **zeroCount = calloc(numURLs, sizeof(int *));
+    for (row = 0; row < numURLs; row++)
+        zeroCount[row] = calloc(numURLs, sizeof(int));
+    // Count zeroes in the matrix.
+    for (row = 0; row < numURLs; row++) {
+        for (col = 0; col < numURLs; col++) {
+            if (matrix[row][col] != 0) continue;
+            zeroCount[0][row]++;
+            zeroCount[1][col]++;
+        }
+        printf("\n");
+    }
+    return zeroCount;
+}
+
 /* Counts min # of lines needed to cover all 0s. */
 int numLinesToCoverZeroes(int **coverMatrix, int **zeroCount, double **cost, int numURLs)
 {
@@ -369,25 +374,29 @@ int main(int argc, char **argv)
     }
     showMatrix(cost, numURLs);
 
-    // Keeps track of the number of zeros in each row and col respectively.
-    int **zeroCount = calloc(numURLs, sizeof(int *));
-    for (i = 0; i < numURLs; i++)
-        zeroCount[i] = calloc(numURLs, sizeof(int));
+
     /* 3. Subtract row minima */
-    rowReduce(cost, numURLs, zeroCount);
+    rowReduce(cost, numURLs);
     /* 4. Subtract col minima */
-    colReduce(cost, numURLs, zeroCount);
+    colReduce(cost, numURLs);
     showMatrix(cost, numURLs);
+    // Keeps track of the number of zeros in each row and col respectively.
+    int **zeroCount = countZeroes(cost, numURLs);
     for (i = 0; i < 2; i++) {
         for (j = 0; j < numURLs; j++) printf("%d ", zeroCount[i][j]);
         printf("\n");
     }
+
     // 2d array that reflects cost matrix.
     // 0 means not covered, and > 0 means covered.
     int **coverMatrix = calloc(numURLs, sizeof(int *));
     for (i = 0; i < numURLs; i++) 
         coverMatrix[i] = calloc(numURLs, sizeof(int));
     /* 5. Count number of lines L required to cover all the 0s */
+    // int num = numLinesToCoverZeroes(coverMatrix, zeroCount, cost, numURLs);
+    // printf("lines %d\n", num);
+    // num = numLinesToCoverZeroes(coverMatrix, zeroCount, cost, numURLs);
+    // printf("lines %d\n", num);
     while (numLinesToCoverZeroes(coverMatrix, zeroCount, cost, numURLs) != numURLs) {
         printf("finding\n");
         /* 6. Find smallest number from uncovered area */
@@ -399,7 +408,7 @@ int main(int argc, char **argv)
         /* Go back to step 5 and repeat */
     }
     printf("FOUND\n");
-    // char **orderedURLs = getURLOrder(cost); // Yasmin
+    char **orderedURLs = getURLOrder(cost); // Yasmin
 
     return 0;
 }
