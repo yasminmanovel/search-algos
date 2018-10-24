@@ -83,7 +83,7 @@ void colReduce(double **matrix, int size)
 {
     int row, col;
     for (col = 0; col < size; col++) {
-        int min = 0;
+        double min = INT_MAX;
         // Find min element in row.
         for (row = 0; row < size; row++)
             min = MIN(min, matrix[row][col]);
