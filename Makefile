@@ -52,4 +52,4 @@ mystrdup.o : mystrdup.c
 	gcc $(CFLAGS) -c mystrdup.c
 
 clean:
-	rm -f $(OBJS) searchTfIdf.o invertedIndex.o searchPagerank.o
+	rm -f $(OBJS) searchTfIdf.o invertedIndex.o searchPagerank.o scaledFootrule.o

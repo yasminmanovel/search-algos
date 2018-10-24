@@ -58,7 +58,7 @@ void showMatrix(double **matrix, int n)
     int i, j;
     for (i = 0; i < n; i++) {
         for (j = 0; j < n; j++)
-            printf("%f ", matrix[i][j]);
+            printf("%.20f ", matrix[i][j]);
         printf("\n");
     }
     printf("\n");
@@ -384,7 +384,7 @@ void rankMerge(rankFP *array, int start, int middle, int end)
     // merging back in order
     int i = 0, j = 0, k = start;
     while (i < leftLength && j < rightLength) {
-        if (left[i]->finalPos >= right[j]->finalPos) {
+        if (left[i]->finalPos <= right[j]->finalPos) {
             array[k] = left[i];
             i++;
         } else {
@@ -424,17 +424,37 @@ void rankMergeSort(rankFP *array, int start, int end)
     }
 }
 
+int posAlreadyTaken(rankFP *files, int pos, int numURLs) {
+    int i;
+    for (i = 0; i < numURLs; i++) {
+        if (files[i]->finalPos == pos) return TRUE;
+    }
+    return FALSE;
+}
+
 
 /* TO DO */
-void getPosition(double **cost, rankFP *files)
+void getPosition(double **cost, rankFP *files, int numURLs)
 {
+    int i, j;
+    for (i = 0; i < numURLs; i++) {
+        printf("%s\n", files[i]->fileName);
+    }
+    showMatrix(cost, numURLs);
+    for (i = 0; i < numURLs; i++) {
+        for (j = 0; j < numURLs; j++) {
+            if (cost[i][j] != 0.0) continue;
+            if (posAlreadyTaken(files, j+1, numURLs)) continue;
+            files[i]->finalPos = j+1; break;
+        }
+    }
 }
 
 
 void getURLOrder(double **cost, rankFP *files, int length)
 {
     /* Need to figure out how to get each URL's position from the matrix */
-    getPosition(cost, files);
+    getPosition(cost, files, length + 1);
     rankMergeSort(files, 0, length);
 
 }
@@ -510,7 +530,7 @@ int main(int argc, char **argv)
     printf("FOUND\n");
     getURLOrder(cost, files, numURLs - 1); // sort normally
     for (i = 0; i < numURLs; i++) {
-        printf("%s\n", files[i]->fileName);
+        printf("%s %d\n", files[i]->fileName, files[i]->finalPos);
     }
     return 0;
 }
