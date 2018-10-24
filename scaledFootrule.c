@@ -26,7 +26,7 @@
 struct URLRank {
     char  *fileName;
     double posData[2][10];
-    int finalPos;
+    int    finalPos;
 };
 
 typedef struct URLRank *rankFP;
@@ -450,6 +450,17 @@ void freeIntMatrix(int **matrix, int nRows)
     free(matrix);
 }
 
+void freeFiles(rankFP *files, int size)
+{
+    int i;
+    for (i = 0; i < size; i++) {
+        free(files[i]->fileName);
+        free(files[i]);
+    }
+    free(files);
+}
+
+
 // get set of URLS
 // for each rank file, read into info into URL array
 // set the matrix values based on the info in the URL array
@@ -520,6 +531,7 @@ int main(int argc, char **argv)
     freeMatrix(ogCost, numURLs);
     freeIntMatrix(coverMatrix, numURLs);
     freeIntMatrix(zeroCount, 2);
+    freeFiles(files, argc-1);
 
     return 0;
 }
