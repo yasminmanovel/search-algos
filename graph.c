@@ -12,7 +12,8 @@
 
 #define NULL_TERM 1
 
-// creating the nodes that represent outlinks & inlinks
+
+// creating a node which represents an inlink
 struct urlLink *newInLink(URL PointTo)
 {
     struct urlLink *newLink = calloc(1, sizeof(struct urlLink));
@@ -22,7 +23,7 @@ struct urlLink *newInLink(URL PointTo)
     return newLink;
 }
 
-
+// creating a node which represents an outlink
 struct urlLink *newOutLink(char *URLName)
 {
     struct urlLink *newLink = calloc(1, sizeof(struct urlLink));
