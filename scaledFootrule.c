@@ -360,7 +360,7 @@ int main(int argc, char **argv)
     while (numLinesToCoverZeroes(zeroCount, cost, numURLs) != numURLs) { // Selina
         printf("finding\n");
     //     /* 6. Find smallest number from uncovered area */
-    //     int min  = findUncoveredAreaMin(cost, numURLs); // Yasmin
+         int min  = findUncoveredAreaMin(cost, numURLs); // Yasmin
     //     /* Subtract this number from all UNCOVERED ROWS */
     //     rowReduceUncovered(min, cost, numURLs); // Selina
     //     /* Add new smallest number to COVERED COLS */
