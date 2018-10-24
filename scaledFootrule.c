@@ -505,11 +505,13 @@ int main(int argc, char **argv)
     }
     double sum = getURLOrder(cost, files, numURLs - 1, ogCost); // sort normally
     printf("%f\n", sum);
-    for (i = 0; i < numURLs; i++) {
+    for (i = 0; i < numURLs; i++)
         printf("%s\n", files[i]->fileName);
-    }
+    
+    // Cleaning up.
     freeMatrix(cost, numURLs);
     freeMatrix(ogCost, numURLs);
+    freeMatrix(coverMatrix, numURLs);
 
     return 0;
 }
