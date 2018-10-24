@@ -442,6 +442,13 @@ void freeMatrix(double **matrix, int size)
     free(matrix);
 }
 
+void freeIntMatrix(int **matrix, int nRows) 
+{
+    int i;
+    for (i = 0; i < nRows; i++) 
+        free(matrix[i]);
+    free(matrix);
+}
 
 // get set of URLS
 // for each rank file, read into info into URL array
@@ -511,10 +518,8 @@ int main(int argc, char **argv)
     // Cleaning up.
     freeMatrix(cost, numURLs);
     freeMatrix(ogCost, numURLs);
-    freeMatrix(coverMatrix, numURLs);
-    for (i = 0; i < 2; i++) 
-        free(zeroCount[i]);
-    free(zeroCount);
+    freeIntMatrix(coverMatrix, numURLs);
+    freeIntMatrix(zeroCount, 2);
 
     return 0;
 }
