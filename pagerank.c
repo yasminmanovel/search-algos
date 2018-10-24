@@ -101,10 +101,8 @@ double calculateCurrPR(PRNode currNode, PRNode *array, Graph web, double damp, i
             if (strcmp(array[j]->name, curr->URLName) == 0) break;
         }
         sum += array[j]->prevPR * wIn * wOut;
-        //printf("Sum is %f\n", sum);
     }
     double part2 = damp * sum;
-    //assert(part2 != 0);
     double PR = part1 + part2;
     return PR;
 }
@@ -161,7 +159,6 @@ PRNode *PageRankW(Set URLList, double damp, double diffPR, int maxIterations, Gr
             urlPRs[j]->currPR = calculateCurrPR(urlPRs[j], urlPRs, web, damp, nURLs);
             diff = calculateDiffPR(urlPRs[j], web);
             urlPRs[j]->prevPR = urlPRs[j]->currPR;
-            printf("diff is %f\n", diff);
         }
         i++;
     }

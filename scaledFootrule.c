@@ -442,9 +442,10 @@ int main(int argc, char **argv)
 {
     int i;
      // Number of files given.
-    if (argc - 1 == 0) 
+    if (argc - 1 == 0) {
         printf("Usage: ./scaledFootrule fileName ...\n");
-
+        exit(1);
+    }
     Set unionURL = GetAllUrls(argc, argv);
     double numURLs = nElems(unionURL) + 0.0;
     /* building ADT that represents the URLs and their positions within the 
