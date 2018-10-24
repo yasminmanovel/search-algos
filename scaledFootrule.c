@@ -456,6 +456,7 @@ void freeFiles(rankFP *files, int size)
         free(files[i]->fileName);
         free(files[i]);
     }
+    free(files);
 }
 
 // get set of URLS
