@@ -26,7 +26,7 @@
 struct URLRank {
     char  *fileName;
     double posData[2][10];
-    int    finalPos;
+    int finalPos;
 };
 
 typedef struct URLRank *rankFP;
@@ -249,16 +249,16 @@ int getMax(int **matrix, int nRows, int nCols, int *index)
 }
 
 /* Creates a 2d array that count zeroes in each row and col. */
-int **countZeroes(double **matrix, int num)
+int **countZeroes(double **matrix, int numURLs)
 {
     int row, col;
     // double zero = 0.0;
-    int **zeroCount = calloc(num, sizeof(int *));
-    for (row = 0; row < num; row++)
-        zeroCount[row] = calloc(num, sizeof(int));
+    int **zeroCount = calloc(2, sizeof(int *));
+    for (row = 0; row < numURLs; row++)
+        zeroCount[row] = calloc(numURLs, sizeof(int));
     // Count zeroes in the matrix.
-    for (row = 0; row < num; row++) {
-        for (col = 0; col < num; col++) {
+    for (row = 0; row < numURLs; row++) {
+        for (col = 0; col < numURLs; col++) {
             if (matrix[row][col] != 0) continue;
             zeroCount[0][row]++;
             zeroCount[1][col]++;
@@ -433,33 +433,21 @@ double getURLOrder(double **cost, rankFP *files, int length, double **ogCost)
     return sum;
 }
 
-/* Frees memory allocated with matrix. */
-void freeMatrix(double **matrix, int size) 
+void freeDoubleMatrix(double **matrix, int size) 
 {
     int i;
-    for (i = 0; i < size; i++)
+    for (i = 0; i < size; i++) 
         free(matrix[i]);
     free(matrix);
 }
 
-void freeIntMatrix(int **matrix, int nRows) 
+void freeIntMatrix(int **matrix, int size) 
 {
     int i;
-    for (i = 0; i < nRows; i++) 
+    for (i = 0; i < size; i++) 
         free(matrix[i]);
     free(matrix);
 }
-
-void freeFiles(rankFP *files, int size)
-{
-    int i;
-    for (i = 0; i < size; i++) {
-        free(files[i]->fileName);
-        free(files[i]);
-    }
-    free(files);
-}
-
 
 // get set of URLS
 // for each rank file, read into info into URL array
@@ -503,7 +491,7 @@ int main(int argc, char **argv)
     /* 4. Subtract col minima */
     colReduce(cost, numURLs);
     // Keeps track of the number of zeros in each row and col respectively.
-    int **zeroCount = countZeroes(cost, 2);
+    int **zeroCount = countZeroes(cost, numURLs);
 
     // 2d array that reflects cost matrix.
     // 0 means not covered, and > 0 means covered.
@@ -523,16 +511,16 @@ int main(int argc, char **argv)
     }
     double sum = getURLOrder(cost, files, numURLs - 1, ogCost); // sort normally
     printf("%f\n", sum);
-    for (i = 0; i < numURLs; i++)
+    for (i = 0; i < numURLs; i++) {
         printf("%s\n", files[i]->fileName);
-    
+    }
+
     // Cleaning up.
-    freeMatrix(cost, numURLs);
-    freeMatrix(ogCost, numURLs);
-    freeIntMatrix(coverMatrix, numURLs);
-    freeIntMatrix(zeroCount, 2);
-    freeFiles(files, argc-1);
     disposeSet(unionURL);
+    freeDoubleMatrix(cost, numURLs);
+    freeDoubleMatrix(ogCost, numURLs);
+    freeIntMatrix(zeroCount, 2);
+    freeIntMatrix(coverMatrix, numURLs);
 
     return 0;
 }
