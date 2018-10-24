@@ -436,7 +436,7 @@ double getURLOrder(double **cost, rankFP *files, int length, double **ogCost)
 /* Frees memory allocated with matrix. */
 void freeMatrix(double **matrix, int size) 
 {
-    int i, j;
+    int i;
     for (i = 0; i < size; i++)
         free(matrix[i]);
     free(matrix);
