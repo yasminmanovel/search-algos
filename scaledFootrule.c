@@ -433,6 +433,7 @@ double getURLOrder(double **cost, rankFP *files, int length, double **ogCost)
     return sum;
 }
 
+/* Frees a double 2d array */
 void freeDoubleMatrix(double **matrix, int size) 
 {
     int i;
@@ -441,6 +442,7 @@ void freeDoubleMatrix(double **matrix, int size)
     free(matrix);
 }
 
+/* Frees an int 2d array */
 void freeIntMatrix(int **matrix, int size) 
 {
     int i;
@@ -449,6 +451,7 @@ void freeIntMatrix(int **matrix, int size)
     free(matrix);
 }
 
+/* Free rankFP pointer */
 void freeFiles(rankFP *files, int size)
 {
     int i;
