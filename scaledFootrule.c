@@ -21,10 +21,12 @@
 #define MAX(X, Y)  ( (X > Y) ? X : Y)  
 #define TRUE 1
 #define FALSE 0
+#define SHIFT       1
 
 struct URLRank {
     char  *fileName;
     double posData[2][10];
+    int finalPos;
 };
 
 typedef struct URLRank *rankFP;
@@ -62,6 +64,7 @@ void showMatrix(double **matrix, int n)
     printf("\n");
 }
 
+
 /* Finds minimum from each row and subtracts from all elements. */
 void rowReduce(double **matrix, int size)
 {
@@ -76,6 +79,7 @@ void rowReduce(double **matrix, int size)
             matrix[row][col] -= min;
     }
 }
+
 
 /* Finds minimum from each col and subtracts from all elements. */
 void colReduce(double **matrix, int size)
@@ -103,6 +107,7 @@ double calcSFRDist(double pos[2][10], int newPos, double unionSize)
     return fabs(sum);
 }
 
+
 // read all URLS into a set
 Set GetAllUrls(int nFiles, char **fileNames)
 {
@@ -120,6 +125,7 @@ Set GetAllUrls(int nFiles, char **fileNames)
     return URLs;
 }
 
+
 // Check if the URL already exists in the array
 rankFP found(rankFP *array, int nURLs, char *URLName)
 {
@@ -129,6 +135,7 @@ rankFP found(rankFP *array, int nURLs, char *URLName)
     }
     return NULL;
 }
+
 
 // gets the number of lines in a file - the number of URLs in each ordered list
 double linesInFile(char *fileName)
@@ -141,6 +148,7 @@ double linesInFile(char *fileName)
     return i;
 }
 
+
 // insert new positional data into URL
 void insertRankData(rankFP URL, int pos, double nURLs)
 {
@@ -149,6 +157,7 @@ void insertRankData(rankFP URL, int pos, double nURLs)
     URL->posData[0][i] = pos;
     URL->posData[1][i] = nURLs;
 }
+
 
 // create new URL node
 rankFP newUrlRank(char *name, int pos, double fileSize)
@@ -161,6 +170,7 @@ rankFP newUrlRank(char *name, int pos, double fileSize)
     }
     insertRankData(newFP, pos, fileSize);
     newFP->fileName = mystrdup(name);
+    newFP->finalPos = -1;
     return newFP;
 }
 
@@ -190,6 +200,7 @@ void buildRankADT(rankFP *array, char **fileNames, int nFiles)
     }
 }
 
+
 /* Sets the zeroCount[row][col] to all 1s. */
 void setLine(int **coverMatrix, int numURLs, int row, int col)
 {
@@ -205,6 +216,7 @@ void setLine(int **coverMatrix, int numURLs, int row, int col)
     }
 }
 
+
 /* Checks if matrix is all 0s. */
 int allZero(int **matrix, int nRows, int nCols)
 {
@@ -217,6 +229,7 @@ int allZero(int **matrix, int nRows, int nCols)
     }
     return TRUE;
 }
+
 
 /* Gets max num in a 2d array */
 int getMax(int **matrix, int nRows, int nCols, int *index)
@@ -311,6 +324,7 @@ int numLinesToCoverZeroes(int **coverMatrix, int **zeroCount, double **cost, int
     return lines;
 }
 
+
 /* Row reduces all uncovered elements by min. */
 void rowReduceUncovered(int **coverMatrix, double min, double **cost, int numURLs)
 {
@@ -324,6 +338,7 @@ void rowReduceUncovered(int **coverMatrix, double min, double **cost, int numURL
         }
     }
 }
+
 
 /* Adds min to all covered columns */
 void colAddCovered(int **coverMatrix, double min, double **cost, int numURLs) 
@@ -339,6 +354,90 @@ void colAddCovered(int **coverMatrix, double min, double **cost, int numURLs)
     }
 }
 
+
+// finds the minimum index that is uncovered in the matrix
+double findUncoveredAreaMin(double **matrix, int **coverMatrix, int size)
+{
+    int row, col;
+    double min = INT_MAX;
+    for (col = 0; col < size; col++) {
+        for (row = 0; row < size; row++) {
+            if (!coverMatrix[row][col]) min = MIN(min, matrix[row][col]);
+        }
+    }
+    return min;
+}
+
+
+// helper function for the Merge Sort
+void rankMerge(rankFP *array, int start, int middle, int end)
+{
+    int leftLength = middle - start + SHIFT;
+    int rightLength = end - middle;
+
+    // split given array in half
+    rankFP *left = malloc(sizeof(rankFP) * leftLength);
+    rankFP *right = malloc(sizeof(rankFP) * rightLength);
+    for (int i = 0; i < leftLength; i++) left[i] = array[start + i];
+    for (int i = 0; i < rightLength; i++) right[i] = array[middle + 1 + i];
+
+    // merging back in order
+    int i = 0, j = 0, k = start;
+    while (i < leftLength && j < rightLength) {
+        if (left[i]->finalPos >= right[j]->finalPos) {
+            array[k] = left[i];
+            i++;
+        } else {
+            array[k] = right[j];
+            j++;
+        }
+        k++;
+    }
+    // merging remaining elements
+    while (i < leftLength) {
+        array[k] = left[i];
+        i++; k++;
+ 
+    }
+    while (j < rightLength) {
+        array[k] = right[j];
+        j++; k++;
+    }
+
+    free(left); free(right);
+}
+
+
+// Merge Sort that is used to order the URLS by  their Page Rank
+void rankMergeSort(rankFP *array, int start, int end)
+{
+    if (start < end) {
+        // same as (start + end)/2, but apparently avoids overflow for large 
+        // numbers
+        int middle = start + (end - start)/2;
+        // sort the two halves of the array
+        rankMergeSort(array, start, middle);
+        rankMergeSort(array, middle + SHIFT, end);
+        // merge these sorted halves
+        rankMerge(array, start, middle, end);
+
+    }
+}
+
+
+/* TO DO */
+void getPosition(double **cost, rankFP *files)
+{
+}
+
+
+void getURLOrder(double **cost, rankFP *files, int length)
+{
+    /* Need to figure out how to get each URL's position from the matrix */
+    getPosition(cost, files);
+    rankMergeSort(files, 0, length);
+
+}
 
 
 // get set of URLS
@@ -400,16 +499,20 @@ int main(int argc, char **argv)
     while (numLinesToCoverZeroes(coverMatrix, zeroCount, cost, numURLs) != numURLs) {
         printf("finding\n");
         /* 6. Find smallest number from uncovered area */
-        int min = findUncoveredAreaMin(cost, numURLs); // Yasmin
+        double min = findUncoveredAreaMin(cost, coverMatrix, numURLs);
         /* Subtract this number from all UNCOVERED ROWS */
         rowReduceUncovered(coverMatrix, min, cost, numURLs);
         /* Add new smallest number to COVERED COLS */
+        // is this function right, shouldnt it be == 1 or 2??
         colAddCovered(coverMatrix, min, cost, numURLs);
         /* Go back to step 5 and repeat */
     }
     printf("FOUND\n");
-    char **orderedURLs = getURLOrder(cost); // Yasmin
-
+    getURLOrder(cost, files, numURLs - 1); // sort normally
+    for (i = 0; i < numURLs; i++) {
+        printf("%s\n", files[i]->fileName);
+    }
     return 0;
 }
+
 
