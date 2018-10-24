@@ -263,7 +263,6 @@ int **countZeroes(double **matrix, int numURLs)
             zeroCount[0][row]++;
             zeroCount[1][col]++;
         }
-        printf("\n");
     }
     return zeroCount;
 }
@@ -272,7 +271,6 @@ int **countZeroes(double **matrix, int numURLs)
 int numLinesToCoverZeroes(int **coverMatrix, int **zeroCount, double **cost, int numURLs)
 {
     int i;
-    int j;
     int max = 0;
     int index, zeroRow, zeroCol;
     int lines = 0;
@@ -294,32 +292,9 @@ int numLinesToCoverZeroes(int **coverMatrix, int **zeroCount, double **cost, int
                 setLine(coverMatrix, numURLs, -1, zeroCol);
             }
         }
-        printf("INSIDE LOOP\n");
-        for (i = 0; i < 2; i++) {
-            for (j = 0; j < numURLs; j++) printf("%d ", zeroCount[i][j]);
-            printf("\n");
-        }
-        printf("\n");
         lines++;
     }
 
-    printf("zeroCount:\n");
-    for (i = 0; i < 2; i++) {
-        for (j = 0; j < numURLs; j++) printf("%d ", zeroCount[i][j]);
-        printf("\n");
-    }
-    printf("\n");
-
-    // printf("Cover Matrix:\n");
-    // for (i = 0; i < numURLs; i++) {
-    //     for (j = 0; j < numURLs; j++) {
-    //         printf("%d ", coverMatrix[i][j]);
-    //     }
-    //     printf("\n");
-    // }
-    // printf("\n");
-
-    // printf("lines %d\n", lines);
 
     return lines;
 }
@@ -434,29 +409,28 @@ int posAlreadyTaken(rankFP *files, int pos, int numURLs) {
 
 
 /* TO DO */
-void getPosition(double **cost, rankFP *files, int numURLs)
+void getPosition(double **cost, rankFP *files, int numURLs, double *sum, double **ogCost)
 {
     int i, j;
-    for (i = 0; i < numURLs; i++) {
-        printf("%s\n", files[i]->fileName);
-    }
-    showMatrix(cost, numURLs);
     for (i = 0; i < numURLs; i++) {
         for (j = 0; j < numURLs; j++) {
             if (cost[i][j] != 0.0) continue;
             if (posAlreadyTaken(files, j+1, numURLs)) continue;
-            files[i]->finalPos = j+1; break;
+            files[i]->finalPos = j+1;
+            *sum = *sum + ogCost[i][j];
+            break;
         }
     }
 }
 
 
-void getURLOrder(double **cost, rankFP *files, int length)
+double getURLOrder(double **cost, rankFP *files, int length, double **ogCost)
 {
     /* Need to figure out how to get each URL's position from the matrix */
-    getPosition(cost, files, length + 1);
+    double sum = 0;
+    getPosition(cost, files, length + 1, &sum, ogCost);
     rankMergeSort(files, 0, length);
-
+    return sum;
 }
 
 
@@ -466,7 +440,7 @@ void getURLOrder(double **cost, rankFP *files, int length)
 
 int main(int argc, char **argv) 
 {
-    int i, j;
+    int i;
      // Number of files given.
     if (argc - 1 == 0) 
         printf("Usage: ./scaledFootrule fileName ...\n");
@@ -482,29 +456,26 @@ int main(int argc, char **argv)
     double **cost = malloc(numURLs * sizeof(double));
     for (i = 0; i < numURLs; i++)
         cost[i] = malloc(numURLs * sizeof(double));
+    double **ogCost = malloc(numURLs * sizeof(double));
+    for (i = 0; i < numURLs; i++) 
+        ogCost[i] = malloc(numURLs * sizeof(double));
     
     /* 2. Calculate the footrule distance for each [row][col] */
     int row, col;
     i = 0;
     for (row = 0; row < numURLs; row++) {
-        for (col = 0; col < numURLs; col++)
+        for (col = 0; col < numURLs; col++) {
             cost[row][col] = calcSFRDist(files[i]->posData, col+1, numURLs);
+            ogCost[row][col] = calcSFRDist(files[i]->posData, col+1, numURLs);
+        }
         i++;
     }
-    showMatrix(cost, numURLs);
-
-
     /* 3. Subtract row minima */
     rowReduce(cost, numURLs);
     /* 4. Subtract col minima */
     colReduce(cost, numURLs);
-    showMatrix(cost, numURLs);
     // Keeps track of the number of zeros in each row and col respectively.
     int **zeroCount = countZeroes(cost, numURLs);
-    for (i = 0; i < 2; i++) {
-        for (j = 0; j < numURLs; j++) printf("%d ", zeroCount[i][j]);
-        printf("\n");
-    }
 
     // 2d array that reflects cost matrix.
     // 0 means not covered, and > 0 means covered.
@@ -512,12 +483,7 @@ int main(int argc, char **argv)
     for (i = 0; i < numURLs; i++) 
         coverMatrix[i] = calloc(numURLs, sizeof(int));
     /* 5. Count number of lines L required to cover all the 0s */
-    // int num = numLinesToCoverZeroes(coverMatrix, zeroCount, cost, numURLs);
-    // printf("lines %d\n", num);
-    // num = numLinesToCoverZeroes(coverMatrix, zeroCount, cost, numURLs);
-    // printf("lines %d\n", num);
     while (numLinesToCoverZeroes(coverMatrix, zeroCount, cost, numURLs) != numURLs) {
-        printf("finding\n");
         /* 6. Find smallest number from uncovered area */
         double min = findUncoveredAreaMin(cost, coverMatrix, numURLs);
         /* Subtract this number from all UNCOVERED ROWS */
@@ -527,8 +493,8 @@ int main(int argc, char **argv)
         colAddCovered(coverMatrix, min, cost, numURLs);
         /* Go back to step 5 and repeat */
     }
-    printf("FOUND\n");
-    getURLOrder(cost, files, numURLs - 1); // sort normally
+    double sum = getURLOrder(cost, files, numURLs - 1, ogCost); // sort normally
+    printf("%f\n", sum);
     for (i = 0; i < numURLs; i++) {
         printf("%s %d\n", files[i]->fileName, files[i]->finalPos);
     }
