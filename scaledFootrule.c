@@ -91,6 +91,7 @@ void colReduce(double **matrix, int size)
         for (row = 0; row < size; row++)
             matrix[row][col] -= min;
     }
+    showMatrix(matrix, size);
 }
 
 
@@ -100,11 +101,8 @@ double calcSFRDist(double pos[2][10], int newPos, double unionSize)
     double sum = 0;
     int i = 0;
     for (i = 0; pos[0][i] != -1.0 && pos[1][i] != -1.0; i++) {
-        // printf("i is %d\n", i);
-        sum = sum + (fabs(pos[0][i]/pos[1][i]) - fabs(newPos/unionSize));
-        //printf("%.2f / %.2f - %d / %.2f\n", pos[1][i], pos[2][i], newPos, unionSize);
+        sum = sum + fabs((newPos/unionSize) - (pos[0][i]/pos[1][i]));
     }
-    // printf("\n");
     return fabs(sum);
 }
 
@@ -223,10 +221,10 @@ int main(int argc, char **argv)
     for (i = 0; i < numURLs; i++) {
         printf("%s\n", files[i]->fileName);
         for (j = 0; j < 10; j++) {
-            printf("%f ", files[i]->posData[1][j]);
+            printf("%f ", files[i]->posData[0][j]);
         } printf("\n");
         for (j = 0; j < 10; j++) {
-            printf("%f ", files[i]->posData[2][j]);
+            printf("%f ", files[i]->posData[1][j]);
         } printf("\n");
     }
     printf("\n"); printf("\n"); printf("\n");
@@ -241,8 +239,8 @@ int main(int argc, char **argv)
 
     /* 3. Subtract row minima */
     /* 4. Subtract col minima */
-    rowReduce(cost, numURLs);
-    colReduce(cost, numURLs);
+   colReduce(cost, numURLs);
+   //rowReduce(cost, numURLs);
 
 
     return 0;
