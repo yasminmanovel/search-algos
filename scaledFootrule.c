@@ -433,6 +433,15 @@ double getURLOrder(double **cost, rankFP *files, int length, double **ogCost)
     return sum;
 }
 
+/* Frees memory allocated with matrix. */
+void freeMatrix(double **matrix, int size) 
+{
+    int i, j;
+    for (i = 0; i < size; i++)
+        free(matrix[i]);
+    free(matrix);
+}
+
 
 // get set of URLS
 // for each rank file, read into info into URL array
@@ -499,6 +508,9 @@ int main(int argc, char **argv)
     for (i = 0; i < numURLs; i++) {
         printf("%s\n", files[i]->fileName);
     }
+    freeMatrix(cost, numURLs);
+    freeMatrix(ogCost, numURLs);
+
     return 0;
 }
 
