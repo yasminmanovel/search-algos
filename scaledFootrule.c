@@ -63,7 +63,7 @@ void showMatrix(double **matrix, int n)
 }
 
 /* Finds minimum from each row and subtracts from all elements. */
-void rowReduce(double **matrix, int size)
+void rowReduce(double **matrix, int size, int **zeroCount)
 {
     int row, col;
     for (row = 0; row < size; row++) {
@@ -72,14 +72,16 @@ void rowReduce(double **matrix, int size)
         for (col = 0; col < size; col++)
             min = MIN(min, matrix[row][col]);
         // Subtracts min from all elements.
-        for (col = 0; col < size; col++)
+        for (col = 0; col < size; col++) {
             matrix[row][col] -= min;
+            // Counts number of zeros in row.
+            if (matrix[row][col] == 0) zeroCount[0][row]++;
+        }
     }
-    showMatrix(matrix, size);
 }
 
 /* Finds minimum from each col and subtracts from all elements. */
-void colReduce(double **matrix, int size)
+void colReduce(double **matrix, int size, int **zeroCount)
 {
     int row, col;
     for (col = 0; col < size; col++) {
@@ -88,10 +90,12 @@ void colReduce(double **matrix, int size)
         for (row = 0; row < size; row++)
             min = MIN(min, matrix[row][col]);
         // Subtracts min from all elements.
-        for (row = 0; row < size; row++)
+        for (row = 0; row < size; row++) {
             matrix[row][col] -= min;
+            // Counts # of zeros in col.
+            if (matrix[row][col] == 0) zeroCount[1][col]++;
+        }
     }
-    showMatrix(matrix, size);
 }
 
 
@@ -193,13 +197,125 @@ void buildRankADT(rankFP *array, char **fileNames, int nFiles)
     }
 }
 
+/* Sets the zeroCount[row][col] to all 1s. */
+void setZero(int **coverMatrix, int numURLs, int row, int col)
+{
+    int i;
+    // If want to set a column to 1.
+    if (row == -1) {
+        for (i = 0; i < numURLs; i++)
+            coverMatrix[i][col]++;
+    // If want to set a row to 1.
+    } else if (col == -1) {
+        for (i = 0; i < numURLs; i++)
+            coverMatrix[row][i]++;
+    }
+}
+
+/* Checks if matrix is all 0s. */
+int allZero(int **matrix, int nRows, int nCols)
+{
+    int i, j;
+    for (i = 0; i < nRows; i++) {
+        for (j = 0; j < nCols; j++) {
+            if (matrix[i][j] != 0)
+                return FALSE;
+        }
+    }
+    return TRUE;
+}
+
+/* Gets max num in a 2d array */
+int getMax(int **matrix, int nRows, int nCols, int *index)
+{
+    int i, j;
+    int max = 0;
+    // Goes through rows & cols to get row/col that has the most 0s.
+    for (i = 0; i < nRows; i++) {
+        for (j = 0; j < nCols; j++) {
+            if (matrix[i][j] > max) {
+                max = matrix[i][j];
+                *index = (i * nCols) + j;
+            }
+        }
+    }
+    return max;
+}
+
+/* Counts min # of lines needed to cover all 0s. */
+int numLinesToCoverZeroes(int **zeroCount, double **cost, int numURLs)
+{
+    int i;
+    // 2d array that reflects cost matrix.
+    // 0 means not covered, and > 0 means covered.
+    int **coverMatrix = calloc(numURLs, sizeof(int *));
+    for (i = 0; i < numURLs; i++) 
+        coverMatrix[i] = calloc(numURLs, sizeof(int));
+
+    int max = 0;
+    int index, zeroRow, zeroCol;
+    int lines = 0;
+    // While not all zeroes have been covered.
+    while (!allZero(zeroCount, 2, numURLs)) {
+        max = getMax(zeroCount, 2, numURLs, &index);
+        // Gets row and col of zeroCount.
+        zeroRow = index / numURLs;
+        zeroCol = index % numURLs;
+        // Subtract # of zeroes crossed out from covered rows & cols.
+        // Max is in row.
+        zeroCount[zeroRow][zeroCol] -= max;
+        if (zeroRow == 0) {
+            for (i = 0; i < numURLs; i++) {
+                if (cost[zeroCol][i] == 0.0)
+                    zeroCount[1][i]--;
+            }
+            setZero(coverMatrix, numURLs, zeroCol, -1);
+        // Max is in col.
+        } else if (zeroRow == 1) {
+            for (i = 0; i < numURLs; i++) {
+                if (cost[i][zeroCol] == 0.0)
+                    zeroCount[1][i]--;
+            }
+            setZero(coverMatrix, numURLs, zeroCol, -1);
+        }
+        // printf("INSIDE LOOP\n");
+        // for (i = 0; i < 2; i++) {
+        //     for (j = 0; j < numURLs; j++) printf("%d ", zeroCount[i][j]);
+        //     printf("\n");
+        // }
+        // printf("\n");
+        lines++;
+    }
+
+    // printf("zeroCount:\n");
+    // for (i = 0; i < 2; i++) {
+    //     for (j = 0; j < numURLs; j++) printf("%d ", zeroCount[i][j]);
+    //     printf("\n");
+    // }
+    // printf("\n");
+
+    // printf("Cover Matrix:\n");
+    // for (i = 0; i < numURLs; i++) {
+    //     for (j = 0; j < numURLs; j++) {
+    //         printf("%d ", coverMatrix[i][j]);
+    //     }
+    //     printf("\n");
+    // }
+    // printf("\n");
+
+    // printf("lines %d\n", lines);
+
+
+    return lines;
+}
+
 // get set of URLS
 // for each rank file, read into info into URL array
 // set the matrix values based on the info in the URL array
 
 int main(int argc, char **argv) 
 {
-    int i;
+    int i, j;
      // Number of files given.
     if (argc - 1 == 0) 
         printf("Usage: ./scaledFootrule fileName ...\n");
@@ -226,21 +342,33 @@ int main(int argc, char **argv)
     }
     showMatrix(cost, numURLs);
 
+    // Keeps track of the number of zeros in each row and col respectively.
+    int **zeroCount = calloc(numURLs, sizeof(int *));
+    for (i = 0; i < numURLs; i++)
+        zeroCount[i] = calloc(numURLs, sizeof(int));
     /* 3. Subtract row minima */
-    rowReduce(cost, numURLs);
+    rowReduce(cost, numURLs, zeroCount);
     /* 4. Subtract col minima */
-    colReduce(cost, numURLs);
-    /* 5. Count number of lines L required to cover all the 0s */
-    while (numLinesToCoverZeroes(cost, numURLs) != numURLs) { // Selina
-        /* 6. Find smallest number from uncovered area */
-        int min  = findUncoveredAreaMin(cost, numURLs); // Yasmin
-        /* Subtract this number from all UNCOVERED ROWS */
-        rowReduceUncovered(min, cost, numURLs); // Selina
-        /* Add new smallest number to COVERED COLS */
-        colAddCovered(min, cost, numURLs); // Selina
-        /* Go back to step 5 and repeat */
+    colReduce(cost, numURLs, zeroCount);
+    showMatrix(cost, numURLs);
+    for (i = 0; i < 2; i++) {
+        for (j = 0; j < numURLs; j++) printf("%d ", zeroCount[i][j]);
+        printf("\n");
     }
-    char **orderedURLs = getURLOrder(cost); // Yasmin
+    /* 5. Count number of lines L required to cover all the 0s */
+
+    while (numLinesToCoverZeroes(zeroCount, cost, numURLs) != numURLs) { // Selina
+        printf("finding\n");
+    //     /* 6. Find smallest number from uncovered area */
+    //     int min  = findUncoveredAreaMin(cost, numURLs); // Yasmin
+    //     /* Subtract this number from all UNCOVERED ROWS */
+    //     rowReduceUncovered(min, cost, numURLs); // Selina
+    //     /* Add new smallest number to COVERED COLS */
+    //     colAddCovered(min, cost, numURLs); // Selina
+    //     /* Go back to step 5 and repeat */
+    }
+    printf("FOUND\n");
+    // char **orderedURLs = getURLOrder(cost); // Yasmin
 
     return 0;
 }
