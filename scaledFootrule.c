@@ -497,7 +497,7 @@ int main(int argc, char **argv)
     double sum = getURLOrder(cost, files, numURLs - 1, ogCost); // sort normally
     printf("%f\n", sum);
     for (i = 0; i < numURLs; i++) {
-        printf("%s %d\n", files[i]->fileName, files[i]->finalPos);
+        printf("%s\n", files[i]->fileName);
     }
     return 0;
 }

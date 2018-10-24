@@ -22,7 +22,6 @@
 #include <stdlib.h>
 #include "set.h"
 #include "graph.h"
-#include "stack.h"
 #include "readData.h"
 #include "mystrdup.h"
 #include <string.h>
