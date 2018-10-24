@@ -512,6 +512,9 @@ int main(int argc, char **argv)
     freeMatrix(cost, numURLs);
     freeMatrix(ogCost, numURLs);
     freeMatrix(coverMatrix, numURLs);
+    for (i = 0; i < 2; i++) 
+        free(zeroCount[i]);
+    free(zeroCount);
 
     return 0;
 }
