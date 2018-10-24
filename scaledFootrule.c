@@ -206,7 +206,8 @@ int main(int argc, char **argv)
 
     Set unionURL = GetAllUrls(argc, argv);
     double numURLs = nElems(unionURL) + 0.0;
-
+    /* building ADT that represents the URLs and their positions within the 
+    rank files */
     rankFP *files = calloc(numURLs, sizeof(rankFP));
     buildRankADT(files, argv, argc);
     /* 1. Represent a cost matrix with an n x n 2d array.
@@ -216,18 +217,6 @@ int main(int argc, char **argv)
         cost[i] = malloc(numURLs * sizeof(double));
     
     /* 2. Calculate the footrule distance for each [row][col] */
-    // int j;
-    // printf("\n"); printf("\n"); printf("\n");
-    // for (i = 0; i < numURLs; i++) {
-    //     printf("%s\n", files[i]->fileName);
-    //     for (j = 0; j < 10; j++) {
-    //         printf("%f ", files[i]->posData[0][j]);
-    //     } printf("\n");
-    //     for (j = 0; j < 10; j++) {
-    //         printf("%f ", files[i]->posData[1][j]);
-    //     } printf("\n");
-    // }
-    // printf("\n"); printf("\n"); printf("\n");
     int row, col;
     i = 0;
     for (row = 0; row < numURLs; row++) {
@@ -236,11 +225,22 @@ int main(int argc, char **argv)
         i++;
     }
     showMatrix(cost, numURLs);
-
+    
     /* 3. Subtract row minima */
+    rowReduce(cost, numURLs);
     /* 4. Subtract col minima */
-   colReduce(cost, numURLs);
-   //rowReduce(cost, numURLs);
+    colReduce(cost, numURLs);
+    /* 5. Count number of lines L required to cover all the 0s */
+    while (numLinesToCoverZeroes() != numURLs) {
+        /* 6. Find smallest number from uncovered area */
+        int min  = findUncoveredAreaMin();
+        /* Subtract this number from all UNCOVERED ROWS */
+        rowReduceUncovered(min);
+        /* Add new smallest number to COVERED COLS */
+        colAddCovered(min);
+        /* Go back to step 5 and repeat */
+    }
+
 
 
     return 0;
