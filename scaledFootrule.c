@@ -249,16 +249,16 @@ int getMax(int **matrix, int nRows, int nCols, int *index)
 }
 
 /* Creates a 2d array that count zeroes in each row and col. */
-int **countZeroes(double **matrix, int numURLs)
+int **countZeroes(double **matrix, int num)
 {
     int row, col;
     // double zero = 0.0;
-    int **zeroCount = calloc(numURLs, sizeof(int *));
-    for (row = 0; row < numURLs; row++)
-        zeroCount[row] = calloc(numURLs, sizeof(int));
+    int **zeroCount = calloc(num, sizeof(int *));
+    for (row = 0; row < num; row++)
+        zeroCount[row] = calloc(num, sizeof(int));
     // Count zeroes in the matrix.
-    for (row = 0; row < numURLs; row++) {
-        for (col = 0; col < numURLs; col++) {
+    for (row = 0; row < num; row++) {
+        for (col = 0; col < num; col++) {
             if (matrix[row][col] != 0) continue;
             zeroCount[0][row]++;
             zeroCount[1][col]++;
@@ -503,7 +503,7 @@ int main(int argc, char **argv)
     /* 4. Subtract col minima */
     colReduce(cost, numURLs);
     // Keeps track of the number of zeros in each row and col respectively.
-    int **zeroCount = countZeroes(cost, numURLs);
+    int **zeroCount = countZeroes(cost, 2);
 
     // 2d array that reflects cost matrix.
     // 0 means not covered, and > 0 means covered.
@@ -532,6 +532,7 @@ int main(int argc, char **argv)
     freeIntMatrix(coverMatrix, numURLs);
     freeIntMatrix(zeroCount, 2);
     freeFiles(files, argc-1);
+    disposeSet(unionURL);
 
     return 0;
 }
