@@ -101,7 +101,7 @@ double calcSFRDist(double pos[2][10], int newPos, double unionSize)
     double sum = 0;
     int i = 0;
     for (i = 0; pos[0][i] != -1.0 && pos[1][i] != -1.0; i++) {
-        sum = sum + fabs((newPos/unionSize) - (pos[0][i]/pos[1][i]));
+        sum = sum + fabs((pos[0][i]/pos[1][i]) - (newPos/unionSize));
     }
     return fabs(sum);
 }
@@ -216,18 +216,18 @@ int main(int argc, char **argv)
         cost[i] = malloc(numURLs * sizeof(double));
     
     /* 2. Calculate the footrule distance for each [row][col] */
-    int j;
-    printf("\n"); printf("\n"); printf("\n");
-    for (i = 0; i < numURLs; i++) {
-        printf("%s\n", files[i]->fileName);
-        for (j = 0; j < 10; j++) {
-            printf("%f ", files[i]->posData[0][j]);
-        } printf("\n");
-        for (j = 0; j < 10; j++) {
-            printf("%f ", files[i]->posData[1][j]);
-        } printf("\n");
-    }
-    printf("\n"); printf("\n"); printf("\n");
+    // int j;
+    // printf("\n"); printf("\n"); printf("\n");
+    // for (i = 0; i < numURLs; i++) {
+    //     printf("%s\n", files[i]->fileName);
+    //     for (j = 0; j < 10; j++) {
+    //         printf("%f ", files[i]->posData[0][j]);
+    //     } printf("\n");
+    //     for (j = 0; j < 10; j++) {
+    //         printf("%f ", files[i]->posData[1][j]);
+    //     } printf("\n");
+    // }
+    // printf("\n"); printf("\n"); printf("\n");
     int row, col;
     i = 0;
     for (row = 0; row < numURLs; row++) {
