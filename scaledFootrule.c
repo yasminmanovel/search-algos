@@ -254,7 +254,7 @@ int **countZeroes(double **matrix, int numURLs)
     int row, col;
     // double zero = 0.0;
     int **zeroCount = calloc(2, sizeof(int *));
-    for (row = 0; row < numURLs; row++)
+    for (row = 0; row < 2; row++)
         zeroCount[row] = calloc(numURLs, sizeof(int));
     // Count zeroes in the matrix.
     for (row = 0; row < numURLs; row++) {
