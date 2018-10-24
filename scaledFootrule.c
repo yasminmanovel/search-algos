@@ -225,23 +225,22 @@ int main(int argc, char **argv)
         i++;
     }
     showMatrix(cost, numURLs);
-    
+
     /* 3. Subtract row minima */
     rowReduce(cost, numURLs);
     /* 4. Subtract col minima */
     colReduce(cost, numURLs);
     /* 5. Count number of lines L required to cover all the 0s */
-    while (numLinesToCoverZeroes() != numURLs) {
+    while (numLinesToCoverZeroes(cost, numURLs) != numURLs) { // Selina
         /* 6. Find smallest number from uncovered area */
-        int min  = findUncoveredAreaMin();
+        int min  = findUncoveredAreaMin(cost, numURLs); // Yasmin
         /* Subtract this number from all UNCOVERED ROWS */
-        rowReduceUncovered(min);
+        rowReduceUncovered(min, cost, numURLs); // Selina
         /* Add new smallest number to COVERED COLS */
-        colAddCovered(min);
+        colAddCovered(min, cost, numURLs); // Selina
         /* Go back to step 5 and repeat */
     }
-
-
+    char **orderedURLs = getURLOrder(cost); // Yasmin
 
     return 0;
 }
