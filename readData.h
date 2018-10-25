@@ -26,4 +26,5 @@ void freeTokens(char **toks);
 void freeLinks(Link head);
 void freeGraph(Graph g);
 int alreadyInserted(char *outLinkName, URL node);
+int linkAlreadyExists(Link start, char *name);
 #endif

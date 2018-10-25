@@ -24,6 +24,8 @@
 #define START_TAG_LEN   16
 #define END_TAG_LEN     14
 #define CHAR_LEN        1
+#define TRUE			1
+#define FALSE			0
 
 /* Trims leading and ending spaces 
  * Written by jas for 1521 mymysh.c 18s2
@@ -235,6 +237,14 @@ BSTree getInvertedList(Set URLList)
 	return invList;
 }
 
+// check if an link to that node already exists
+int linkAlreadyExists(Link start, char *name) {
+	Link curr = start;
+	for (; curr != NULL; curr = curr->next) {
+		if (strcmp(curr->URLName, name) == 0) return TRUE;
+	}
+	return FALSE;
+}
 
 /* Creates a graph of URLs. */
 Graph getGraph(Set URLList)
@@ -260,7 +270,10 @@ Graph getGraph(Set URLList)
 		if (strlen(urls) != 0) {
 			char **urlsTokenised = tokenise(urls, " ");
 			for (j = 0; urlsTokenised[j] != NULL; j++) {
+				// dont add an outlink to itself, no loops
 				if (strcmp(g->listOfUrls[i]->URLName, urlsTokenised[j]) == 0) continue;
+				// dont add another link that already exists, no parallel edges
+				if (linkAlreadyExists(g->listOfUrls[i]->outLink, urlsTokenised[j])) continue;
 				insertOutLinks(g->listOfUrls[i], urlsTokenised[j]);
 				g->listOfUrls[i]->numOutLinks++;
 			}
