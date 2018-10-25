@@ -13,6 +13,7 @@
 char *mystrdup(char *word) 
 {
     int len = strlen(word) + 1;
+    printf("Word: %s", word);
     printf("String len is %d\n", len);
     char *dup = malloc(len);
     strcpy(dup, word);
