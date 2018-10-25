@@ -569,6 +569,7 @@ int numLinesToCoverZeroes(double **cost, int numURLs)
         }
     }
     freeIntMatrix(adjMat, adjSize);
+    free(visited);
     return lines;
 
     // int *visited = malloc(adjSize * sizeof(int));
