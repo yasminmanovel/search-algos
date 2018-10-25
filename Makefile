@@ -33,8 +33,8 @@ pagerank.o : pagerank.c
 searchTfIdf.o : searchTfIdf.c 
 	gcc $(CFLAGS) -c searchTfIdf.c 
 
-invertedIndex.o : invertedIndex.c 
-	gcc $(CFLAGS) -c invertedIndex.c 
+invertedIndex.o : inverted.c 
+	gcc $(CFLAGS) -c inverted.c 
 
 readData.o : readData.c
 	gcc $(CFLAGS) -c readData.c
