@@ -568,6 +568,7 @@ int numLinesToCoverZeroes(double **cost, int numURLs)
             }
         }
     }
+    freeIntMatrix(adjMat, adjSize);
     return lines;
 
     // int *visited = malloc(adjSize * sizeof(int));
