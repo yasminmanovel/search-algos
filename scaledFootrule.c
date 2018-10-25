@@ -598,8 +598,8 @@ int numLinesToCoverZeroes(double **cost, int numURLs, int **adjMat)
         if (pathFound)
             reversePath(visited, adjMat, adjSize);
         lines++;
+        free(visited);
     }
-    free(visited);
     return lines-1;
 }
 
@@ -726,7 +726,7 @@ int main(int argc, char **argv)
 
     // Cleaning up.
     disposeSet(unionURL);
-    freeIntMatrix(adjMat, numURLs);
+    freeIntMatrix(adjMat, (2 * numURLs) + 2);
     freeDoubleMatrix(cost, numURLs);
     freeDoubleMatrix(ogCost, numURLs);
     freeFiles(files, numURLs);
