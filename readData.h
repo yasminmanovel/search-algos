@@ -16,14 +16,14 @@
 
 void trim(char *str);
 char **tokenise(char *str, char *sep);
-void freeTokens(char **toks);
 char *normalise(char *str);
 Set getCollection();
 void readPage(char *urls, char *text, char *fileName);
 void spaceRequired(char *fileName, int *url_size, int *text_size);
 BSTree getInvertedList(Set URLList);
 Graph getGraph(Set URLList);
+void freeTokens(char **toks);
 void freeLinks(Link head);
 void freeGraph(Graph g);
-
+int alreadyInserted(char *outLinkName, URL node);
 #endif

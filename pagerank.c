@@ -58,10 +58,8 @@ double calculateWin(URL v, PRNode u, Graph web)
     // actual sum loop
     Link curr = v->outLink;
     double sum = 0;
-    for (; curr != NULL; curr = curr->next) {
+    for (; curr != NULL; curr = curr->next)
         sum = sum + curr->URLPointer->numInLinks;
-    }
-    if (sum == 0) sum = 0.5;
     return uIn/sum;
 }
 
@@ -69,13 +67,15 @@ double calculateWin(URL v, PRNode u, Graph web)
 double calculateWout(URL v, PRNode u, Graph web)
 {
     double top = u->nOutLinks;
+    if (top == 0.0) top = 0.5;
     // Find v in graph.
     Link curr = v->outLink;
     double sum = 0;
     // For every outlink of v, add its outlinks.
-    for(; curr != NULL; curr = curr->next)
+    for(; curr != NULL; curr = curr->next) {
         sum = sum + curr->URLPointer->numOutLinks;
-    if (sum == 0) sum = 0.5;
+        if (curr->URLPointer->numOutLinks == 0) sum = sum + 0.5;
+    }
     return top/sum;
 }
 
@@ -112,9 +112,8 @@ double calculateDiffPR(PRNode currNode, Graph web)
 {
     int i;
     double diff = 0;
-    for (i = 0; i < web->numURLs; i++) {
+    for (i = 0; i < web->numURLs; i++)
         diff = diff + fabs(currNode->currPR - currNode->prevPR);
-    }
     return diff;
 }
 
