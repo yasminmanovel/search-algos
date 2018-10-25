@@ -1,3 +1,8 @@
+/*
+ * Written by Selina (z5208109) & Yasmin (z5207093)
+ * Group: duckduckgo
+ * Start Date: 10/10/18
+*/
 #ifndef GRAPH_H
 #define GRAPH_H
 

@@ -9,7 +9,7 @@
 #include <assert.h>
 #include <string.h>
 #include "BSTree.h"
-#include "mystrdup.h"
+#include "mystring.h"
 
 #define TRUE  1
 #define FALSE 0
@@ -21,6 +21,7 @@ typedef struct BSTNode {
 	listNode *urlList;
 	BSTLink left, right;
 } BSTNode;
+
 
 // frees memory associated with urlList in a BSTree node.
 static void freeurlList(BSTree t) 
@@ -34,6 +35,7 @@ static void freeurlList(BSTree t)
 	}
 }
 
+
 // make a new list node containing url.
 static listNode *newListNode(char *url) 
 {
@@ -43,6 +45,7 @@ static listNode *newListNode(char *url)
 	new->next = NULL;
 	return new;
 }
+
 
 // make a new node containing a value
 static BSTLink newBSTNode(char *str, char *url)
@@ -55,11 +58,13 @@ static BSTLink newBSTNode(char *str, char *url)
 	return new;
 }
 
+
 // create a new empty BSTree
 BSTree newBSTree()
 {
 	return NULL;
 }
+
 
 // free memory associated with BSTree
 void dropBSTree(BSTree t)
@@ -71,6 +76,7 @@ void dropBSTree(BSTree t)
 	free(t->value);
 	free(t);
 }
+
 
 // display BSTree root node
 void showBSTreeNode(FILE * out, BSTree t)
@@ -85,6 +91,7 @@ void showBSTreeNode(FILE * out, BSTree t)
 	fprintf(out, "\n");
 }
 
+
 // print values in infix order
 void BSTreeInfix(FILE *out, BSTree t)
 {
@@ -93,6 +100,7 @@ void BSTreeInfix(FILE *out, BSTree t)
 	showBSTreeNode(out, t);
 	BSTreeInfix(out, t->right);
 }
+
 
 // Inserts a url into urlList given BSTree node and url name.
 static void urlListInsert(BSTree t, char *url) 
@@ -119,6 +127,7 @@ static void urlListInsert(BSTree t, char *url)
 		free(new);
 	}
 }
+
 
 // Inserts a new string into a BSTree.
 // If string is already in BSTree, it inserts it into its LL.

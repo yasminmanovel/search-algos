@@ -23,7 +23,7 @@
 #include "set.h"
 #include "graph.h"
 #include "readData.h"
-#include "mystrdup.h"
+#include "mystring.h"
 #include <string.h>
 #include <math.h>
 #include <assert.h>
@@ -50,6 +50,7 @@ struct pageRankNode {
     int search_words;
 };
 
+
 /* Calculate weight of inlinks */
 double calculateWin(URL v, PRNode u, Graph web)
 {
@@ -63,10 +64,12 @@ double calculateWin(URL v, PRNode u, Graph web)
     return uIn/sum;
 }
 
+
 /* Calculate weight of outlinks */
 double calculateWout(URL v, PRNode u, Graph web)
 {
     double top = u->nOutLinks;
+    // if no outlinks, set it to 0.5
     if (top == 0.0) top = 0.5;
     // Find v in graph.
     Link curr = v->outLink;
@@ -74,10 +77,12 @@ double calculateWout(URL v, PRNode u, Graph web)
     // For every outlink of v, add its outlinks.
     for(; curr != NULL; curr = curr->next) {
         sum = sum + curr->URLPointer->numOutLinks;
+        // if no outlinks, set it to 0.5
         if (curr->URLPointer->numOutLinks == 0) sum = sum + 0.5;
     }
     return top/sum;
 }
+
 
 /* Calculates the current PR of a URL given its prev PR. */
 double calculateCurrPR(PRNode currNode, PRNode *array, Graph web, double damp, int nURLs)
@@ -207,7 +212,7 @@ void PRmerge(PRNode *array, int start, int middle, int end)
 void PRmergeSort(PRNode *array, int start, int end)
 {
     if (start < end) {
-        // same as (start + end)/2, but apparently avoids overflow for large 
+        // same as (start + end)/2, but avoids overflow for large 
         // numbers
         int middle = start + (end - start)/2;
         // sort the two halves of the array
@@ -219,6 +224,8 @@ void PRmergeSort(PRNode *array, int start, int end)
     }
 }
 
+
+// frees the Pagerank ADT
 void dumpPR(PRNode *array, int nElems)
 {
     int i;
@@ -228,6 +235,7 @@ void dumpPR(PRNode *array, int nElems)
     }
     free(array);
 }
+
 
 int main(int argc, char **argv)
 {
@@ -255,8 +263,7 @@ int main(int argc, char **argv)
     for(i = nURLs - 1; i >= 0; i--)
         fprintf(PRList, "%s, %d, %.7f\n", urlPRs[i]->name, urlPRs[i]->nOutLinks, urlPRs[i]->currPR);
     fclose(PRList);
-    for(i = nURLs - 1; i >= 0; i--)
-        printf("%s, %d, %.7f\n", urlPRs[i]->name, urlPRs[i]->nOutLinks, urlPRs[i]->currPR);
+    // free allocated memory
     dumpPR(urlPRs, nURLs);
     disposeSet(URLList);
     freeGraph(web);

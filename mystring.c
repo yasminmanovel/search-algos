@@ -1,6 +1,9 @@
 /* 
  * DESCRIPTION: 
- * Writing own mystrdup function.
+ * Mystrdup and strsep functions, sine they dont exist in C11
+ * mystrdup written by Selina (z5208109) & Yasmin (z5207093)
+ * Group: duckduckgo
+ * Start Date: 10/10/18
  */
 
 #include <stdio.h>
@@ -15,6 +18,8 @@ char *mystrdup(char *word)
     return dup;
 }
 
+
+// The following strsep function is from the GNU C library
 /* Copyright (C) 1992-2018 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    The GNU C Library is free software; you can redistribute it and/or

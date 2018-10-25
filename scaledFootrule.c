@@ -13,7 +13,7 @@
 #include <limits.h>
 #include "set.h"
 #include "readData.h"
-#include "mystrdup.h"
+#include "mystring.h"
 #include <math.h>
 
 #define URL_LENGTH 55
@@ -22,6 +22,9 @@
 #define TRUE 1
 #define FALSE 0
 #define SHIFT       1
+#define INTERSECTING_LINE 2
+#define EMPTY -1.0
+
 
 struct URLRank {
     char  *fileName;
@@ -96,12 +99,15 @@ void colReduce(double **matrix, int size)
     }
 }
 
+
 /* Calculates the scaled foot rule distance. */
 double calcSFRDist(double pos[2][10], int newPos, double unionSize)
 {
     double sum = 0;
     int i = 0;
-    for (i = 0; pos[0][i] != -1.0 && pos[1][i] != -1.0; i++) {
+    // scaled foot rule distance is the sum of the difference between their 
+    // original position and the position the're moved to
+    for (i = 0; pos[0][i] != EMPTY && pos[1][i] != EMPTY; i++) {
         sum = sum + fabs((pos[0][i]/pos[1][i]) - (newPos/unionSize));
     }
     return fabs(sum);
@@ -153,7 +159,7 @@ double linesInFile(char *fileName)
 void insertRankData(rankFP URL, int pos, double nURLs)
 {
     int i;
-    for (i = 0; URL->posData[0][i] != -1.0 && URL->posData[1][i] != -1.0; i++);
+    for (i = 0; URL->posData[0][i] != EMPTY && URL->posData[1][i] != EMPTY; i++);
     URL->posData[0][i] = pos;
     URL->posData[1][i] = nURLs;
 }
@@ -165,8 +171,8 @@ rankFP newUrlRank(char *name, int pos, double fileSize)
     rankFP newFP = calloc(1, sizeof(struct URLRank));
     int i = 0;
     for (i = 0; i < 10; i++) {
-        newFP->posData[0][i] = -1.0;
-        newFP->posData[1][i] = -1.0;
+        newFP->posData[0][i] = EMPTY;
+        newFP->posData[1][i] = EMPTY;
     }
     insertRankData(newFP, pos, fileSize);
     newFP->fileName = mystrdup(name);
@@ -175,6 +181,8 @@ rankFP newUrlRank(char *name, int pos, double fileSize)
 }
 
 
+// reads Rank Files in and constructs an ADT that holds URLs and their 
+// positions in the rank files
 void buildRankADT(rankFP *array, char **fileNames, int nFiles)
 {
     int i;
@@ -183,7 +191,7 @@ void buildRankADT(rankFP *array, char **fileNames, int nFiles)
         double nLines = linesInFile(fileNames[i]);
         FILE *file = fopen(fileNames[i], "r");
         char line[URL_LENGTH] = {0};
-        int pos = 1;
+        int pos = 1; // position is indexed starting at 1, not 0
         rankFP curr = NULL;
         while (fgets(line, URL_LENGTH, file) != NULL) {
             trim(line);
@@ -248,6 +256,7 @@ int getMax(int **matrix, int nRows, int nCols, int *index)
     return max;
 }
 
+
 /* Creates a 2d array that count zeroes in each row and col. */
 int **countZeroes(double **matrix, int numURLs)
 {
@@ -266,6 +275,7 @@ int **countZeroes(double **matrix, int numURLs)
     }
     return zeroCount;
 }
+
 
 /* Counts min # of lines needed to cover all 0s. */
 int numLinesToCoverZeroes(int **coverMatrix, int **zeroCount, double **cost, int numURLs)
@@ -314,7 +324,6 @@ void rowReduceUncovered(int **coverMatrix, double min, double **cost, int numURL
     }
 }
 
-
 /* Adds min to all covered columns */
 void colAddCovered(int **coverMatrix, double min, double **cost, int numURLs) 
 {
@@ -323,7 +332,7 @@ void colAddCovered(int **coverMatrix, double min, double **cost, int numURLs)
     for (i = 0; i < numURLs; i++) {
         for (j = 0; j < numURLs; j++) {
             // If covered by 2 lines.
-            if (coverMatrix[i][j] == 2)
+            if (coverMatrix[i][j] == INTERSECTING_LINE)
                 cost[i][j] += min;
         }
     }
@@ -387,7 +396,7 @@ void rankMerge(rankFP *array, int start, int middle, int end)
 void rankMergeSort(rankFP *array, int start, int end)
 {
     if (start < end) {
-        // same as (start + end)/2, but apparently avoids overflow for large 
+        // same as (start + end)/2, but avoids overflow for large 
         // numbers
         int middle = start + (end - start)/2;
         // sort the two halves of the array

@@ -30,13 +30,15 @@ Output order urls on stdout
 #include "graph.h"
 #include "BSTree.h"
 #include "readData.h"
-#include "mystrdup.h"
+#include "mystring.h"
 
 #define MAX_LINE    1001
 #define URL_LENGTH  55
 #define SHIFT       1
 #define PAGERANK    0
 #define SEARCHTERMS 1
+#define MAX_PRINT 30
+
 
 
 typedef struct url *urlPR;
@@ -96,9 +98,8 @@ urlPR newSearchPRNode() {
 
 void countOccurences(char **URLs, urlPR *searchPR, int elems)
 {
-	int i;
+	int i, j;
 	for (i = 0; i < elems; i++) {
-		int j;
 		for (j = 0; URLs[j] != NULL; j++) {
 			if (strcmp(searchPR[i]->URL, URLs[j]) == 0) searchPR[i]->searchTerms++;
 		}
@@ -128,6 +129,7 @@ urlPR *getPageRanks(int *elems)
     while (fgets(line, MAX_LINE, pagerankList) != NULL) {
 		searchPR[i] = newSearchPRNode();
         sscanf(line, "%s %d, %f", searchPR[i]->URL, &links, &searchPR[i]->pageRank);
+        // make sure the URL string is null terminated
 		searchPR[i]->URL[strlen(searchPR[i]->URL)-1] = '\0';
         // Finds the wanted word.
 		i++;
@@ -151,10 +153,6 @@ void PRmerge(int searchBy, urlPR *array, int start, int middle, int end)
 
     // merging back in order
     int i = 0, j = 0, k = start;
-	/*
-	PRmergeSort(PAGERANK, searchPR, 0, elems-SHIFT);
-	PRmergeSort(SEARCHTERMS, searchPR, 0, elems-SHIFT);
-	*/
     while (i < leftLength && j < rightLength) {
         if (left[i]->pageRank >= right[j]->pageRank && searchBy == PAGERANK) {
             array[k] = left[i];
@@ -187,7 +185,7 @@ void PRmerge(int searchBy, urlPR *array, int start, int middle, int end)
 void PRmergeSort(int searchBy, urlPR *array, int start, int end)
 {
     if (start < end) {
-        // same as (start + end)/2, but apparently avoids overflow for large 
+        // same as (start + end)/2, but avoids overflow for large 
         // numbers
         int middle = start + (end - start)/2;
         // sort the two halves of the array
@@ -204,6 +202,7 @@ int main(int argc, char **argv)
 {
 	int i;
 	int elems;
+    // read pageranks and inverted list into search pagerank ADT
 	urlPR *searchPR = getPageRanks(&elems);
 	for (i = 1; i < argc; i++) {
 		char **URLs = getURLs(argv[i]);
@@ -211,12 +210,16 @@ int main(int argc, char **argv)
 		countOccurences(URLs, searchPR, elems);
 		freeTokens(URLs);
 	}
+    // sort the ADT by pagerank
 	PRmergeSort(PAGERANK, searchPR, 0, elems-SHIFT);
+    // sort the ADT again by number of search terms each URL contains
 	PRmergeSort(SEARCHTERMS, searchPR, 0, elems-SHIFT);
-	for (i = 0; i < elems && i < 30; i++) {
+    // print ordered URLs
+	for (i = 0; i < elems && i < MAX_PRINT; i++) {
 		if (searchPR[i]->searchTerms == 0) continue;
 		printf("%s\n", searchPR[i]->URL);
 	}
+    // free memory
 	dumpSearchPR(searchPR, elems);
 	return 0;
 }

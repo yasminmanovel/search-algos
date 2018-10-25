@@ -14,7 +14,7 @@
 #include "graph.h"
 #include "BSTree.h"
 #include "readData.h"
-#include "mystrdup.h"
+#include "mystring.h"
 
 #define SEEN_ONCE       1
 #define SEEN_TWICE      2
@@ -72,6 +72,7 @@ char **tokenise(char *str, char *sep)
    return strings;
 }
 
+
 /* freeTokens: free memory associated with array of tokens */
 void freeTokens(char **toks)
 {
@@ -80,6 +81,8 @@ void freeTokens(char **toks)
 	free(toks);
 }
 
+
+// frees the inlinks and outlinks from the URLNodes
 void freeLinks(Link head)
 {
     if ( head == NULL) return;
@@ -94,6 +97,7 @@ void freeLinks(Link head)
 }
 
 
+// free entire graphADT
 void freeGraph(Graph g)
 {
 	int i;
@@ -107,6 +111,7 @@ void freeGraph(Graph g)
 	free(g->listOfUrls);
 	free(g);
 }
+
 
 /* Removes trailing spaces and punctuation at the end of word
  * Also converts all letters to lowercase.
@@ -189,7 +194,9 @@ void spaceRequired(char *fileName, int *url_size, int *text_size)
 		if (strncmp(line, "#end Section-1", END_TAG_LEN) == 0
 		|| strncmp(line, "#end Section-2", END_TAG_LEN) == 0
 		|| strncmp(line, "\n", CHAR_LEN) == 0) continue;
+		// if in section 1 incremeent the size required to store the URLS
 		if (seen == SEEN_ONCE) *url_size = *url_size + strlen(line);
+		// if in section 2 incremeent the size required to store the text
 		if (seen == SEEN_TWICE) *text_size = *text_size + strlen(line);
 	}
 	fclose(page);
@@ -294,14 +301,3 @@ Graph getGraph(Set URLList)
 	}
 	return g;
 }
-
-// int main(void) 
-// {
-// 	Set URLList = getCollection();
-// 	Graph web = getGraph(URLList);
-// 	printf("%d\n", web->numURLs);
-// 	BSTree invList = getInvertedList(URLList);
-// 	BSTreeInfix(stdout, invList);
-// 	showSet(URLList);
-// 	return 0;
-// }

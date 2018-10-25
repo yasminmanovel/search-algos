@@ -6,7 +6,7 @@
 #include <assert.h>
 #include <string.h>
 #include "set.h"
-#include "mystrdup.h"
+#include "mystring.h"
 
 #define strEQ(s,t) (strcmp((s),(t)) == 0)
 #define strLT(s,t) (strcmp((s),(t)) < 0)

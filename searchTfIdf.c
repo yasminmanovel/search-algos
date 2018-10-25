@@ -24,7 +24,7 @@
 #include "graph.h"
 #include "BSTree.h"
 #include "readData.h"
-#include "mystrdup.h"
+#include "mystring.h"
 
 #define MAX_LINE 1001
 #define URL_LENGTH      55
@@ -91,10 +91,11 @@ int main(int argc, char **argv)
 
         currURL = currURL->next;
     }
-
+    // sort URLS by Tfidf
     TFmergeSort(URLTfIdf, 0, totalURLs-1);
     printTfIdf(URLTfIdf, totalURLs-1);
 
+    // free memory
     disposeSet(searchWords);
     disposeSet(URLList);
     disposeTfIdf(URLTfIdf, totalURLs);
@@ -112,38 +113,6 @@ void disposeTfIdf(TFNode *URLTfIdf, int totalURLs)
     free(URLTfIdf);
 }
 
-/*
-    int nSearchwords = argc - 1;
-    Set URLList = getCollection();
-    int totalURLs = nElems(URLList);
-    // For each search word in command line argument.
-    for(i = 0; i < nSearchwords; i++) {
-        search = argv[i+1];
-        // Gets URLs containing search word.
-        URLs = getURLs(search);
-        if (!URLs) continue; // If not found, look at next searchword.
-        nURLs = numURLs(URLs);
-        idf = calcIdf(nURLs, totalURLs);
-        URLTfIdf = malloc(nURLs * sizeof(TFNode));
-        if (!URLTfIdf) { perror("malloc failed"); exit(EXIT_FAILURE); }
-        // For each URL containing word, calc tf-idf and insert into array.
-        index = 0;
-        for(j = 0; URLs[j] != NULL; j++) {
-            tf = calcTf(URLs[j], search);
-            tfIdf = tf * idf;
-            // Inserts into array.
-            URLTfIdf[index] = newTFIDFNode(URLs[j]);
-            URLTfIdf[index]->tfIdf = tfIdf;
-            index++;
-        }
-        // Sorts the array of TFNodes and prints.
-        TFmergeSort(URLTfIdf, 0, nURLs-1);
-        printTfIdf(URLTfIdf, nURLs-1);
-    }
-
-    return 0;
-}
-*/
 
 /* Prints the tfidf to stdout */
 void printTfIdf(TFNode *array, int size)
@@ -211,14 +180,12 @@ double calcTf(char *URLName, char *word)
     char *wanted = normalise(word);
     // Counts total words & num of wanted word in file.
     while ((found = strsep(&text, " ")) != NULL) {
-        // printf("found %s\n", found);
         if (strcmp(found, "") != 0) {
             char *str = normalise(found);
             if (strcmp(str, wanted) == 0) searchCount++;
             wordCount++;
             free(str);
         }
-        // free(str);
     }
     free(wanted); free(dump); free(urls);
 
@@ -285,7 +252,7 @@ void TFMerge(TFNode *array, int start, int middle, int end)
 void TFmergeSort(TFNode *array, int start, int end)
 {
     if (start < end) {
-        // same as (start + end)/2, but apparently avoids overflow for large 
+        // same as (start + end)/2, but avoids overflow for large 
         // numbers
         int middle = start + (end - start)/2;
         // sort the two halves of the array
