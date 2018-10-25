@@ -121,7 +121,7 @@ void freeGraph(Graph g)
 char *normalise(char *str) 
 {
 	char *word = mystrdup(str);
-	trim(word);
+	if (strcmp(word, "") != 0) trim(word);
 	// Converts to all lowercase.
 	int i;
 	for (i = 0; word[i] != '\0'; i++) 
