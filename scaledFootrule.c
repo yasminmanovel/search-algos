@@ -569,6 +569,7 @@ void reversePath(int *visited, int **adjMat, int size)
         adjMat[path[i+1]][path[i]] = REVERSE_LINK_DIRECTION;
         adjMat[path[i]][path[i+1]] = LINK_EXISTS;
     }
+    free(path);
 }
 
 
@@ -598,7 +599,7 @@ int numLinesToCoverZeroes(double **cost, int numURLs, int **adjMat)
             reversePath(visited, adjMat, adjSize);
         lines++;
     }
-    
+    free(visited);
     return lines-1;
 }
 
@@ -725,6 +726,7 @@ int main(int argc, char **argv)
 
     // Cleaning up.
     disposeSet(unionURL);
+    freeIntMatrix(adjMat, numURLs);
     freeDoubleMatrix(cost, numURLs);
     freeDoubleMatrix(ogCost, numURLs);
     freeFiles(files, numURLs);
