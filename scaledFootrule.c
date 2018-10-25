@@ -21,14 +21,26 @@
 #define MAX(X, Y)  ( (X > Y) ? X : Y)  
 #define TRUE 1
 #define FALSE 0
-#define SHIFT       1
-#define INTERSECTING_LINE 2
+#define SHIFT 1
 #define EMPTY -1.0
+#define INTERSECTING_LINES 2
+#define POS 0
+#define ORIGINAL_VAL -1
+#define FILE_SIZE 1
+#define MAX_RANK_FILES 10
+#define NUM_FIELDS 2
+#define ROWS 0
+#define COLS 1
+#define LINK_EXISTS 1
+#define NOT_VISITED -1
+#define NO_PATH 0
+#define PATH_EXISTS 1
+#define REVERSE_LINK_DIRECTION -1
 
 
 struct URLRank {
     char  *fileName;
-    double posData[2][10];
+    double posData[NUM_FIELDS][MAX_RANK_FILES];
     int finalPos;
 };
 
@@ -54,6 +66,7 @@ typedef struct URLRank *rankFP;
  * 8. Add new smallest number to COVERED COLS.
  * 9. Go back to step 5 and repeat.
  */
+
 
 // print matrix out
 void showMatrix(double **matrix, int n)
@@ -101,7 +114,7 @@ void colReduce(double **matrix, int size)
 
 
 /* Calculates the scaled foot rule distance. */
-double calcSFRDist(double pos[2][10], int newPos, double unionSize)
+double calcSFRDist(double pos[NUM_FIELDS][MAX_RANK_FILES], int newPos, double unionSize)
 {
     double sum = 0;
     int i = 0;
@@ -118,7 +131,7 @@ double calcSFRDist(double pos[2][10], int newPos, double unionSize)
 Set GetAllUrls(int nFiles, char **fileNames)
 {
     Set URLs = newSet();
-    int i = 0;
+    int i;
     for (i = 1; i < nFiles; i++) {
         FILE *file = fopen(fileNames[i], "r");
         char line[URL_LENGTH] = {0};
@@ -159,9 +172,9 @@ double linesInFile(char *fileName)
 void insertRankData(rankFP URL, int pos, double nURLs)
 {
     int i;
-    for (i = 0; URL->posData[0][i] != EMPTY && URL->posData[1][i] != EMPTY; i++);
-    URL->posData[0][i] = pos;
-    URL->posData[1][i] = nURLs;
+    for (i = 0; URL->posData[POS][i] != EMPTY && URL->posData[FILE_SIZE][i] != EMPTY; i++);
+    URL->posData[POS][i] = pos;
+    URL->posData[FILE_SIZE][i] = nURLs;
 }
 
 
@@ -170,16 +183,15 @@ rankFP newUrlRank(char *name, int pos, double fileSize)
 {
     rankFP newFP = calloc(1, sizeof(struct URLRank));
     int i = 0;
-    for (i = 0; i < 10; i++) {
-        newFP->posData[0][i] = EMPTY;
-        newFP->posData[1][i] = EMPTY;
+    for (i = 0; i < MAX_RANK_FILES; i++) {
+        newFP->posData[POS][i] = EMPTY;
+        newFP->posData[FILE_SIZE][i] = EMPTY;
     }
     insertRankData(newFP, pos, fileSize);
     newFP->fileName = mystrdup(name);
-    newFP->finalPos = -1;
+    newFP->finalPos = ORIGINAL_VAL;
     return newFP;
 }
-
 
 // reads Rank Files in and constructs an ADT that holds URLs and their 
 // positions in the rank files
@@ -187,11 +199,13 @@ void buildRankADT(rankFP *array, char **fileNames, int nFiles)
 {
     int i;
     int nURLs = 0;
+    // first argument is the executable name, so need to start from 1
     for (i = 1; i < nFiles; i++) {
         double nLines = linesInFile(fileNames[i]);
         FILE *file = fopen(fileNames[i], "r");
         char line[URL_LENGTH] = {0};
-        int pos = 1; // position is indexed starting at 1, not 0
+        // position is indexed from 1, not 0
+        int pos = 1;
         rankFP curr = NULL;
         while (fgets(line, URL_LENGTH, file) != NULL) {
             trim(line);
@@ -208,17 +222,16 @@ void buildRankADT(rankFP *array, char **fileNames, int nFiles)
     }
 }
 
-
 /* Sets the zeroCount[row][col] to all 1s. */
 void setLine(int **coverMatrix, int numURLs, int row, int col)
 {
     int i;
     // If want to set a column to 1.
-    if (row == -1) {
+    if (row == ORIGINAL_VAL) {
         for (i = 0; i < numURLs; i++)
             coverMatrix[i][col]++;
     // If want to set a row to 1.
-    } else if (col == -1) {
+    } else if (col == ORIGINAL_VAL) {
         for (i = 0; i < numURLs; i++)
             coverMatrix[row][i]++;
     }
@@ -238,11 +251,6 @@ int allZero(int **matrix, int nRows, int nCols)
     return TRUE;
 }
 
-/*
-zeroCount coverMatrix
-
-
-*/
 
 /* Gets max num in a 2d array */
 int getMax(int **matrix, int nRows, int nCols, int *index)
@@ -274,44 +282,11 @@ int **countZeroes(double **matrix, int numURLs)
     for (row = 0; row < numURLs; row++) {
         for (col = 0; col < numURLs; col++) {
             if (matrix[row][col] != 0) continue;
-            zeroCount[0][row]++;
-            zeroCount[1][col]++;
+            zeroCount[ROWS][row]++;
+            zeroCount[COLS][col]++;
         }
     }
     return zeroCount;
-}
-
-
-/* Counts min # of lines needed to cover all 0s. */
-int numLinesToCoverZeroes(int **coverMatrix, int **zeroCount, double **cost, int numURLs)
-{
-    int i;
-    int max = 0;
-    int index, zeroRow, zeroCol;
-    int lines = 0;
-    // While not all zeroes have been covered.
-    while (!allZero(zeroCount, 2, numURLs)) {
-        max = getMax(zeroCount, 2, numURLs, &index);
-        // Gets row and col of zeroCount.
-        zeroRow = index / numURLs;
-        zeroCol = index % numURLs;
-        // Subtract # of zeroes crossed out from covered rows & cols.
-        zeroCount[zeroRow][zeroCol] -= max;
-        for (i = 0; i < numURLs; i++) {
-            if (zeroRow == 0 && cost[zeroCol][i] == 0.0) {
-                zeroCount[1][i]--;
-                setLine(coverMatrix, numURLs, zeroCol, -1);
-            }
-            if (zeroRow == 1 && cost[i][zeroCol] == 0.0) {
-                zeroCount[1][i]--;
-                setLine(coverMatrix, numURLs, -1, zeroCol);
-            }
-        }
-        lines++;
-    }
-
-
-    return lines;
 }
 
 
@@ -323,11 +298,12 @@ void rowReduceUncovered(int **coverMatrix, double min, double **cost, int numURL
     for (i = 0; i < numURLs; i++) {
         for (j = 0; j < numURLs; j++) {
             // If not covered by a line.
-            if (!coverMatrix[i][j])
+            if (coverMatrix[i][j] == 0)
                 cost[i][j] -= min;
         }
     }
 }
+
 
 /* Adds min to all covered columns */
 void colAddCovered(int **coverMatrix, double min, double **cost, int numURLs) 
@@ -337,7 +313,7 @@ void colAddCovered(int **coverMatrix, double min, double **cost, int numURLs)
     for (i = 0; i < numURLs; i++) {
         for (j = 0; j < numURLs; j++) {
             // If covered by 2 lines.
-            if (coverMatrix[i][j] == INTERSECTING_LINE)
+            if (coverMatrix[i][j] == 2)
                 cost[i][j] += min;
         }
     }
@@ -349,9 +325,10 @@ double findUncoveredAreaMin(double **matrix, int **coverMatrix, int size)
 {
     int row, col;
     double min = INT_MAX;
-    for (col = 0; col < size; col++) {
-        for (row = 0; row < size; row++) {
-            if (!coverMatrix[row][col]) min = MIN(min, matrix[row][col]);
+    for (row = 0; row < size; row++) {
+        for (col = 0; col < size; col++) {
+            if (coverMatrix[row][col] == 0.0) 
+                min = MIN(min, matrix[row][col]);
         }
     }
     return min;
@@ -401,7 +378,7 @@ void rankMerge(rankFP *array, int start, int middle, int end)
 void rankMergeSort(rankFP *array, int start, int end)
 {
     if (start < end) {
-        // same as (start + end)/2, but avoids overflow for large 
+        // same as (start + end)/2, but apparently avoids overflow for large 
         // numbers
         int middle = start + (end - start)/2;
         // sort the two halves of the array
@@ -413,6 +390,9 @@ void rankMergeSort(rankFP *array, int start, int end)
     }
 }
 
+
+// Acounts for there being more than 1 optimum solution that gives minimum page 
+// rank by checking that you dont place more than one URL at a given ranking
 int posAlreadyTaken(rankFP *files, int pos, int numURLs) {
     int i;
     for (i = 0; i < numURLs; i++) {
@@ -422,30 +402,60 @@ int posAlreadyTaken(rankFP *files, int pos, int numURLs) {
 }
 
 
-/* TO DO */
+// counts num of zeroes in an array
+int numZeroes(double *array, int numURLs)
+{
+    int i;
+    int numZeroes = 0;
+    for (i = 0; i < numURLs; i++) {
+        if (array[i] != 0.0) continue;
+        numZeroes++;
+    }
+    return numZeroes;
+}
+
+// checks if all the URLs have being given positions
+int positionsFilled(rankFP *files, int numURLs)
+{
+    int i;
+    for (i = 0; i < numURLs; i++) {
+        if (files[i]->finalPos == -1) return FALSE;
+    }
+    return TRUE;
+}
+
+
+// Gets the position that the URLs shuold be at
 void getPosition(double **cost, rankFP *files, int numURLs, double *sum, double **ogCost)
 {
-    int i, j;
-    for (i = 0; i < numURLs; i++) {
-        for (j = 0; j < numURLs; j++) {
-            if (cost[i][j] != 0.0) continue;
-            if (posAlreadyTaken(files, j+1, numURLs)) continue;
-            files[i]->finalPos = j+1;
-            *sum = *sum + ogCost[i][j];
-            break;
+    int zeroes, row, col;
+    for (zeroes = 1; zeroes <= numURLs; zeroes++) {
+        for (row = 0; row < numURLs; row++) {
+            if (zeroes != numZeroes(cost[row], numURLs)) continue;
+            for (col = 0; col < numURLs; col++) {
+                if (cost[row][col] != 0.0) continue;
+                if (posAlreadyTaken(files, col+1, numURLs)) continue;
+                files[row]->finalPos = col+1;
+                *sum = *sum + ogCost[row][col];
+                if (positionsFilled(files, numURLs)) return;
+                break;
+            }
         }
     }
 }
 
 
-double getURLOrder(double **cost, rankFP *files, int length, double **ogCost)
+// gets the order that the URLs should be in from the matrix used in the 
+// Hungarian algorithm then sorts the list based on this order
+double getURLOrder(double **cost, rankFP *files, int end_index, double **ogCost)
 {
     /* Need to figure out how to get each URL's position from the matrix */
     double sum = 0;
-    getPosition(cost, files, length + 1, &sum, ogCost);
-    rankMergeSort(files, 0, length);
+    getPosition(cost, files, end_index + 1, &sum, ogCost);
+    rankMergeSort(files, 0, end_index);
     return sum;
 }
+
 
 /* Frees a double 2d array */
 void freeDoubleMatrix(double **matrix, int size) 
@@ -456,6 +466,7 @@ void freeDoubleMatrix(double **matrix, int size)
     free(matrix);
 }
 
+
 /* Frees an int 2d array */
 void freeIntMatrix(int **matrix, int size) 
 {
@@ -464,6 +475,7 @@ void freeIntMatrix(int **matrix, int size)
         free(matrix[i]);
     free(matrix);
 }
+
 
 /* Free rankFP pointer */
 void freeFiles(rankFP *files, int size)
@@ -476,10 +488,184 @@ void freeFiles(rankFP *files, int size)
     free(files);
 }
 
+
+/* Builds an adjMat based on cost */
+int **buildAdjMat(double **cost, int numURLs)
+{
+    int i, j;
+    // Creates an adjacency matrix based on cost.
+    // 2 * numURLs for URLs and pos. +2 for source and sink.
+    // Source and sink are the last 2 rows respectively.
+    int size = (2 * numURLs) + 2;
+    int sourceInd = size-2;
+    int sinkInd = size-1;
+    int **adjMat = calloc(size, sizeof(int *));
+    for (i = 0; i < size; i++) 
+        adjMat[i] = calloc(size, sizeof(int));
+    
+    // showMatrix(cost, numURLs);
+    // Builds matrix based on cost.
+    for (i = 0; i < numURLs; i++) {
+        for (j = 0; j < numURLs; j++) {
+            // Edge i -> j has been found.
+            if (cost[i][j] == 0.0)
+                adjMat[i][numURLs+j] = LINK_EXISTS;
+        }
+    }
+    // Makes all positions point to the sink.
+    // (makes all last columns 1 (found) for pos).
+    // Makes source point to all URLs.
+    for (i = 0; i < numURLs; i++) {
+        adjMat[numURLs+i][sinkInd] = LINK_EXISTS; 
+        adjMat[sourceInd][i] = LINK_EXISTS;
+    }
+    return adjMat;
+}
+
+
+/* Recursive dfs to find path from src to dst */
+int dfs(int **adjMat, int size, int *visited, int src, int dst)
+{
+    int y;
+    for (y = 0; y < size; y++) {
+        if (visited[y] == NOT_VISITED && adjMat[src][y] == LINK_EXISTS) {
+            visited[y] = src;
+            if (y == dst) return PATH_EXISTS;
+            else if (dfs(adjMat, size, visited, y, dst))
+                return PATH_EXISTS;
+        }
+    }
+    return NO_PATH;
+}
+
+
+/* Reverses the edges in the path to become -1 in adjMat. */
+void reversePath(int *visited, int **adjMat, int size)
+{
+    int i;
+    // Builds path from visited array.
+    int *path = malloc(size * sizeof(int));
+    for (i = 0; i < size; i++) path[i] = -1;
+    // source is the second last row
+    int sourceInd = size-2;
+    // size if the second last row
+    int sinkInd = size-1; // Sink is always dest.
+    // int sourceInd = size-2;
+    int curr = sinkInd;
+    int temp = -2;
+    i = 0;
+    while (curr != sourceInd) {
+        path[i] = curr;
+        temp = curr;
+        curr = visited[curr];
+        visited[temp] = NOT_VISITED;
+        i++;
+    }
+    path[i] = curr;
+
+    // Reverse the edges.
+    for (i = 0; i < size-1; i++) {
+        if (path[i+1] == -1) break;
+        adjMat[path[i+1]][path[i]] = REVERSE_LINK_DIRECTION;
+        adjMat[path[i]][path[i+1]] = LINK_EXISTS;
+    }
+}
+
+
+/* Counts min # of lines needed to cover all 0s using network flow solution
+   to find maximum bipartite matching between URL and pos. */
+int numLinesToCoverZeroes(double **cost, int numURLs, int **adjMat)
+{
+    int i;
+    int adjSize = (2 * numURLs) + 2;
+    // source is second last row, sink is last row
+    int sourceInd = adjSize-2, sinkInd = adjSize-1;
+
+    // Network flow solution.
+    // Keeps finding flow from source to sink. Once path is found, 
+    // edges are reversed so that they cannot be re-traversed.
+    // When no more paths are found, reversed edges are max matching.
+    int pathFound = TRUE;
+    int *visited;
+    int lines = 0;
+    while (pathFound) {
+        // Finding path from source to sink.
+        visited = malloc(adjSize * sizeof(int));
+        for (i = 0; i < adjSize; i++) visited[i] = NOT_VISITED;
+        pathFound = dfs(adjMat, adjSize, visited, sourceInd, sinkInd);
+        // Reverses the edges in path.
+        if (pathFound)
+            reversePath(visited, adjMat, adjSize);
+        lines++;
+    }
+    
+    return lines-1;
+}
+
+
+// cover the zeroed out sections of the array with "lines"
+int **coverLines(double **cost, int **adjMat, int numURLs)
+{
+    int i, j;
+    int **coverMatrix = malloc(numURLs * sizeof(int *));
+    for (i = 0; i < numURLs; i++) 
+        coverMatrix[i] = calloc(numURLs, sizeof(int));
+    
+    int **ticked = malloc(2 * sizeof(int *));
+    for (i = 0; i < 2; i++)
+        ticked[i] = calloc(numURLs, sizeof(int));
+    // Set all rows to be true.
+    for (i = 0; i < 1; i++) {
+        for (j = 0; j < numURLs; j++)
+            ticked[i][j] = TRUE;
+    }
+    // Ticking all unassigned rows.
+    for (i = 0; i < numURLs; i++) {
+        for (j = 0; j < numURLs; j++) {
+            // Untick rows already assigned.
+            if (adjMat[i][numURLs+j] == -1)
+                ticked[0][i] = FALSE;
+        }
+    }
+    // Tick all unticked cols that have zero in ticked rows.
+    int row, col;
+    for (row = 0; row < numURLs; row++) {
+        // for every ticked row.
+        if (ticked[0][row]) {
+            // for every element in that row.
+            for (col = 0; col < numURLs; col++) {
+                // Tick cols with a 0 in a ticked row.
+                if (cost[row][col] == 0.0)
+                    ticked[1][col] = TRUE;
+            }
+        }
+    }
+    // Tick all unticked rows that have zeros in ticked cols.
+    for (col = 0; col < numURLs; col++) {
+        if (ticked[1][col]) {
+            for (row = 0; row < numURLs; row++) {
+                if (cost[row][col] == 0.0)
+                    ticked[0][row] = TRUE;
+            }
+        }
+    }
+    // Draw line through ticked cols and unticked rows.
+    for (i = 0; i < numURLs; i++) {
+        for (j = 0; j < numURLs; j++) {
+            if (ticked[1][j] && !ticked[0][i])
+                coverMatrix[i][j] = 2;
+            else if (ticked[1][j] || !ticked[0][i])
+                coverMatrix[i][j] = 1;
+        }
+    }
+
+    return coverMatrix;
+}
+
+
 // get set of URLS
 // for each rank file, read into info into URL array
 // set the matrix values based on the info in the URL array
-
 int main(int argc, char **argv) 
 {
     int i;
@@ -489,7 +675,7 @@ int main(int argc, char **argv)
         exit(1);
     }
     Set unionURL = GetAllUrls(argc, argv);
-    double numURLs = nElems(unionURL) + 0.0;
+    double numURLs = nElems(unionURL);
     /* building ADT that represents the URLs and their positions within the 
     rank files */
     rankFP *files = calloc(numURLs, sizeof(rankFP));
@@ -517,24 +703,19 @@ int main(int argc, char **argv)
     rowReduce(cost, numURLs);
     /* 4. Subtract col minima */
     colReduce(cost, numURLs);
-    // Keeps track of the number of zeros in each row and col respectively.
-    int **zeroCount = countZeroes(cost, numURLs);
 
-    // 2d array that reflects cost matrix.
-    // 0 means not covered, and > 0 means covered.
-    int **coverMatrix = calloc(numURLs, sizeof(int *));
-    for (i = 0; i < numURLs; i++) 
-        coverMatrix[i] = calloc(numURLs, sizeof(int));
-    /* 5. Count number of lines L required to cover all the 0s */
-    while (numLinesToCoverZeroes(coverMatrix, zeroCount, cost, numURLs) != numURLs) {
+    // /* 5. Count number of lines L required to cover all the 0s */
+    int **adjMat = buildAdjMat(cost, numURLs);
+    while (numLinesToCoverZeroes(cost, numURLs, adjMat) != numURLs) {
+        int **coverMatrix = coverLines(cost, adjMat, numURLs);
         /* 6. Find smallest number from uncovered area */
         double min = findUncoveredAreaMin(cost, coverMatrix, numURLs);
         /* Subtract this number from all UNCOVERED ROWS */
         rowReduceUncovered(coverMatrix, min, cost, numURLs);
         /* Add new smallest number to COVERED COLS */
-        // is this function right, shouldnt it be == 1 or 2??
         colAddCovered(coverMatrix, min, cost, numURLs);
         /* Go back to step 5 and repeat */
+        adjMat = buildAdjMat(cost, numURLs);
     }
     double sum = getURLOrder(cost, files, numURLs - 1, ogCost); // sort normally
     printf("%f\n", sum);
@@ -546,8 +727,6 @@ int main(int argc, char **argv)
     disposeSet(unionURL);
     freeDoubleMatrix(cost, numURLs);
     freeDoubleMatrix(ogCost, numURLs);
-    freeIntMatrix(zeroCount, 2);
-    freeIntMatrix(coverMatrix, numURLs);
     freeFiles(files, numURLs);
 
     return 0;
