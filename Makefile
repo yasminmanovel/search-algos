@@ -15,8 +15,8 @@ searchTfIdf : searchTfIdf.o $(OBJS)
 pagerank: pagerank.o $(OBJS)
 	gcc $(CFLAGS) $(OBJS) pagerank.o -o pagerank
 
-invertedIndex : invertedIndex.o $(OBJS)
-	gcc $(CFLAGS) invertedIndex.o $(OBJS) -o invertedIndex
+inverted : inverted.o $(OBJS)
+	gcc $(CFLAGS) inverted.o $(OBJS) -o inverted
 
 readData : $(OBJS)
 	gcc $(CFLAGS) $(OBJS) -o readData
@@ -33,7 +33,7 @@ pagerank.o : pagerank.c
 searchTfIdf.o : searchTfIdf.c 
 	gcc $(CFLAGS) -c searchTfIdf.c 
 
-invertedIndex.o : inverted.c 
+inverted.o : inverted.c 
 	gcc $(CFLAGS) -c inverted.c 
 
 readData.o : readData.c
@@ -52,4 +52,4 @@ mystring.o : mystring.c
 	gcc $(CFLAGS) -c mystring.c
 
 clean:
-	rm -f $(OBJS) searchTfIdf.o invertedIndex.o searchPagerank.o scaledFootrule.o
+	rm -f $(OBJS) searchTfIdf.o inverted.o searchPagerank.o scaledFootrule.o
