@@ -127,7 +127,7 @@ char *normalise(char *str)
 	for (i = 0; word[i] != '\0'; i++) 
 		word[i] = tolower(word[i]);
 	// Removes punctuation at the end.
-	int lastLetter = strlen(word);
+	int lastLetter = strlen(word)-1;
 	if (word[lastLetter] == '.'
 	 || word[lastLetter] == '?'
 	 || word[lastLetter] == ','
