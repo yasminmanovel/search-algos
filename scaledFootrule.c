@@ -409,20 +409,59 @@ int posAlreadyTaken(rankFP *files, int pos, int numURLs) {
     return FALSE;
 }
 
+int numZeroes(double *array, int numURLs)
+{
+    int i;
+    int numZeroes = 0;
+    for (i = 0; i < numURLs; i++) {
+        if (array[i] != 0.0) continue;
+        numZeroes++;
+    }
+    return numZeroes;
+}
+
+int positionsFilled(rankFP *files, int numURLs)
+{
+    int i;
+    for (i = 0; i < numURLs; i++) {
+        if (files[i]->finalPos == -1) return FALSE;
+    }
+    return TRUE;
+}
 
 /* TO DO */
 void getPosition(double **cost, rankFP *files, int numURLs, double *sum, double **ogCost)
 {
-    int i, j;
-    for (i = 0; i < numURLs; i++) {
-        for (j = 0; j < numURLs; j++) {
-            if (cost[i][j] != 0.0) continue;
-            if (posAlreadyTaken(files, j+1, numURLs)) continue;
-            files[i]->finalPos = j+1;
-            *sum = *sum + ogCost[i][j];
-            break;
+    int zeroes, row, col;
+    for (zeroes = 1; zeroes <= numURLs; zeroes++) {
+        printf("Rows with %d zeroes\n", zeroes);
+        for (row = 0; row < numURLs; row++) {
+            printf("row %d has %d zeroes\n", row, numZeroes(cost[row], numURLs));
+            printf("%d vs %d\n", zeroes, numZeroes(cost[row], numURLs));
+            if (zeroes != numZeroes(cost[row], numURLs)) continue;
+            for (col = 0; col < numURLs; col++) {
+                if (cost[row][col] != 0.0) continue;
+                if (posAlreadyTaken(files, col+1, numURLs)) continue;
+                files[row]->finalPos = col+1;
+                printf("Adding %f\n", ogCost[row][col]);
+                *sum = *sum + ogCost[row][col];
+                break;
+            }
         }
+        if (positionsFilled(files, numURLs)) return;
     }
+    // int i, j;
+    // int posSet;
+    // for (i = 0; i < numURLs; i++) {
+    //     for (j = 0; j < numURLs; j++) {
+    //         if (cost[i][j] != 0.0) continue;
+    //         if (posAlreadyTaken(files, j+1, numURLs)) continue;
+    //         files[i]->finalPos = j+1;
+    //         *sum = *sum + ogCost[i][j];
+    //         break;
+    //     }
+    //     if (posSet = numURLs) return;
+    // }
 }
 
 
@@ -671,15 +710,24 @@ int main(int argc, char **argv)
         i++;
     }
 
-    int j;
-    numURLs = 4;
-    for (i = 0; i < numURLs; i++) {
-        for (j = 0; j < numURLs; j++) {
-            printf("scanning: ");
-            scanf("%lf", &cost[i][j]);
-            printf("\n");
-        }
-    }
+    // cost[0] = {82 83 69 92};
+    // cost[1] = {77 37 49 92};
+    // cost[2] = {11 69 5 86};
+    // cost[3] = {8 9 98 23};
+    // int j;
+    // double num;
+    // numURLs = 4;
+    // for (i = 0; i < numURLs; i++) {
+    //     for (j = 0; j < numURLs; j++) {
+    //         printf("scanning: ");
+    //         scanf("%lf", &num);
+    //         cost[i][j] = num;
+    //         ogCost[i][j] = num;
+    //         printf("\n");
+    //     }
+    // }
+
+    showMatrix(cost, numURLs);
     /* 3. Subtract row minima */
     rowReduce(cost, numURLs);
     /* 4. Subtract col minima */
@@ -699,7 +747,8 @@ int main(int argc, char **argv)
         adjMat = buildAdjMat(cost, numURLs);
     }
     // showMatrix(cost, numURLs);
-
+    showMatrix(cost, numURLs);
+    showMatrix(ogCost, numURLs);
     double sum = getURLOrder(cost, files, numURLs - 1, ogCost); // sort normally
     printf("%f\n", sum);
     for (i = 0; i < numURLs; i++) {
