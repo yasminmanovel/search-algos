@@ -227,9 +227,10 @@ BSTree getInvertedList(Set URLList)
 		// For every word in every url.
 		while((found = strsep(&text, " ")) != NULL) {
 			char *word = normalise(found);
-			if (strcmp(word, "") != 0)
+			if (strcmp(word, "") != 0) {
 				invList = BSTreeInsert(invList, word, curr->val);
-			free(word);
+				free(word);
+			}
 		}
 		free(dump); free(urls); free(found);
 		curr = curr->next;
