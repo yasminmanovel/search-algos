@@ -127,7 +127,7 @@ char *normalise(char *str)
 	for (i = 0; word[i] != '\0'; i++) 
 		word[i] = tolower(word[i]);
 	// Removes punctuation at the end.
-	int lastLetter = strlen(word) - 1;
+	int lastLetter = strlen(word);
 	if (word[lastLetter] == '.'
 	 || word[lastLetter] == '?'
 	 || word[lastLetter] == ','
@@ -231,7 +231,7 @@ BSTree getInvertedList(Set URLList)
 				invList = BSTreeInsert(invList, word, curr->val);
 			free(word);
 		}
-		free(dump); free(urls); free(text); free(found);
+		free(dump); free(urls); free(found);
 		curr = curr->next;
 	}
 	return invList;
