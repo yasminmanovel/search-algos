@@ -1,0 +1,72 @@
+scanning: 
+scanning: 
+scanning: 
+scanning: 
+scanning: 
+scanning: 
+scanning: 
+scanning: 
+scanning: 
+Adj matrix:
+0   0 0 0 1 1 1 0 0 
+1   0 0 0 1 0 1 0 0 
+2   0 0 0 0 1 1 0 0 
+3   0 0 0 0 0 0 0 1 
+4   0 0 0 0 0 0 0 1 
+5   0 0 0 0 0 0 0 1 
+6   1 1 1 0 0 0 0 0 
+7   0 0 0 0 0 0 0 0 
+7 3 0 6 -1 -1 -1 -1 
+visited 0 -1
+visited 1 -1
+visited 2 -1
+visited 3 -1
+visited 4 -1
+visited 5 -1
+visited 6 -1
+visited 7 -1
+7 4 0 3 1 6 -1 -1 
+visited 0 -1
+visited 1 -1
+visited 2 -1
+visited 3 -1
+visited 4 -1
+visited 5 -1
+visited 6 -1
+visited 7 -1
+7 5 1 3 0 4 2 6 
+visited 0 -1
+visited 1 -1
+visited 2 -1
+visited 3 -1
+visited 4 -1
+visited 5 -1
+visited 6 -1
+visited 7 -1
+visited 0 -1
+visited 1 -1
+visited 2 -1
+visited 3 -1
+visited 4 -1
+visited 5 -1
+visited 6 -1
+visited 7 -1
+Adj matrix:
+0   0 0 0 0 1 1 1 0 
+1   0 0 0 1 0 0 1 0 
+2   0 0 0 0 0 1 1 0 
+3   1 0 0 0 0 0 0 0 
+4   0 0 1 0 0 0 0 0 
+5   0 1 0 0 0 0 0 0 
+6   0 0 0 0 0 0 0 0 
+7   0 0 0 1 1 1 0 0 
+NUM 3
+0.00000000000000000000 0.00000000000000000000 0.00000000000000000000 
+0.00000000000000000000 1.00000000000000000000 0.00000000000000000000 
+1.00000000000000000000 0.00000000000000000000 0.00000000000000000000 
+
+Adj matrix:
+1.300000
+url1
+url5
+url3

@@ -309,7 +309,7 @@ void rowReduceUncovered(int **coverMatrix, double min, double **cost, int numURL
     for (i = 0; i < numURLs; i++) {
         for (j = 0; j < numURLs; j++) {
             // If not covered by a line.
-            if (!coverMatrix[i][j])
+            if (coverMatrix[i][j] == 0)
                 cost[i][j] -= min;
         }
     }
@@ -336,9 +336,10 @@ double findUncoveredAreaMin(double **matrix, int **coverMatrix, int size)
 {
     int row, col;
     double min = INT_MAX;
-    for (col = 0; col < size; col++) {
-        for (row = 0; row < size; row++) {
-            if (!coverMatrix[row][col]) min = MIN(min, matrix[row][col]);
+    for (row = 0; row < size; row++) {
+        for (col = 0; col < size; col++) {
+            if (coverMatrix[row][col] == 0.0) 
+                min = MIN(min, matrix[row][col]);
         }
     }
     return min;
@@ -522,41 +523,32 @@ void reversePath(int *visited, int **adjMat, int size)
     int sinkInd = size-1; // Sink is always dest.
     // int sourceInd = size-2;
     int curr = sinkInd;
+    int temp = -2;
     i = 0;
     while (curr != sourceInd) {
         path[i] = curr;
+        temp = curr;
         curr = visited[curr];
+        visited[temp] = -1;
         i++;
     }
     path[i] = curr;
-    // for (i = 0; i < size; i++) 
-    //     printf("%d ", path[i]);
-    // printf("\n");
 
     // Reverse the edges.
     for (i = 0; i < size-1; i++) {
         if (path[i+1] == -1) break;
-        adjMat[path[i+1]][path[i]] = 0;
+        adjMat[path[i+1]][path[i]] = -1;
         adjMat[path[i]][path[i+1]] = 1;
     }
 }
 
 /* Counts min # of lines needed to cover all 0s using network flow solution
    to find maximum bipartite matching between URL and pos. */
-int numLinesToCoverZeroes(double **cost, int numURLs)
+int numLinesToCoverZeroes(double **cost, int numURLs, int **adjMat)
 {
     int i;
     int adjSize = (2 * numURLs) + 2;
     int sourceInd = adjSize-2, sinkInd = adjSize-1;
-    int **adjMat = buildAdjMat(cost, numURLs);
-
-    // printf("Adj matrix:\n");
-    // for (i = 0; i < (numURLs*2+2); i++) {
-    //     printf("%d   ",i);
-    //     for (j = 0; j < (numURLs*2+2); j++)
-    //         printf("%d ", adjMat[i][j]);
-    //     printf("\n");
-    // }
 
     // Network flow solution.
     // Keeps finding flow from source to sink. Once path is found, 
@@ -565,50 +557,80 @@ int numLinesToCoverZeroes(double **cost, int numURLs)
     int pathFound = TRUE;
     int *visited;
     int lines = 0;
-    int count = 0;
     while (pathFound) {
-        // printf("enters\n");
         // Finding path from source to sink.
         visited = malloc(adjSize * sizeof(int));
         for (i = 0; i < adjSize; i++) visited[i] = -1;
         pathFound = dfs(adjMat, adjSize, visited, sourceInd, sinkInd);
-        // printf("path %d:\n", pathFound);
-        // for (j = 0; j < adjSize; j++)
-            // printf("%d %d\n", j, visited[j]);
-
         // Reverses the edges in path.
-        if (pathFound) {
+        if (pathFound)
             reversePath(visited, adjMat, adjSize);
-            // printf("Adj matrix:\n");
-            // for (i = 0; i < (numURLs*2+2); i++) {
-            //     printf("%d   ",i);
-            //     for (j = 0; j < (numURLs*2+2); j++)
-            //         printf("%d ", adjMat[i][j]);
-            //     printf("\n");
-            // }
-        }
         lines++;
-        count++;
+    }
+    
+    return lines-1;
+}
+
+int **coverLines(double **cost, int **adjMat, int numURLs)
+{
+    int i, j;
+    int **coverMatrix = malloc(numURLs * sizeof(int *));
+    for (i = 0; i < numURLs; i++) 
+        coverMatrix[i] = calloc(numURLs, sizeof(int));
+    
+    int **ticked = malloc(2 * sizeof(int *));
+    for (i = 0; i < 2; i++)
+        ticked[i] = calloc(numURLs, sizeof(int));
+    // Set all rows to be true.
+    for (i = 0; i < 1; i++) {
+        for (j = 0; j < numURLs; j++)
+            ticked[i][j] = TRUE;
     }
 
-    // printf("Adj matrix:\n");
-    // for (i = 0; i < (numURLs*2+2); i++) {
-    //     printf("%d   ",i);
-    //     for (j = 0; j < (numURLs*2+2); j++)
-    //         printf("%d ", adjMat[i][j]);
-    //     printf("\n");
-    // }
+    // Ticking all unassigned rows.
+    for (i = 0; i < numURLs; i++) {
+        for (j = 0; j < numURLs; j++) {
+            // Untick rows already assigned.
+            if (adjMat[i][numURLs+j] == -1)
+                ticked[0][i] = FALSE;
+        }
+    }
 
-    // // Count numbers of -1s that match url and pos.
-    // int lines = 0;
-    // for (i = 0; i < numURLs; i++) {
-    //     for (j = 0; j < numURLs; j++) {
-    //         if (adjMat[i][numURLs+j] == -1) {
-    //             lines++; break;
-    //         }
-    //     }
-    // }
-    return lines-1;
+    // Tick all unticked cols that have zero in ticked rows.
+    int row, col;
+    for (row = 0; row < numURLs; row++) {
+        // for every ticked row.
+        if (ticked[0][row]) {
+            // for every element in that row.
+            for (col = 0; col < numURLs; col++) {
+                // Tick cols with a 0 in a ticked row.
+                if (cost[row][col] == 0.0)
+                    ticked[1][col] = TRUE;
+            }
+        }
+    }
+
+    // Tick all unticked rows that have zeros in ticked cols.
+    for (col = 0; col < numURLs; col++) {
+        if (ticked[1][col]) {
+            for (row = 0; row < numURLs; row++) {
+                if (cost[row][col] == 0.0)
+                    ticked[0][row] = TRUE;
+            }
+        }
+    }
+
+    // Draw line through ticked cols and unticked rows.
+    for (i = 0; i < numURLs; i++) {
+        for (j = 0; j < numURLs; j++) {
+            if (ticked[1][j] && !ticked[0][i])
+                coverMatrix[i][j] = 2;
+            else if (ticked[1][j] || !ticked[0][i])
+                coverMatrix[i][j] = 1;
+        }
+    }
+
+    return coverMatrix;
 }
 
 // get set of URLS
@@ -649,56 +671,35 @@ int main(int argc, char **argv)
         i++;
     }
 
-    // int j;
-    // numURLs = 5;
-    // for (i = 0; i < numURLs; i++) {
-    //     for (j = 0; j < numURLs; j++) {
-    //         printf("scanning: ");
-    //         scanf("%lf", &cost[i][j]);
-    //         printf("\n");
-    //     }
-    // }
-    // for (i = 0; i < numURLs; i++) {
-    //     for (j = 0; j < numURLs; j++)
-    //         ogCost[i][j] = cost[i][j];
-    // }
-    // for (i = 0; i < 4; i++) {
-    //     for (j = 0; j < 4; j++) {
-    //         printf("%f ", ogCost[i][j]);
-    //     }
-    //     printf("\n");
-    // }
-    // showMatrix(cost, numURLs);
-    // int num = numLinesToCoverZeroes(cost, numURLs);
-    // printf("NUM %d\n", num);
+    int j;
+    numURLs = 4;
+    for (i = 0; i < numURLs; i++) {
+        for (j = 0; j < numURLs; j++) {
+            printf("scanning: ");
+            scanf("%lf", &cost[i][j]);
+            printf("\n");
+        }
+    }
     /* 3. Subtract row minima */
     rowReduce(cost, numURLs);
     /* 4. Subtract col minima */
     colReduce(cost, numURLs);
 
-    // 2d array that reflects cost matrix.
-    // 0 means not covered, and > 0 means covered.
-    int **coverMatrix = calloc(numURLs, sizeof(int *));
-    for (i = 0; i < numURLs; i++) 
-        coverMatrix[i] = calloc(numURLs, sizeof(int));
-    int num = numLinesToCoverZeroes(cost, numURLs);
-    printf("NUM %d\n", num);
-    
-
     // /* 5. Count number of lines L required to cover all the 0s */
-    // int count = 0;
-    // int num;
-    // while ((num = numLinesToCoverZeroes(cost, numURLs)) != numURLs) {
-    //     printf("num %d\n", num);
-    //     /* 6. Find smallest number from uncovered area */
-    //     double min = findUncoveredAreaMin(cost, coverMatrix, numURLs);
-    //     /* Subtract this number from all UNCOVERED ROWS */
-    //     rowReduceUncovered(coverMatrix, min, cost, numURLs);
-    //     /* Add new smallest number to COVERED COLS */
-    //     colAddCovered(coverMatrix, min, cost, numURLs);
-    //     /* Go back to step 5 and repeat */
-    //     count++;
-    // }
+    int **adjMat = buildAdjMat(cost, numURLs);
+    while (numLinesToCoverZeroes(cost, numURLs, adjMat) != numURLs) {
+        int **coverMatrix = coverLines(cost, adjMat, numURLs);
+        /* 6. Find smallest number from uncovered area */
+        double min = findUncoveredAreaMin(cost, coverMatrix, numURLs);
+        /* Subtract this number from all UNCOVERED ROWS */
+        rowReduceUncovered(coverMatrix, min, cost, numURLs);
+        /* Add new smallest number to COVERED COLS */
+        colAddCovered(coverMatrix, min, cost, numURLs);
+        /* Go back to step 5 and repeat */
+        adjMat = buildAdjMat(cost, numURLs);
+    }
+    // showMatrix(cost, numURLs);
+
     double sum = getURLOrder(cost, files, numURLs - 1, ogCost); // sort normally
     printf("%f\n", sum);
     for (i = 0; i < numURLs; i++) {
@@ -709,7 +710,6 @@ int main(int argc, char **argv)
     disposeSet(unionURL);
     freeDoubleMatrix(cost, numURLs);
     freeDoubleMatrix(ogCost, numURLs);
-    freeIntMatrix(coverMatrix, numURLs);
     freeFiles(files, numURLs);
 
     return 0;
