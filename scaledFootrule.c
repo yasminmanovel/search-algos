@@ -238,6 +238,11 @@ int allZero(int **matrix, int nRows, int nCols)
     return TRUE;
 }
 
+/*
+zeroCount coverMatrix
+
+
+*/
 
 /* Gets max num in a 2d array */
 int getMax(int **matrix, int nRows, int nCols, int *index)
