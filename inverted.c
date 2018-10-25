@@ -1,4 +1,4 @@
-/* invertedIndex.c
+/* inverted.c
  *
  * Written by Selina (z5208109) & Yasmin (z5207093)
  * Group: duckduckgo
