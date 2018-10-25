@@ -15,6 +15,7 @@ char *mystrdup(char *word)
     int len = strlen(word) + 1;
     char *dup = malloc(len);
     strcpy(dup, word);
+    free(word);
     return dup;
 }
 
