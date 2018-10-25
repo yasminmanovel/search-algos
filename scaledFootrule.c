@@ -550,6 +550,7 @@ int numLinesToCoverZeroes(double **cost, int numURLs)
         pathFound = dfs(adjMat, adjSize, visited, sourceInd, sinkInd);
         // Reverses the edges in path.
         reversePath(visited, adjMat, adjSize);
+        free(visited);
     }
     printf("Adj matrix:\n");
     for (i = 0; i < (numURLs*2+2); i++) {
@@ -569,7 +570,6 @@ int numLinesToCoverZeroes(double **cost, int numURLs)
         }
     }
     freeIntMatrix(adjMat, adjSize);
-    free(visited);
     return lines;
 
     // int *visited = malloc(adjSize * sizeof(int));
